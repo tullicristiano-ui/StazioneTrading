@@ -120,6 +120,7 @@ npx supabase db pull            # Pull cambiamenti dal DB remoto
 
 - Phase 1-A completata: backend, frontend, DB e upload funzionanti.
 - Phase 2 in corso: implementata la modalità `trade aperto`, l’estrazione automatica di `session_memory` da ogni risposta agente e il workflow di generazione di righe journal in formato CSV.
+- Implementato il flusso `Nuova analisi` (server-side): l'orchestrator chiede esplicitamente il "timeframe di contesto" e il "timeframe decisionale" quando necessario, prima di procedere all'analisi.
 - Verificare `TASKS.md` per il dettaglio delle task eseguite e in corso.
 - `ROADMAP.md` definisce le milestone di M6 Journal operativo e oltre.
 - `BUG_LOG.md` contiene i problemi ancora aperti.
@@ -143,4 +144,9 @@ npx supabase db pull            # Pull cambiamenti dal DB remoto
 Per l'architettura completa, le decisioni tecniche e il data model dettagliato: vedere `PROJECT_PLAN.md`.
 
 ---
-*Versione contesto: 0.1 | Aggiornare dopo ogni cambio architetturale significativo*
+*Versione contesto: 0.2 | Aggiornare dopo ogni cambio architetturale significativo*
+
+## Ultime modifiche
+
+- 2026-06-09: Implementato `new_analysis` flow server-side (commit 69de11e).
+- 2026-06-09: Aggiornamento task F2-A-01 in `TASKS.md` (commit 318f448).

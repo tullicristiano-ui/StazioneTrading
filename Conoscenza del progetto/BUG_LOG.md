@@ -80,4 +80,4 @@ Quando si incontra un bug:
 *(nessun bug risolto ancora)*
 
 ---
-*Ultima modifica: — | Bug aperti: 0 | Bug risolti: 0*
+*Ultima modifica: 2026-06-09 | Bug aperti: 0 | Bug risolti: 0*

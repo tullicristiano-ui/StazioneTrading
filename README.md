@@ -33,6 +33,7 @@ Questo comando avvierà automaticamente:
 
 - Phase 1 completata: backend, frontend, DB e upload funzionanti.
 - Phase 2 in corso: implementata la modalità `trade aperto`, l'estrazione automatica di `session_memory` e il workflow journal CSV.
+- Implementato il flusso server-side `Nuova analisi`: il server può ora richiedere al trader il timeframe di contesto e il timeframe decisionale prima di completare l'analisi.
 - Per lo stato dettagliato, consulta `Conoscenza del progetto/TASKS.md` e `Conoscenza del progetto/ROADMAP.md`.
 4. Verifica lo stato del backend con:
 
