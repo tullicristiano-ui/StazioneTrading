@@ -100,7 +100,7 @@
 
 | ID | Task | Priorità | Stato | Note |
 |---|---|---|---|---|
-| F2-A-01 | Implementare flusso "Nuova analisi": l'agente chiede TF contesto → TF decisionale | 🟠 P1 | `[~]` | In corso — avviata verifica e implementazione. |
+| F2-A-01 | Implementare flusso "Nuova analisi": l'agente chiede TF contesto → TF decisionale | 🟠 P1 | `[x]` | Completato: implementata logica server per richiedere TF contesto e TF decisionale. |
 | F2-A-02 | Aggiungere "Modalità trade aperto" nel workspace con bottone dedicato | 🟠 P1 | `[x]` | Cambia il prompt di sistema per la modalità 03b |
 | F2-A-03 | `promptBuilder.js`: variante system prompt per "trade aperto" (include template 03b) | 🟠 P1 | `[x]` | |
 | F2-A-04 | Mostrare badge nella UI quando si è in modalità "trade aperto" | 🟡 P2 | `[x]` | |

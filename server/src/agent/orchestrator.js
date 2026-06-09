@@ -1,4 +1,4 @@
-import { allQuery, runQuery } from '../db/database.js'
+import { allQuery, runQuery, getQuery } from '../db/database.js'
 import { loadSkillPrompt } from './skillLoader.js'
 import { buildMessages } from './promptBuilder.js'
 import { requestCompletion, parseCompletionResponse } from './providerClient.js'
@@ -46,6 +46,22 @@ export async function runAnalysis({ sessionId, content, screenshots = [], analys
     )
   } catch (err) {
     console.warn('orchestrator: impossibile caricare cronologia messaggi', err.message)
+  }
+
+  let sessionMemory = null
+  try {
+    sessionMemory = await getQuery('SELECT * FROM session_memory WHERE session_id = ?', [sessionId])
+  } catch (err) {
+    console.warn('orchestrator: impossibile caricare session_memory', err.message)
+  }
+
+  // Special handling for a "new_analysis" flow: ask for context TF then decision TF
+  if (analysisMode === 'new_analysis') {
+    if (!sessionMemory || !sessionMemory.timeframes) {
+      systemPrompt += '\n\nModalità "Nuova analisi": prima di fornire valutazioni, poni queste domande al trader e attendi le risposte:\n1) "Quale timeframe di contesto stai considerando? (es. D1, H4)"\n2) "Qual è il timeframe decisionale? (es. 15m, 5m)"\nNon procedere con l\'analisi principale finché non ricevi entrambe le risposte.'
+    } else {
+      systemPrompt += '\n\nModalità "Nuova analisi": il session memory indica timeframes; se manca il timeframe decisionale, chiedilo esplicitamente prima di procedere.'
+    }
   }
 
   const messages = await buildMessages(systemPrompt, history, content, screenshots)
