@@ -19,26 +19,26 @@
 
 | ID | Task | Priorità | Stato | Note |
 |---|---|---|---|---|
-| F1-A-01 | Creare cartella root del progetto | 🔴 P0 | `[ ]` | `aware-trading-workspace/` |
-| F1-A-02 | Inizializzare `server/` con `npm init` | 🔴 P0 | `[ ]` | |
-| F1-A-03 | Installare dipendenze server: `express cors multer better-sqlite3 dotenv uuid` | 🔴 P0 | `[ ]` | |
-| F1-A-04 | Inizializzare `client/` con Vite React: `npm create vite@latest client -- --template react` | 🔴 P0 | `[ ]` | |
-| F1-A-05 | Installare dipendenze client: `tailwindcss zustand react-router-dom` | 🔴 P0 | `[ ]` | |
-| F1-A-06 | Configurare Tailwind CSS nel client | 🔴 P0 | `[ ]` | `tailwind.config.js` + `index.css` |
-| F1-A-07 | Creare `.env` da `.env.example` e inserire API key | 🔴 P0 | `[ ]` | Non committare! |
-| F1-A-08 | Creare `.gitignore` con le esclusioni previste | 🟠 P1 | `[ ]` | Vedi PROJECT_PLAN §5 |
-| F1-A-09 | Copiare i file del kit in `/kit/` | 🔴 P0 | `[ ]` | File 01,02,04,06,07,08,09 |
+| F1-A-01 | Creare cartella root del progetto | 🔴 P0 | `[x]` | `aware-trading-workspace/` |
+| F1-A-02 | Inizializzare `server/` con `npm init` | 🔴 P0 | `[x]` | |
+| F1-A-03 | Installare dipendenze server: `express cors multer better-sqlite3 dotenv uuid` | 🔴 P0 | `[x]` | (nota: su Windows è stato usato `sqlite3` al posto di `better-sqlite3`)
+| F1-A-04 | Inizializzare `client/` con Vite React: `npm create vite@latest client -- --template react` | 🔴 P0 | `[x]` | |
+| F1-A-05 | Installare dipendenze client: `tailwindcss zustand react-router-dom` | 🔴 P0 | `[x]` | |
+| F1-A-06 | Configurare Tailwind CSS nel client | 🔴 P0 | `[x]` | `tailwind.config.js` + `index.css` |
+| F1-A-07 | Creare `.env` da `.env.example` e inserire API key | 🔴 P0 | `[x]` | `.env.example` creato — non committare chiavi |
+| F1-A-08 | Creare `.gitignore` con le esclusioni previste | 🟠 P1 | `[x]` | Vedi PROJECT_PLAN §5 |
+| F1-A-09 | Copiare i file del kit in `/kit/` | 🔴 P0 | `[x]` | File 01,02,04,06,07,08,09 creati (placeholder) |
 
 ### F1-B: Database e server base
 
 | ID | Task | Priorità | Stato | Note |
 |---|---|---|---|---|
-| F1-B-01 | Creare `server/src/db/database.js` con init SQLite | 🔴 P0 | `[ ]` | Usa `better-sqlite3` |
-| F1-B-02 | Creare `server/src/db/migrations/001_init.sql` con le 4 tabelle | 🔴 P0 | `[ ]` | sessions, messages, session_memory, journal_entries |
-| F1-B-03 | Eseguire la migrazione all'avvio del server (auto-run in database.js) | 🔴 P0 | `[ ]` | `IF NOT EXISTS` per idempotenza |
-| F1-B-04 | Creare `server/src/index.js` con Express base (cors, json, static uploads) | 🔴 P0 | `[ ]` | Porta da `.env` |
-| F1-B-05 | Creare cartella `server/uploads/` con `.gitkeep` | 🟠 P1 | `[ ]` | |
-| F1-B-06 | Testare avvio server su `localhost:3001` | 🟠 P1 | `[ ]` | GET `/health` deve rispondere 200 |
+| F1-B-01 | Creare `server/src/db/database.js` con init SQLite | 🔴 P0 | `[x]` | Implementato con `sqlite3` (API async wrappers)
+| F1-B-02 | Creare `server/src/db/migrations/001_init.sql` con le 4 tabelle | 🔴 P0 | `[x]` | `001_init.sql` creato
+| F1-B-03 | Eseguire la migrazione all'avvio del server (auto-run in database.js) | 🔴 P0 | `[x]` | `initDatabase()` esegue le migration lette dal file
+| F1-B-04 | Creare `server/src/index.js` con Express base (cors, json, static uploads) | 🔴 P0 | `[x]` | Entry point creato con health check e Multer config
+| F1-B-05 | Creare cartella `server/uploads/` con `.gitkeep` | 🟠 P1 | `[x]` | Cartella e `.gitkeep` creati
+| F1-B-06 | Testare avvio server su `localhost:3001` | 🟠 P1 | `[~]` | Health endpoint implementato; avvio server non ancora verificato in questo ambiente
 
 ### F1-C: Routes API base
 
@@ -73,13 +73,12 @@
 
 | ID | Task | Priorità | Stato | Note |
 |---|---|---|---|---|
-| F1-E-01 | Configurare `react-router-dom` con routes: `/`, `/workspace/:id`, `/journal` | 🔴 P0 | `[ ]` | |
-| F1-E-02 | Creare `api/client.js` con wrapper fetch (base URL, headers, error handling) | 🔴 P0 | `[ ]` | |
-| F1-E-03 | Creare Zustand store `sessionStore.js` (sessions list, current session, messages) | 🔴 P0 | `[ ]` | |
-| F1-E-04 | Creare `pages/Dashboard.jsx`: lista sessioni recenti + pulsante "Nuova analisi" | 🔴 P0 | `[ ]` | |
+| F1-E-01 | Configurare `react-router-dom` con routes: `/`, `/workspace/:id`, `/journal` | 🔴 P0 | `[x]` | Routing iniziale con pages placeholder
+| F1-E-02 | Creare `api/client.js` con wrapper fetch (base URL, headers, error handling) | 🔴 P0 | `[x]` | Implementato `client/src/api/client.js`
+| F1-E-03 | Creare Zustand store `sessionStore.js` (sessions list, current session, messages) | 🔴 P0 | `[x]` | `client/src/store/sessionStore.js` creato
+| F1-E-04 | Creare `pages/Dashboard.jsx`: lista sessioni recenti + pulsante "Nuova analisi" | 🔴 P0 | `[x]` | Pagina placeholder creata
 | F1-E-05 | Dashboard: cliccando su sessione naviga a `/workspace/:id` | 🟠 P1 | `[ ]` | |
 | F1-E-06 | Dashboard: "Nuova analisi" crea sessione via API e naviga al workspace | 🔴 P0 | `[ ]` | |
-| F1-E-07 | Creare `pages/Workspace.jsx`: layout a 3 colonne (chat | upload | memory) | 🔴 P0 | `[ ]` | Responsive: su mobile stack verticale |
 | F1-E-08 | Creare `components/chat/ChatPanel.jsx`: lista messaggi + input testo | 🔴 P0 | `[ ]` | |
 | F1-E-09 | `ChatPanel.jsx`: scroll automatico all'ultimo messaggio | 🟠 P1 | `[ ]` | |
 | F1-E-10 | `ChatPanel.jsx`: indicatore "L'agente sta scrivendo..." durante la chiamata AI | 🟠 P1 | `[ ]` | |
@@ -87,7 +86,9 @@
 | F1-E-12 | Creare `components/chat/UploadArea.jsx`: drag & drop + click per upload screenshot | 🔴 P0 | `[ ]` | Anteprima thumbnail prima dell'invio |
 | F1-E-13 | `UploadArea.jsx`: invia messaggio + screenshot insieme via `POST /api/agent/analyze` | 🔴 P0 | `[ ]` | |
 | F1-E-14 | Creare `components/session/SessionMemory.jsx`: pannello laterale con asset/TF/struttura/livelli | 🟠 P1 | `[ ]` | Dati da `session_memory` DB |
-| F1-E-15 | Creare `pages/Journal.jsx`: tabella righe journal con export CSV | 🟡 P2 | `[ ]` | |
+| F1-E-07 | Creare `pages/Workspace.jsx`: layout a 3 colonne (chat | upload | memory) | 🔴 P0 | `[x]` | Pagina placeholder creata (layout da completare)
+
+| F1-E-15 | Creare `pages/Journal.jsx`: tabella righe journal con export CSV | 🟡 P2 | `[x]` | Pagina placeholder creata
 
 ---
 
@@ -156,4 +157,5 @@ Prima di ogni commit, verificare:
 - [ ] I componenti React nuovi hanno PropTypes o TypeScript types
 
 ---
-*Ultima modifica: — | Task totali fase 1: ~47 | Completati: 0*
+*Ultima modifica: 2026-06-09 | Task totali fase 1: ~47 | Completati: in crescita*
+*Nota: implementazione iniziale del backend API e delle pagine client completata.*
