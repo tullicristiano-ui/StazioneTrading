@@ -15,6 +15,8 @@ export default function Workspace() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [tradeOpen, setTradeOpen] = useState(false)
+  const [journalPreview, setJournalPreview] = useState(null)
+  const [previewMessage, setPreviewMessage] = useState(null)
   const messagesEndRef = useRef(null)
 
   const loadSession = async () => {
@@ -40,6 +42,31 @@ export default function Workspace() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  const handleSaveJournalPreview = async () => {
+    if (!journalPreview) {
+      setError('Nessuna anteprima journal disponibile da salvare.')
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      await api.createJournalEntry({ session_id: id, ...journalPreview })
+      setPreviewMessage('Riga journal salvata con successo.')
+      setJournalPreview(null)
+    } catch (err) {
+      setError(err.message || 'Errore salvataggio journal')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCancelJournalPreview = () => {
+    setJournalPreview(null)
+    setPreviewMessage('Anteprima journal annullata.')
+  }
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -68,14 +95,25 @@ export default function Workspace() {
   const handleGenerateJournal = async () => {
     setLoading(true)
     setError(null)
+    setJournalPreview(null)
+    setPreviewMessage(null)
 
     try {
       const response = await api.sendMessage(id, '', [], {
         analysisMode: tradeOpen ? 'trade_open' : 'standard',
-        journalMode: true
+        journalMode: true,
+        previewOnly: true
       })
+
       setMessages((prev) => [...prev, response.userMessage, response.assistantMessage])
       setMemory(response.session_memory || memory)
+
+      if (response.journalEntry) {
+        setJournalPreview(response.journalEntry)
+        setPreviewMessage('Anteprima riga journal generata. Conferma per salvare.')
+      } else {
+        setPreviewMessage('Non è stato possibile parsare una riga journal dalla risposta. Controlla il contenuto generato dall’agente.')
+      }
     } catch (err) {
       setError(err.message || 'Errore generazione journal')
     } finally {
@@ -107,17 +145,61 @@ export default function Workspace() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.7fr_1fr]">
-        <ChatPanel
-          messages={messages}
-          content={content}
-          onContentChange={setContent}
-          files={files}
-          onFilesChange={setFiles}
-          onSubmit={handleSubmit}
-          onGenerateJournal={handleGenerateJournal}
-          loading={loading}
-          error={error}
-        />
+        <div className="space-y-6">
+          <ChatPanel
+            messages={messages}
+            content={content}
+            onContentChange={setContent}
+            files={files}
+            onFilesChange={setFiles}
+            onSubmit={handleSubmit}
+            onGenerateJournal={handleGenerateJournal}
+            loading={loading}
+            error={error}
+          />
+
+          {previewMessage && (
+            <div className="rounded-3xl border border-amber-500/20 bg-amber-500/5 p-5 text-slate-100 shadow-xl">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-semibold text-amber-200">Anteprima Journal</h2>
+                  <p className="mt-1 text-sm text-amber-300">{previewMessage}</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleSaveJournalPreview}
+                    disabled={loading || !journalPreview}
+                    className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:opacity-50"
+                  >
+                    Salva riga journal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelJournalPreview}
+                    disabled={loading}
+                    className="rounded-xl border border-amber-500 bg-slate-900 px-4 py-2 text-sm font-semibold text-amber-200 transition hover:bg-slate-950 disabled:opacity-50"
+                  >
+                    Annulla
+                  </button>
+                </div>
+              </div>
+
+              {journalPreview ? (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {Object.entries(journalPreview).map(([key, value]) => (
+                    <div key={key} className="rounded-2xl border border-slate-800 bg-slate-950 p-3 text-sm text-slate-200">
+                      <div className="text-xs uppercase tracking-[0.12em] text-slate-500">{key.replace(/_/g, ' ')}</div>
+                      <div className="mt-1 text-sm text-slate-100">{value || '-'}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-amber-500/40 bg-slate-950 p-4 text-sm text-amber-200">Nessuna anteprima disponibile.</div>
+              )}
+            </div>
+          )}
+        </div>
 
         <SessionMemory memory={memory} />
       </div>

@@ -119,8 +119,8 @@
 |---|---|---|---|---|
 | F2-C-01 | Aggiungere pulsante "Genera riga journal" nella chat | 🟠 P1 | `[x]` | Invia messaggio speciale che trigga format CSV dall'agente |
 | F2-C-02 | Parsare la riga CSV dalla risposta agente e salvarla in DB | 🟠 P1 | `[x]` | Regex su formato definito nel kit file 04 |
-| F2-C-03 | Mostrare preview riga journal prima di salvarla | 🟡 P2 | `[ ]` | |
-| F2-C-04 | Implementare export CSV completo da `GET /api/journal/export.csv` | 🟠 P1 | `[ ]` | Header CSV da file 05 del kit |
+| F2-C-03 | Mostrare preview riga journal prima di salvarla | 🟡 P2 | `[x]` | Implementata anteprima journal in Workspace |
+| F2-C-04 | Implementare export CSV completo da `GET /api/journal/export.csv` | 🟠 P1 | `[x]` | Route e UI export CSV attive |
 
 ---
 

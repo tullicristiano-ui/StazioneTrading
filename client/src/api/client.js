@@ -41,6 +41,9 @@ export const api = {
     if (options.journalMode) {
       formData.append('journal_mode', 'true')
     }
+    if (options.previewOnly) {
+      formData.append('preview_only', 'true')
+    }
 
     screenshots.forEach((file) => {
       formData.append('screenshots', file)

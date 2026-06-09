@@ -132,6 +132,7 @@ router.post('/analyze', upload.array('screenshots'), async (req, res, next) => {
     const { session_id: sessionId, content } = req.body
     const analysisMode = req.body.analysis_mode || 'standard'
     const journalMode = req.body.journal_mode === 'true' || req.body.journal_mode === true
+    const previewOnly = req.body.preview_only === 'true' || req.body.preview_only === true
 
     if (!sessionId || (!content && !journalMode)) {
       return res.status(400).json({ error: 'session_id and content are required unless journal_mode is enabled' })
@@ -150,10 +151,12 @@ router.post('/analyze', upload.array('screenshots'), async (req, res, next) => {
     const userTimestamp = now()
     const analysisContent = content || (journalMode ? 'Genera una riga journal in formato CSV basata sulle ultime informazioni della sessione.' : '')
 
-    await runQuery(
-      'INSERT INTO messages (id, session_id, created_at, role, content, screenshots) VALUES (?, ?, ?, ?, ?, ?)',
-      [userMessageId, sessionId, userTimestamp, 'user', analysisContent, JSON.stringify(screenshotUrls)]
-    )
+    if (!previewOnly) {
+      await runQuery(
+        'INSERT INTO messages (id, session_id, created_at, role, content, screenshots) VALUES (?, ?, ?, ?, ?, ?)',
+        [userMessageId, sessionId, userTimestamp, 'user', analysisContent, JSON.stringify(screenshotUrls)]
+      )
+    }
 
     const assistantText = await runAnalysis({
       sessionId,
@@ -166,10 +169,12 @@ router.post('/analyze', upload.array('screenshots'), async (req, res, next) => {
     const assistantMessageId = uuidv4()
     const assistantTimestamp = now()
 
-    await runQuery(
-      'INSERT INTO messages (id, session_id, created_at, role, content, screenshots) VALUES (?, ?, ?, ?, ?, ?)',
-      [assistantMessageId, sessionId, assistantTimestamp, 'assistant', assistantText, JSON.stringify([])]
-    )
+    if (!previewOnly) {
+      await runQuery(
+        'INSERT INTO messages (id, session_id, created_at, role, content, screenshots) VALUES (?, ?, ?, ?, ?, ?)',
+        [assistantMessageId, sessionId, assistantTimestamp, 'assistant', assistantText, JSON.stringify([])]
+      )
+    }
 
     let journalEntry = null
     if (journalMode) {
@@ -203,26 +208,25 @@ router.post('/analyze', upload.array('screenshots'), async (req, res, next) => {
           parsed.csv_row
         ]
 
-        await runQuery(
-          'INSERT INTO journal_entries (id, session_id, created_at, data, ora, asset, timeframe, bias, setup, modalita, entry, stop_loss, take_profit_1, take_profit_2, risk_reward, size, decisione_agente, decisione_trader, esito, durata_trade, nota, screenshot_link, csv_row) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          params
-        )
-
-        journalEntry = { id: journalId, session_id: sessionId, created_at: journalCreatedAt, ...parsed }
+        if (!previewOnly) {
+          await runQuery(
+            'INSERT INTO journal_entries (id, session_id, created_at, data, ora, asset, timeframe, bias, setup, modalita, entry, stop_loss, take_profit_1, take_profit_2, risk_reward, size, decisione_agente, decisione_trader, esito, durata_trade, nota, screenshot_link, csv_row) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            params
+          )
+          journalEntry = { id: journalId, session_id: sessionId, created_at: journalCreatedAt, ...parsed }
+        } else {
+          journalEntry = { ...parsed }
+        }
       }
     }
 
-    await runQuery('UPDATE sessions SET updated_at = ? WHERE id = ?', [assistantTimestamp, sessionId])
-
-    const sessionMemory = await getQuery('SELECT * FROM session_memory WHERE session_id = ?', [sessionId])
-
-    res.status(201).json({
+    const responsePayload = {
       userMessage: {
         id: userMessageId,
         session_id: sessionId,
         created_at: userTimestamp,
         role: 'user',
-        content: content || '',
+        content: analysisContent,
         screenshots: screenshotUrls
       },
       assistantMessage: {
@@ -233,9 +237,19 @@ router.post('/analyze', upload.array('screenshots'), async (req, res, next) => {
         content: assistantText,
         screenshots: []
       },
-      session_memory: sessionMemory,
       journalEntry
-    })
+    }
+
+    if (!previewOnly) {
+      await runQuery('UPDATE sessions SET updated_at = ? WHERE id = ?', [assistantTimestamp, sessionId])
+      const sessionMemory = await getQuery('SELECT * FROM session_memory WHERE session_id = ?', [sessionId])
+      responsePayload.session_memory = sessionMemory
+      return res.status(201).json(responsePayload)
+    }
+
+    const sessionMemory = await getQuery('SELECT * FROM session_memory WHERE session_id = ?', [sessionId])
+    responsePayload.session_memory = sessionMemory
+    res.status(200).json(responsePayload)
   } catch (err) {
     next(err)
   }

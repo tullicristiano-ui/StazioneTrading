@@ -12,5 +12,8 @@
   "devDependencies": {
     "concurrently": "^8.2.0",
     "supabase": "^2.105.0"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2"
   }
 }
