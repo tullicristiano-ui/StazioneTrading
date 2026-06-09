@@ -57,9 +57,56 @@ Creare una webapp personale che permetta al trader di svolgere sessioni di anali
 
 | Fase | Stato |
 |---|---|
-| MVP (Fase 1) | 🔴 Non iniziato |
+| MVP (Fase 1) | � In corso |
 | Workflow Trading (Fase 2) | 🔴 Non iniziato |
 | Produttività (Fase 3) | 🔴 Non iniziato |
+
+## Aggiornamenti recenti
+
+- Implementata la prima versione del backend Express con le route API per sessioni, agent, journal e messaggi.
+- Aggiunto un orchestratore AI con fallback locale e supporto per OpenRouter se configurato.
+- Realizzate le prime pagine client: Dashboard, Workspace e Journal.
+- Aggiunti componenti React per messaggi e session memory.
+
+## Avvio rapido
+
+Segui questi passaggi per eseguire l'ambiente di sviluppo locale.
+
+1. Copia il file di ambiente e inserisci le variabili richieste:
+
+```powershell
+copy ..\.env.example .env
+# oppure (PowerShell o WSL)
+cp ../.env.example .env
+```
+
+2. Apri due terminali separati.
+
+3. Terminale 1 — Server:
+
+```powershell
+cd server
+npm install
+npm run dev
+```
+
+Il server di default ascolta su `http://localhost:3001`. Controlla lo stato con:
+
+```powershell
+curl http://localhost:3001/health
+```
+
+4. Terminale 2 — Client:
+
+```powershell
+cd client
+npm install
+npm run dev
+```
+
+Il client Vite è disponibile su `http://localhost:5173`.
+
+**Nota:** lo `server/src/index.js` esegue le migrazioni SQL in `server/src/db/migrations/001_init.sql` all'avvio (se `DB_PATH` è impostato). Assicurati che `DB_PATH` punti a una cartella scrivibile.
 
 ---
 *Documento creato: da aggiornare con data inizio*  
