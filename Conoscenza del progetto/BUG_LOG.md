@@ -20,7 +20,38 @@ Quando si incontra un bug:
 
 ## Bug attivi
 
-*(nessun bug aperto)*
+### BUG-001 — Provider HuggingFace non selezionato correttamente in dev mode
+
+**Stato:** ✅ Risolto
+**Priorità:** P1 Importante
+**Data apertura:** 2026-06-09
+**Componente:** `server/src/agent/orchestrator.js`, `server/src/agent/providerClient.js`
+**Fase progetto:** Fase 2
+
+#### Descrizione
+Quando `AI_PROVIDER` era impostato su `huggingface`, il backend restituiva un errore di chiave `OPENROUTER_API_KEY` anche se il provider corretto era HuggingFace.
+
+#### Come riprodurre
+1. Impostare `AI_PROVIDER=huggingface` in `.env.local`
+2. Lasciare `OPENROUTER_API_KEY` vuoto o non configurata
+3. Avviare il server e inviare una richiesta di analisi
+4. Il sistema rispondeva con `Agente Aware: non è configurata la chiave OPENROUTER_API_KEY`
+
+#### Contesto tecnico
+- `providerClient.js` supporta `openrouter` e `huggingface`.
+- `orchestrator.js` controllava `OPENROUTER_API_KEY` prima di sapere quale provider era attivo.
+- In `.env.example`, `AI_PROVIDER` è documentato, ma il fix richiede allineamento tra valore e adapter esistente.
+
+#### Tentativi di fix
+
+**Tentativo 1 — 2026-06-09**
+- Ipotesi: validazione chiave OpenRouter eseguita in modo troppo presto nell'orchestrator.
+- Modifica: aggiunto `activeProvider = getActiveProvider()` e condizione `if (activeProvider === 'openrouter' && !process.env.OPENROUTER_API_KEY)`.
+- Risultato: ✅ Risolto
+- Note: ora il server supporta correttamente `AI_PROVIDER=huggingface` senza richiedere chiavi OpenRouter.
+
+#### Soluzione finale
+La causa radice era una validazione non condizionata di `OPENROUTER_API_KEY` dentro `orchestrator.js` indipendentemente dal provider selezionato. La fix separa la validazione e la rende dipendente dal valore di `AI_PROVIDER`, mantenendo la compatibilità con il router provider.
 
 ---
 

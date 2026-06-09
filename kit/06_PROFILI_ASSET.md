@@ -1,26 +1,144 @@
-# 06_PROFILI_ASSET.md
+**06** — **Profili** **Asset**
 
-## Asset Profiles - Aware Trader Reference
+Schede operative per adattare il ragionamento dell'agente al tipo di
+asset. Se l'asset analizzato non è in tabella, l'agente lo dichiara e
+ragiona per analogia con il profilo più simile presente.
 
-### XAUUSD (Gold vs USD)
+Nota: spread e orari indicati sono indicativi e variano per broker e
+condizioni di mercato.
 
-- **Market Hours**: 24/5, continuous futures and spot
-- **Volatility Characteristics**: High intraday volatility, strong trends
-- **Key Correlations**: Inverse to USD strength, risk-on/risk-off indicator
-- **Common Timeframes**: 4H, 1H, 15m for analysis
-- **Special Considerations**: Watch FOMC statements, inflation data
+**XAU/USD** **(Oro)**
 
-### EURUSD (EUR vs USD)
+||
+||
+||
+||
+||
+||
+||
+||
+||
 
-- **Market Hours**: 24/5, continuous
-- **Volatility**: Moderate, influenced by central banks
-- **Key Correlations**: Affected by US/EU economic data
-- **Analysis TF**: 4H context, 15m-1H decision
-- **Special Considerations**: ECB and Fed announcements
+> **EUR/USD**
 
-### Other Assets
+||
+||
+||
+||
+||
+||
+||
+||
+||
 
-[Asset profiles to be added]
+**GBP/USD**
 
----
-*Placeholder profiles - Expand as you analyze more assets*
+||
+||
+||
+||
+||
+||
+||
+||
+||
+
+**USD/JPY**
+
+||
+||
+||
+||
+||
+||
+||
+||
+||
+
+**US100** **/** **NAS100** **(Nasdaq)**
+
+||
+||
+||
+||
+||
+||
+||
+||
+||
+
+**US500** **/** **SPX500** **(S&P** **500)**
+
+||
+||
+||
+||
+||
+||
+||
+||
+||
+
+> **DE40** **/** **DAX**
+
+||
+||
+||
+||
+||
+||
+||
+||
+
+> **BTC/USD**
+
+||
+||
+||
+||
+||
+||
+||
+||
+||
+
+> **ETH/USD**
+
+||
+||
+||
+||
+||
+||
+||
+
+||
+||
+||
+||
+
+**Azioni** **USA** **(singoli** **titoli)**
+
+||
+||
+||
+||
+||
+||
+||
+||
+||
+
+**Asset** **non** **in** **tabella**
+
+Se il trader chiede analisi su un asset non presente:
+
+> 1\. L'agente dichiara: "Asset non in tabella 06".
+
+2\. Sceglie il profilo più simile (forex minor → EUR/USD; indice europeo
+→ DAX; commodity →
+
+XAU/USD). 3. Specifica quali parametri possono differire.
+
+4\. Procede con cautela aggiuntiva.
+

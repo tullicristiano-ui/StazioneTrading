@@ -1,57 +1,59 @@
-const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions'
+/**
+ * providerClient.js — Provider Router
+ *
+ * Interfaccia unica verso i provider AI.
+ * Seleziona il provider tramite la variabile d'ambiente AI_PROVIDER.
+ *
+ * Provider supportati:
+ *  - openrouter (default) → richiede OPENROUTER_API_KEY
+ *  - huggingface | hf    → richiede HUGGINGFACE_API_KEY + HUGGINGFACE_MODEL
+ *
+ * L'orchestrator non cambia: continua a chiamare requestCompletion()
+ * e parseCompletionResponse() come prima.
+ */
 
-function buildHeaders() {
-  const headers = {
-    'Content-Type': 'application/json'
-  }
+import * as openrouter from './providers/openrouterProvider.js'
+import * as huggingface from './providers/huggingfaceProvider.js'
 
-  if (process.env.OPENROUTER_API_KEY) {
-    headers.Authorization = `Bearer ${process.env.OPENROUTER_API_KEY}`
-  }
-
-  headers['HTTP-Referer'] = process.env.HTTP_REFERER || 'Aware Trading Workspace'
-  headers['X-Title'] = process.env.X_TITLE || 'Aware Trading Agent Request'
-  return headers
+const PROVIDERS = {
+  openrouter,
+  huggingface,
+  hf: huggingface
 }
 
+function getProvider() {
+  const name = (process.env.AI_PROVIDER || 'openrouter').toLowerCase().trim()
+  const adapter = PROVIDERS[name]
+  if (!adapter) {
+    console.warn(`providerClient: provider "${name}" sconosciuto, fallback su openrouter`)
+    return { name: 'openrouter', adapter: openrouter }
+  }
+  return { name, adapter }
+}
+
+/**
+ * Esegue la chiamata al provider attivo.
+ * Signature identica all'originale — nessuna modifica all'orchestrator richiesta.
+ */
 export async function requestCompletion(payload) {
-  if (!process.env.OPENROUTER_API_KEY) {
-    throw new Error('Missing OPENROUTER_API_KEY')
-  }
-
-  const response = await fetch(OPENROUTER_URL, {
-    method: 'POST',
-    headers: buildHeaders(),
-    body: JSON.stringify(payload)
-  })
-
-  if (!response.ok) {
-    const body = await response.text()
-    const errorMessage = `OpenRouter error ${response.status}: ${body}`
-    throw new Error(errorMessage)
-  }
-
-  return response.json()
+  const { name, adapter } = getProvider()
+  console.log(`providerClient: usando provider "${name}"`)
+  return adapter.requestCompletion(payload)
 }
 
+/**
+ * Estrae il testo dalla risposta del provider attivo.
+ * Signature identica all'originale.
+ */
 export function parseCompletionResponse(data) {
-  if (!data) {
-    return null
-  }
+  const { adapter } = getProvider()
+  return adapter.parseResponse(data)
+}
 
-  const outputText = data.output_text
-  if (typeof outputText === 'string' && outputText.length > 0) {
-    return outputText.trim()
-  }
-
-  const choiceText = data?.choices?.[0]?.message?.content
-  if (typeof choiceText === 'string' && choiceText.length > 0) {
-    return choiceText.trim()
-  }
-
-  if (Array.isArray(choiceText)) {
-    return choiceText.map((block) => block?.text || '').join(' ').trim()
-  }
-
-  return null
+/**
+ * Utility: restituisce il nome del provider attivo.
+ * Utile per logging e debug nell'orchestrator se necessario.
+ */
+export function getActiveProvider() {
+  return getProvider().name
 }

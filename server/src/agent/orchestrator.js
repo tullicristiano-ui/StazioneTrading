@@ -1,7 +1,7 @@
 import { allQuery, runQuery, getQuery } from '../db/database.js'
 import { loadSkillPrompt } from './skillLoader.js'
 import { buildMessages } from './promptBuilder.js'
-import { requestCompletion, parseCompletionResponse } from './providerClient.js'
+import { requestCompletion, parseCompletionResponse, getActiveProvider } from './providerClient.js'
 
 function normalizeText(value) {
   if (!value || typeof value !== 'string') return null
@@ -66,7 +66,8 @@ export async function runAnalysis({ sessionId, content, screenshots = [], analys
 
   const messages = await buildMessages(systemPrompt, history, content, screenshots)
 
-  if (!process.env.OPENROUTER_API_KEY) {
+  const activeProvider = getActiveProvider()
+  if (activeProvider === 'openrouter' && !process.env.OPENROUTER_API_KEY) {
     return `Agente Aware: non è configurata la chiave OPENROUTER_API_KEY. Il messaggio ricevuto è:\n\n${content}`
   }
 

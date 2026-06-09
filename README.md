@@ -48,6 +48,7 @@ Il client Vite è disponibile su `http://localhost:5173`.
 - Assicurati di NON commitare file `.env` contenenti chiavi API.
 - Lo script `server/src/index.js` esegue automaticamente le migrazioni SQL all'avvio (se `DB_PATH` è impostato correttamente).
 - Se usi Windows e trovi problemi a installare pacchetti nativi, è stato scelto `sqlite3` come driver per la compatibilità locale.
+- Il provider AI si seleziona tramite `AI_PROVIDER`: `openrouter` per OpenRouter oppure `huggingface` per HuggingFace/Gemma (text-only). Se usi HuggingFace, imposta `HUGGINGFACE_API_KEY` e `HUGGINGFACE_MODEL`; `OPENROUTER_API_KEY` non è obbligatorio.
 
 ---
 

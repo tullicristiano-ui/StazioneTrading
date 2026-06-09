@@ -65,6 +65,14 @@ F1-A (setup) → F1-B (DB) → F1-C (routes) → F1-D (agent) → F1-E (UI)
 - [x] Export CSV scaricabile con header corretto
 - [x] Visualizzazione tabella journal in pagina dedicata
 
+**Milestone M6b** — Architettura multi-provider ✅
+- [x] `providerClient.js` refactored come provider router
+- [x] Adapter OpenRouter estratto in `providers/openrouterProvider.js`
+- [x] Adapter HuggingFace/Gemma in `providers/huggingfaceProvider.js`
+- [x] Selezione provider via `AI_PROVIDER` env — zero breaking changes
+- [x] Gestione output Gemma: strip vision blocks, sanitize token speciali, fallback testo
+- [x] Documentare che `OPENROUTER_API_KEY` è richiesto solo se `AI_PROVIDER=openrouter`
+
 **Dipendenze:** Fase 2 richiede Fase 1 completa (Milestone M4).
 
 ---
@@ -95,8 +103,9 @@ M1 (server base)
               └── M4 (MVP completo) ← PRIMO OBIETTIVO USABILE
                     └── M5 (flussi operativi)
                           └── M6 (journal operativo)
-                                └── M7 (archivio e ricerca)
-                                      └── M8 (timeline e report)
+                                └── M6b (multi-provider) ✅
+                                      └── M7 (archivio e ricerca)
+                                            └── M8 (timeline e report)
 ```
 
 ---
@@ -110,6 +119,8 @@ M1 (server base)
 | Session memory automatica troppo lenta (doppia chiamata AI) | Alta | MVP: usare pulsante manuale "aggiorna memoria", automatico in Fase 2 |
 | Prompt kit troppo lungo → superamento context window | Bassa | Misurare token totali del system prompt prima del deploy |
 | SQLite non supporta query complesse per archivio | Bassa | Per ricerca semplice è sufficiente, FTS5 se necessario |
+| HuggingFace 503 (modello in caricamento) su tier gratuito | Alta | Gestita nell'adapter con messaggio esplicito + eta; retry manuale |
+| Gemma: output JSON non garantito per session_memory | Media | Gestita con parsing + fallback testo nell'orchestrator |
 
 ---
 
@@ -122,4 +133,4 @@ Una milestone è completata quando:
 4. È stato fatto almeno un test manuale con screenshot reali di grafico
 
 ---
-*Ultima modifica: 2026-06-09 | Fase corrente: Fase 2*
+*Ultima modifica: 2026-06-09 | Fase corrente: Fase 3*

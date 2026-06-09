@@ -17,7 +17,7 @@
 | Frontend | React + Vite + Tailwind CSS + Zustand |
 | Backend | Node.js + Express |
 | Database | SQLite (`sqlite3`) |
-| AI Provider | OpenRouter (claude-3.5-sonnet con vision) |
+| AI Provider | Multi-provider: OpenRouter (default, con vision) o HuggingFace (Gemma, text-only) |
 | Upload file | Multer |
 | Routing client | react-router-dom |
 
@@ -34,7 +34,14 @@ aware-trading-workspace/
 │   └── api/            client.js (fetch wrapper)
 ├── server/src/
 │   ├── routes/         sessions.js | messages.js | agent.js | journal.js
-│   ├── agent/          orchestrator.js | skillLoader.js | promptBuilder.js | providerClient.js
+│   ├── agent/
+│   │   ├── orchestrator.js       ← logica principale (invariata)
+│   │   ├── skillLoader.js        ← carica file kit
+│   │   ├── promptBuilder.js      ← costruisce i messaggi
+│   │   ├── providerClient.js     ← router provider (AGGIORNATO)
+│   │   └── providers/
+│   │       ├── openrouterProvider.js   ← adapter OpenRouter
+│   │       └── huggingfaceProvider.js  ← adapter HuggingFace/Gemma
 │   └── db/             database.js | migrations/001_init.sql
 └── kit/                File skill dell'agente (01,02,04,06,07,08,09 del Trade Analysis Agent Kit v3)
 ```
@@ -53,9 +60,25 @@ aware-trading-workspace/
 ## Logica agente AI
 
 1. **Skill Loader** (`skillLoader.js`): legge i file `.md` in `/kit/` all'avvio e li concatena come system prompt
-2. **Prompt Builder** (`promptBuilder.js`): prende history messaggi da DB + nuovo messaggio + screenshot (convertiti base64) e costruisce l'array `messages` per OpenRouter
-3. **Provider Client** (`providerClient.js`): chiama `https://openrouter.ai/api/v1/chat/completions` con modello `anthropic/claude-3.5-sonnet`
-4. **Orchestrator** (`orchestrator.js`): coordina i tre moduli, salva risposta in DB, aggiorna session_memory
+2. **Prompt Builder** (`promptBuilder.js`): prende history messaggi da DB + nuovo messaggio + screenshot (convertiti base64) e costruisce l'array `messages`
+3. **Provider Client** (`providerClient.js`): seleziona il provider da `AI_PROVIDER` env e delega a `providers/openrouterProvider.js` o `providers/huggingfaceProvider.js`
+4. **Orchestrator** (`orchestrator.js`): coordina i tre moduli, salva risposta in DB, aggiorna session_memory — **invariato**
+
+### Selezione provider
+
+Il provider si configura via `.env` — nessun cambio di codice necessario:
+```
+AI_PROVIDER=openrouter      → usa OpenRouter (vision support, modelli Anthropic/GPT/ecc.)
+AI_PROVIDER=huggingface     → usa HuggingFace Inference API (Gemma, text-only)
+```
+
+### Selezione provider
+
+Il provider si configura via `.env` — nessun cambio di codice necessario:
+```
+AI_PROVIDER=openrouter      → usa OpenRouter (vision support, modelli Anthropic/GPT/ecc.)
+AI_PROVIDER=huggingface     → usa HuggingFace Inference API (Gemma, text-only)
+```
 
 ---
 
@@ -66,7 +89,9 @@ Utente scrive messaggio + allega screenshot
   → POST /api/agent/analyze {session_id, content, screenshots[]}
   → Multer salva screenshot in /uploads/{session_id}/
   → Orchestrator costruisce prompt (system + history + messaggio + immagini base64)
-  → OpenRouter restituisce risposta agente
+  → providerClient.requestCompletion() → provider selezionato da AI_PROVIDER
+      [openrouter] → invia immagini come image_url blocks (vision)
+      [huggingface] → strip immagini + nota testuale (text-only)
   → Risposta salvata in messages (role: "assistant")
   → Session memory aggiornata
   → Frontend mostra risposta nella chat
@@ -77,7 +102,18 @@ Utente scrive messaggio + allega screenshot
 ## Variabili d'ambiente richieste
 
 ```
+# Provider attivo
+AI_PROVIDER=openrouter
+
+# OpenRouter (se AI_PROVIDER=openrouter)
 OPENROUTER_API_KEY=sk-or-...
+OPENROUTER_MODEL=anthropic/claude-3.5-sonnet
+
+# HuggingFace (se AI_PROVIDER=huggingface)
+HUGGINGFACE_API_KEY=hf_...
+HUGGINGFACE_MODEL=google/gemma-2-9b-it
+
+# Server
 PORT=3001
 DB_PATH=./server/data/aware_trading.db
 UPLOADS_PATH=./server/uploads
@@ -96,33 +132,15 @@ UPLOADS_PATH=./server/uploads
 | GitHub CLI | 2.93.0 | `gh --version` \| `gh auth status` |
 | Supabase CLI | 2.105.0 | `npx supabase --version` |
 
-### Comandi interazione
-
-**Git & GitHub**
-```bash
-git status
-git remote -v
-gh auth status
-```
-
-**Supabase**
-```bash
-npx supabase --version
-npx supabase projects list
-npx supabase link               # Collega progetto locale a Supabase cloud
-npx supabase db push            # Push schema al DB remoto
-npx supabase db pull            # Pull cambiamenti dal DB remoto
-```
-
 ---
 
 ## Stato corrente del progetto
 
-- Phase 1-A completata: backend, frontend, DB e upload funzionanti.
-- Phase 2 in corso: implementata la modalità `trade aperto`, l’estrazione automatica di `session_memory` da ogni risposta agente e il workflow di generazione di righe journal in formato CSV.
-- Implementato il flusso `Nuova analisi` (server-side): l'orchestrator chiede esplicitamente il "timeframe di contesto" e il "timeframe decisionale" quando necessario, prima di procedere all'analisi.
-- Verificare `TASKS.md` per il dettaglio delle task eseguite e in corso.
-- `ROADMAP.md` definisce le milestone di M6 Journal operativo e oltre.
+- **Fase 1 — MVP**: completata.
+- **Fase 2 — Workflow Trading**: completata (trade aperto, session memory automatica, journal CSV).
+- **Multi-provider**: implementato. OpenRouter continua a funzionare; HuggingFace/Gemma disponibile via `AI_PROVIDER=huggingface`.
+- **Fase 3 — Produttività**: da iniziare (ricerca sessioni, timeline, report).
+- Verificare `TASKS.md` per il dettaglio delle task in corso.
 - `BUG_LOG.md` contiene i problemi ancora aperti.
 
 ---
@@ -133,9 +151,10 @@ npx supabase db pull            # Pull cambiamenti dal DB remoto
 2. **Le route Express usano sempre try/catch** con risposta JSON strutturata `{error: "..."}` in caso di errore
 3. **Gli upload sono limitati** a immagini (png/jpg/webp) max 10MB
 4. **Il system prompt dell'agente** è definito dai file in `/kit/` — non modificare il comportamento dell'agente modificando il codice, modificare i file kit
-5. **SQLite è sincrono** (`better-sqlite3`) — non usare async/await sulle query DB
+5. **SQLite usa l'API asincrona** (`sqlite3`) — il driver in uso è async, usare i wrapper `runQuery`, `getQuery`, `allQuery`
 6. **Il frontend non accede direttamente al DB** — passa sempre dall'API Express
-7. **Zustand store** è la fonte di verità per lo stato UI — non usare useState locale per dati condivisi tra componenti
+7. **Zustand store** è la fonte di verità per lo stato UI
+8. **Per aggiungere provider**: creare `server/src/agent/providers/{nomeProvider}.js` con `export async function requestCompletion(payload)` e `export function parseResponse(data)`, poi registrarlo in `providerClient.js`
 
 ---
 
@@ -144,9 +163,10 @@ npx supabase db pull            # Pull cambiamenti dal DB remoto
 Per l'architettura completa, le decisioni tecniche e il data model dettagliato: vedere `PROJECT_PLAN.md`.
 
 ---
-*Versione contesto: 0.2 | Aggiornare dopo ogni cambio architetturale significativo*
+*Versione contesto: 0.3 | Aggiornare dopo ogni cambio architetturale significativo*
 
 ## Ultime modifiche
 
 - 2026-06-09: Implementato `new_analysis` flow server-side (commit 69de11e).
 - 2026-06-09: Aggiornamento task F2-A-01 in `TASKS.md` (commit 318f448).
+- 2026-06-09: Refactoring multi-provider: introdotti adapter OpenRouter e HuggingFace/Gemma; `providerClient.js` diventa provider router; zero breaking changes su API e orchestrator.
