@@ -19,7 +19,7 @@ Aware Trading Workspace è una webapp personale (localhost, utente singolo) per 
 - Backend: Node.js + Express
 - Database: SQLite (`sqlite3` npm package)
 - Upload file: Multer
-- AI Provider (MVP): OpenRouter (es. modello `anthropic/claude-3.5-sonnet`)
+- AI Provider (MVP): OpenRouter (es. modello `anthropic/claude-3.5-sonnet`) o HuggingFace/Gemma in modalità text-only (`AI_PROVIDER=huggingface`)
 
 ## Struttura cartelle (principale)
 
@@ -45,7 +45,7 @@ aware-trading-workspace/
 
 1. `skillLoader.js`: legge i file `.md` in `/kit/` all'avvio e li concatena come system prompt.
 2. `promptBuilder.js`: costruisce il payload che include history, nuovo messaggio e screenshot (base64).
-3. `providerClient.js`: effettua la chiamata a OpenRouter (`/chat/completions`) con headers richiesti.
+3. `providerClient.js`: seleziona il provider da `AI_PROVIDER` e chiama OpenRouter o HuggingFace con gli headers corretti.
 4. `orchestrator.js`: coordina i moduli sopra, salva la risposta in `messages` e aggiorna `session_memory`.
 
 ## Flusso principale (happy path)
@@ -61,7 +61,19 @@ aware-trading-workspace/
 ## Variabili d'ambiente richieste
 
 ```
+AI_PROVIDER=openrouter
+
+# OpenRouter (se AI_PROVIDER=openrouter)
 OPENROUTER_API_KEY=sk-or-...
+OPENROUTER_MODEL=anthropic/claude-3.5-sonnet
+
+# HuggingFace (se AI_PROVIDER=huggingface)
+HUGGINGFACE_API_KEY=hf_...
+HUGGINGFACE_MODEL=google/gemma-2-9b-it
+HF_TOKEN=hf_...
+HF_MODEL=google/gemma-2-9b-it
+
+# Server
 PORT=3001
 DB_PATH=./server/data/aware_trading.db
 UPLOADS_PATH=./server/uploads
