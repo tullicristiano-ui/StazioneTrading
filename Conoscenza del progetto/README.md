@@ -57,23 +57,21 @@ Creare una webapp personale che permetta al trader di svolgere sessioni di anali
 
 | Fase | Stato |
 |---|---|
-| MVP (Fase 1) | 🟠 In corso |
-| Workflow Trading (Fase 2) | 🔴 Non iniziato |
+| MVP (Fase 1) | ✅ Completata |
+| Workflow Trading (Fase 2) | 🟠 In corso |
 | Produttività (Fase 3) | 🔴 Non iniziato |
 
 ## Aggiornamenti recenti
 
-- Implementati i core backend per sessioni, messaggi, agent e journal.
-- Aggiunti moduli agent: `skillLoader`, `promptBuilder`, `providerClient` e `orchestrator`.
-- Realizzata la UI della chat con supporto upload screenshot, indicatori di invio e session memory.
-- Aggiunta esportazione CSV per il journal.
+- Implementata la modalità `trade aperto` con toggle UI e prompt specializzato.
+- Aggiunta estrazione automatica di `session_memory` da ogni risposta agente.
+- Implementata generazione, parsing e salvataggio delle righe journal CSV.
+- Aggiunta la pagina Journal con esportazione CSV e visualizzazione delle voci salvate.
 
-## Aggiornamenti recenti
+## Note operative
 
-- Implementata la prima versione del backend Express con le route API per sessioni, agent, journal e messaggi.
-- Aggiunto un orchestratore AI con fallback locale e supporto per OpenRouter se configurato.
-- Realizzate le prime pagine client: Dashboard, Workspace e Journal.
-- Aggiunti componenti React per messaggi e session memory.
+- `TASKS.md` è aggiornato con lo stato corrente delle task di Fase 2.
+- `ROADMAP.md` riflette l'avanzamento verso le milestone M5/M6.
 
 ## Avvio rapido
 

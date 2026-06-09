@@ -19,27 +19,27 @@ FASE 3 — Produttività           [~3-5 sessioni]
 **Obiettivo:** avere un agente funzionante end-to-end, anche con UI minimale.
 
 **Milestone M1** — Server funzionante
-- [ ] Progetto inizializzato (client + server)
-- [ ] SQLite con le 4 tabelle operative
-- [ ] Express con route `/health` che risponde
-- [ ] File kit copiati in `/kit/`
+- [x] Progetto inizializzato (client + server)
+- [x] SQLite con le 4 tabelle operative
+- [x] Express con route `/health` che risponde
+- [x] File kit copiati in `/kit/`
 
 **Milestone M2** — Agente risponde
-- [ ] Skill loader carica tutti i file del kit
-- [ ] Prompt builder costruisce messaggio con history e screenshot base64
-- [ ] Provider client chiama OpenRouter senza errori
-- [ ] `POST /api/agent/analyze` restituisce risposta dell'agente in stile corretto
+- [x] Skill loader carica tutti i file del kit
+- [x] Prompt builder costruisce messaggio con history e screenshot base64
+- [x] Provider client chiama OpenRouter senza errori
+- [x] `POST /api/agent/analyze` restituisce risposta dell'agente in stile corretto
 
 **Milestone M3** — UI base funzionante
-- [ ] Dashboard mostra lista sessioni
-- [ ] "Nuova analisi" crea sessione e apre workspace
-- [ ] Chat funziona: si può scrivere e ricevere risposta agente
-- [ ] Upload screenshot funziona: thumbnail preview + invio all'AI
+- [x] Dashboard mostra lista sessioni
+- [x] "Nuova analisi" crea sessione e apre workspace
+- [x] Chat funziona: si può scrivere e ricevere risposta agente
+- [x] Upload screenshot funziona: thumbnail preview + invio all'AI
 
 **Milestone M4** — MVP completo
-- [ ] Pannello Session Memory mostra info rilevate
-- [ ] Sessioni persistono dopo refresh pagina
-- [ ] App usabile per una vera sessione di analisi
+- [x] Pannello Session Memory mostra info rilevate
+- [x] Sessioni persistono dopo refresh pagina
+- [x] App usabile per una vera sessione di analisi
 
 **Dipendenze critiche Fase 1:**
 ```
@@ -56,14 +56,14 @@ F1-A (setup) → F1-B (DB) → F1-C (routes) → F1-D (agent) → F1-E (UI)
 **Obiettivo:** implementare i workflow specifici del kit (analisi guidata, trade aperto, journal).
 
 **Milestone M5** — Flussi operativi
-- [ ] Modalità "trade aperto" distinguibile dalla pre-trade
+- [x] Modalità "trade aperto" distinguibile dalla pre-trade
 - [ ] L'agente guida la richiesta di screenshot mancanti
-- [ ] Pulsante "genera riga journal" funzionante
+- [x] Pulsante "genera riga journal" funzionante
 
 **Milestone M6** — Journal operativo
-- [ ] Riga journal parsata e salvata in DB automaticamente
-- [ ] Export CSV scaricabile con header corretto
-- [ ] Visualizzazione tabella journal in pagina dedicata
+- [x] Riga journal parsata e salvata in DB automaticamente
+- [x] Export CSV scaricabile con header corretto
+- [x] Visualizzazione tabella journal in pagina dedicata
 
 **Dipendenze:** Fase 2 richiede Fase 1 completa (Milestone M4).
 
@@ -122,4 +122,4 @@ Una milestone è completata quando:
 4. È stato fatto almeno un test manuale con screenshot reali di grafico
 
 ---
-*Ultima modifica: — | Fase corrente: Fase 1*
+*Ultima modifica: 2026-06-09 | Fase corrente: Fase 2*

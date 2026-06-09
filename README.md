@@ -29,7 +29,11 @@ npm run dev
 Questo comando avvierà automaticamente:
 - il server Express su `http://localhost:3001`
 - il client Vite su `http://localhost:5173`
+## Stato attuale
 
+- Phase 1 completata: backend, frontend, DB e upload funzionanti.
+- Phase 2 in corso: implementata la modalità `trade aperto`, l'estrazione automatica di `session_memory` e il workflow journal CSV.
+- Per lo stato dettagliato, consulta `Conoscenza del progetto/TASKS.md` e `Conoscenza del progetto/ROADMAP.md`.
 4. Verifica lo stato del backend con:
 
 ```powershell
