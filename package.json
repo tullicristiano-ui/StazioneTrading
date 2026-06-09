@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "dev": "concurrently \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "server": "npm --prefix server run dev",
+    "client": "npm --prefix client run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "supabase": "^2.105.0"
+  }
+}
