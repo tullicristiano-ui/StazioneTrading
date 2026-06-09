@@ -101,24 +101,24 @@
 | ID | Task | Priorità | Stato | Note |
 |---|---|---|---|---|
 | F2-A-01 | Implementare flusso "Nuova analisi": l'agente chiede TF contesto → TF decisionale | 🟠 P1 | `[ ]` | Gestito lato agente dal prompt kit |
-| F2-A-02 | Aggiungere "Modalità trade aperto" nel workspace con bottone dedicato | 🟠 P1 | `[ ]` | Cambia il prompt di sistema per la modalità 03b |
-| F2-A-03 | `promptBuilder.js`: variante system prompt per "trade aperto" (include template 03b) | 🟠 P1 | `[ ]` | |
-| F2-A-04 | Mostrare badge nella UI quando si è in modalità "trade aperto" | 🟡 P2 | `[ ]` | |
+| F2-A-02 | Aggiungere "Modalità trade aperto" nel workspace con bottone dedicato | 🟠 P1 | `[x]` | Cambia il prompt di sistema per la modalità 03b |
+| F2-A-03 | `promptBuilder.js`: variante system prompt per "trade aperto" (include template 03b) | 🟠 P1 | `[x]` | |
+| F2-A-04 | Mostrare badge nella UI quando si è in modalità "trade aperto" | 🟡 P2 | `[x]` | |
 
 ### F2-B: Session Memory automatica
 
 | ID | Task | Priorità | Stato | Note |
 |---|---|---|---|---|
-| F2-B-01 | Dopo ogni risposta agente, estrarre info strutturate (asset, TF, struttura, livelli) | 🟠 P1 | `[ ]` | Chiamata AI secondaria leggera O parsing regex |
-| F2-B-02 | Aggiornare tabella `session_memory` con dati estratti | 🟠 P1 | `[ ]` | |
-| F2-B-03 | Aggiornare il pannello `SessionMemory.jsx` in tempo reale dopo ogni turno | 🟠 P1 | `[ ]` | |
+| F2-B-01 | Dopo ogni risposta agente, estrarre info strutturate (asset, TF, struttura, livelli) | 🟠 P1 | `[x]` | Chiamata AI secondaria leggera O parsing regex |
+| F2-B-02 | Aggiornare tabella `session_memory` con dati estratti | 🟠 P1 | `[x]` | |
+| F2-B-03 | Aggiornare il pannello `SessionMemory.jsx` in tempo reale dopo ogni turno | 🟠 P1 | `[x]` | |
 
 ### F2-C: Journal workflow
 
 | ID | Task | Priorità | Stato | Note |
 |---|---|---|---|---|
-| F2-C-01 | Aggiungere pulsante "Genera riga journal" nella chat | 🟠 P1 | `[ ]` | Invia messaggio speciale che trigga format CSV dall'agente |
-| F2-C-02 | Parsare la riga CSV dalla risposta agente e salvarla in DB | 🟠 P1 | `[ ]` | Regex su formato definito nel kit file 04 |
+| F2-C-01 | Aggiungere pulsante "Genera riga journal" nella chat | 🟠 P1 | `[x]` | Invia messaggio speciale che trigga format CSV dall'agente |
+| F2-C-02 | Parsare la riga CSV dalla risposta agente e salvarla in DB | 🟠 P1 | `[x]` | Regex su formato definito nel kit file 04 |
 | F2-C-03 | Mostrare preview riga journal prima di salvarla | 🟡 P2 | `[ ]` | |
 | F2-C-04 | Implementare export CSV completo da `GET /api/journal/export.csv` | 🟠 P1 | `[ ]` | Header CSV da file 05 del kit |
 

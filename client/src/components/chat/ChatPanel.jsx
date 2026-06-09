@@ -8,6 +8,7 @@ export default function ChatPanel({
   files,
   onFilesChange,
   onSubmit,
+  onGenerateJournal,
   loading,
   error
 }) {
@@ -53,13 +54,23 @@ export default function ChatPanel({
           <UploadArea files={files} onFilesChange={onFilesChange} />
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-4 inline-flex items-center justify-center rounded-2xl bg-cyan-500 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-50"
-        >
-          {loading ? 'Invio...' : 'Invia all’agente'}
-        </button>
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <button
+            type="submit"
+            disabled={loading}
+            className="inline-flex items-center justify-center rounded-2xl bg-cyan-500 px-5 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-50"
+          >
+            {loading ? 'Invio...' : 'Invia all’agente'}
+          </button>
+          <button
+            type="button"
+            onClick={onGenerateJournal}
+            disabled={loading}
+            className="inline-flex items-center justify-center rounded-2xl border border-slate-700 bg-slate-800 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:border-cyan-500 hover:bg-slate-900 disabled:opacity-50"
+          >
+            Genera riga journal
+          </button>
+        </div>
       </form>
     </div>
   )

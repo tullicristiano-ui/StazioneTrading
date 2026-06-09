@@ -33,18 +33,23 @@ export const api = {
   updateSession: (id, data) => request(`/sessions/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
 
   // Messages & Agent
-  sendMessage: (sessionId, content, screenshots = []) => {
+  sendMessage: (sessionId, content = '', screenshots = [], options = {}) => {
     const formData = new FormData()
     formData.append('session_id', sessionId)
     formData.append('content', content)
-    screenshots.forEach((file, idx) => {
+    formData.append('analysis_mode', options.analysisMode || 'standard')
+    if (options.journalMode) {
+      formData.append('journal_mode', 'true')
+    }
+
+    screenshots.forEach((file) => {
       formData.append('screenshots', file)
     })
-    
+
     return fetch(`${API_BASE}/agent/analyze`, {
       method: 'POST',
       body: formData,
-    }).then(r => r.json())
+    }).then((r) => r.json())
   },
 
   // Journal
