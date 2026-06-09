@@ -118,9 +118,11 @@ npx supabase db pull            # Pull cambiamenti dal DB remoto
 
 ## Stato corrente del progetto
 
-Controllare `TASKS.md` per lo stato dettagliato delle task.  
-Controllare `ROADMAP.md` per la fase corrente.  
-Controllare `BUG_LOG.md` per i bug aperti.
+- Phase 1-A completata: backend, frontend, DB e upload funzionanti.
+- Phase 2 in corso: implementata la modalità `trade aperto`, l’estrazione automatica di `session_memory` da ogni risposta agente e il workflow di generazione di righe journal in formato CSV.
+- Verificare `TASKS.md` per il dettaglio delle task eseguite e in corso.
+- `ROADMAP.md` definisce le milestone di M6 Journal operativo e oltre.
+- `BUG_LOG.md` contiene i problemi ancora aperti.
 
 ---
 
