@@ -44,30 +44,31 @@
 
 | ID | Task | Priorità | Stato | Note |
 |---|---|---|---|---|
-| F1-C-01 | Creare `routes/sessions.js`: `POST /api/sessions` (crea sessione) | 🔴 P0 | `[ ]` | Restituisce `{id, created_at, status}` |
-| F1-C-02 | Creare `routes/sessions.js`: `GET /api/sessions` (lista sessioni) | 🔴 P0 | `[ ]` | Ordine DESC per `updated_at` |
-| F1-C-03 | Creare `routes/sessions.js`: `GET /api/sessions/:id` (sessione singola + messages) | 🔴 P0 | `[ ]` | Include messages e session_memory |
-| F1-C-04 | Creare `routes/sessions.js`: `PATCH /api/sessions/:id` (aggiorna asset/status) | 🟠 P1 | `[ ]` | |
-| F1-C-05 | Creare `routes/messages.js`: `POST /api/messages` con Multer per upload immagini | 🔴 P0 | `[ ]` | Accetta `session_id`, `content`, `screenshots[]` |
-| F1-C-06 | Validare tipi file upload (solo png/jpg/webp, max 10MB) | 🟠 P1 | `[ ]` | In Multer fileFilter |
-| F1-C-07 | Salvare screenshot in `/uploads/{session_id}/` con nome UUID | 🟠 P1 | `[ ]` | |
-| F1-C-08 | Creare `routes/journal.js`: `POST /api/journal` (crea riga) | 🟠 P1 | `[ ]` | |
-| F1-C-09 | Creare `routes/journal.js`: `GET /api/journal` (lista righe, opz. filtro session) | 🟡 P2 | `[ ]` | |
-| F1-C-10 | Creare `routes/journal.js`: `GET /api/journal/export.csv` (esporta CSV) | 🟡 P2 | `[ ]` | Genera CSV con header da spec kit |
+| F1-C-01 | Creare `routes/sessions.js`: `POST /api/sessions` (crea sessione) | 🔴 P0 | `[x]` | Restituisce `{id, created_at, status}` |
+| F1-C-02 | Creare `routes/sessions.js`: `GET /api/sessions` (lista sessioni) | 🔴 P0 | `[x]` | Ordine DESC per `updated_at` |
+| F1-C-03 | Creare `routes/sessions.js`: `GET /api/sessions/:id` (sessione singola + messages) | 🔴 P0 | `[x]` | Include messages e session_memory |
+| F1-C-04 | Creare `routes/sessions.js`: `PATCH /api/sessions/:id` (aggiorna asset/status) | 🟠 P1 | `[x]` | |
+| F1-C-05 | Creare `routes/messages.js`: `POST /api/messages` con Multer per upload immagini | 🔴 P0 | `[x]` | Accetta `session_id`, `content`, `screenshots[]` |
+| F1-C-06 | Validare tipi file upload (solo png/jpg/webp, max 10MB) | 🟠 P1 | `[x]` | In Multer fileFilter |
+| F1-C-07 | Salvare screenshot in `/uploads/{session_id}/` con nome UUID | 🟠 P1 | `[x]` | |
+| F1-C-08 | Creare `routes/journal.js`: `POST /api/journal` (crea riga) | 🟠 P1 | `[x]` | |
+| F1-C-09 | Creare `routes/journal.js`: `GET /api/journal` (lista righe, opz. filtro session) | 🟡 P2 | `[x]` | |
+| F1-C-10 | Creare `routes/journal.js`: `GET /api/journal/export.csv` (esporta CSV) | 🟡 P2 | `[x]` | Genera CSV con header da spec kit |
 
 ### F1-D: Agent Orchestrator
 
 | ID | Task | Priorità | Stato | Note |
 |---|---|---|---|---|
-| F1-D-01 | Creare `agent/skillLoader.js`: legge i file `/kit/` e restituisce stringa concatenata | 🔴 P0 | `[ ]` | Cache in memoria all'avvio |
-| F1-D-02 | Creare `agent/promptBuilder.js`: costruisce array `messages` per OpenRouter | 🔴 P0 | `[ ]` | system prompt + history + nuovo messaggio |
-| F1-D-03 | `promptBuilder.js`: convertire screenshot in base64 per vision API | 🔴 P0 | `[ ]` | `fs.readFileSync` + `Buffer.toString('base64')` |
-| F1-D-04 | `promptBuilder.js`: formato corretto per content blocks con immagini OpenRouter | 🔴 P0 | `[ ]` | `{type: "image_url", image_url: {url: "data:image/...;base64,..."}}`  |
-| F1-D-05 | Creare `agent/providerClient.js`: chiamata fetch a OpenRouter | 🔴 P0 | `[ ]` | Headers: Authorization, HTTP-Referer, X-Title |
-| F1-D-06 | `providerClient.js`: gestione errori API (rate limit, timeout, errori modello) | 🟠 P1 | `[ ]` | Risposta leggibile all'utente |
-| F1-D-07 | Creare `agent/orchestrator.js`: coordina skillLoader + promptBuilder + providerClient | 🔴 P0 | `[ ]` | Funzione principale `runAnalysis(session_id, message, screenshots)` |
-| F1-D-08 | Creare `routes/agent.js`: `POST /api/agent/analyze` — chiama orchestrator | 🔴 P0 | `[ ]` | Restituisce risposta agente + salva in DB |
-| F1-D-09 | Testare chiamata end-to-end con immagine di test e messaggio libero | 🔴 P0 | `[ ]` | Verifica che l'agente risponda in stile kit |
+| F1-D-01 | Creare `agent/skillLoader.js`: legge i file `/kit/` e restituisce stringa concatenata | 🔴 P0 | `[x]` | Cache in memoria all'avvio |
+| F1-D-02 | Creare `agent/promptBuilder.js`: costruisce array `messages` per OpenRouter | 🔴 P0 | `[x]` | system prompt + history + nuovo messaggio |
+| F1-D-03 | `promptBuilder.js`: convertire screenshot in base64 per vision API | 🔴 P0 | `[x]` | `fs.readFileSync` + `Buffer.toString('base64')` |
+| F1-D-04 | `promptBuilder.js`: formato corretto per content blocks con immagini OpenRouter | 🔴 P0 | `[x]` | `{type: "image_url", image_url: {url: "data:image/...;base64,..."}}`  |
+| F1-D-05 | Creare `agent/providerClient.js`: chiamata fetch a OpenRouter | 🔴 P0 | `[x]` | Headers: Authorization, HTTP-Referer, X-Title |
+| F1-D-06 | `providerClient.js`: gestione errori API (rate limit, timeout, errori modello) | 🟠 P1 | `[x]` | Risposta leggibile all'utente |
+| F1-D-07 | Creare `agent/orchestrator.js`: coordina skillLoader + promptBuilder + providerClient | 🔴 P0 | `[x]` | Funzione principale `runAnalysis(session_id, message, screenshots)` |
+| F1-D-08 | Creare `routes/agent.js`: `POST /api/agent/analyze` — chiama orchestrator | 🔴 P0 | `[x]` | Restituisce risposta agente + salva in DB |
+| F1-D-09 | Testare chiamata end-to-end con immagine di test e messaggio libero | 🔴 P0 | `[~]` | Verifica che l'agente risponda in stile kit |
+
 
 ### F1-E: Frontend base (React)
 
@@ -77,15 +78,15 @@
 | F1-E-02 | Creare `api/client.js` con wrapper fetch (base URL, headers, error handling) | 🔴 P0 | `[x]` | Implementato `client/src/api/client.js`
 | F1-E-03 | Creare Zustand store `sessionStore.js` (sessions list, current session, messages) | 🔴 P0 | `[x]` | `client/src/store/sessionStore.js` creato
 | F1-E-04 | Creare `pages/Dashboard.jsx`: lista sessioni recenti + pulsante "Nuova analisi" | 🔴 P0 | `[x]` | Pagina placeholder creata
-| F1-E-05 | Dashboard: cliccando su sessione naviga a `/workspace/:id` | 🟠 P1 | `[ ]` | |
-| F1-E-06 | Dashboard: "Nuova analisi" crea sessione via API e naviga al workspace | 🔴 P0 | `[ ]` | |
-| F1-E-08 | Creare `components/chat/ChatPanel.jsx`: lista messaggi + input testo | 🔴 P0 | `[ ]` | |
-| F1-E-09 | `ChatPanel.jsx`: scroll automatico all'ultimo messaggio | 🟠 P1 | `[ ]` | |
-| F1-E-10 | `ChatPanel.jsx`: indicatore "L'agente sta scrivendo..." durante la chiamata AI | 🟠 P1 | `[ ]` | |
-| F1-E-11 | Creare `components/chat/MessageBubble.jsx`: stile diverso per user/assistant | 🟠 P1 | `[ ]` | Prosa dell'agente: font leggibile, buon line-height |
-| F1-E-12 | Creare `components/chat/UploadArea.jsx`: drag & drop + click per upload screenshot | 🔴 P0 | `[ ]` | Anteprima thumbnail prima dell'invio |
-| F1-E-13 | `UploadArea.jsx`: invia messaggio + screenshot insieme via `POST /api/agent/analyze` | 🔴 P0 | `[ ]` | |
-| F1-E-14 | Creare `components/session/SessionMemory.jsx`: pannello laterale con asset/TF/struttura/livelli | 🟠 P1 | `[ ]` | Dati da `session_memory` DB |
+| F1-E-05 | Dashboard: cliccando su sessione naviga a `/workspace/:id` | 🟠 P1 | `[x]` | |
+| F1-E-06 | Dashboard: "Nuova analisi" crea sessione via API e naviga al workspace | 🔴 P0 | `[x]` | |
+| F1-E-08 | Creare `components/chat/ChatPanel.jsx`: lista messaggi + input testo | 🔴 P0 | `[x]` | |
+| F1-E-09 | `ChatPanel.jsx`: scroll automatico all'ultimo messaggio | 🟠 P1 | `[x]` | |
+| F1-E-10 | `ChatPanel.jsx`: indicatore "L'agente sta scrivendo..." durante la chiamata AI | 🟠 P1 | `[x]` | |
+| F1-E-11 | Creare `components/chat/MessageBubble.jsx`: stile diverso per user/assistant | 🟠 P1 | `[x]` | Prosa dell'agente: font leggibile, buon line-height |
+| F1-E-12 | Creare `components/chat/UploadArea.jsx`: drag & drop + click per upload screenshot | 🔴 P0 | `[x]` | Anteprima thumbnail prima dell'invio |
+| F1-E-13 | `UploadArea.jsx`: invia messaggio + screenshot insieme via `POST /api/agent/analyze` | 🔴 P0 | `[x]` | |
+| F1-E-14 | Creare `components/session/SessionMemory.jsx`: pannello laterale con asset/TF/struttura/livelli | 🟠 P1 | `[x]` | Dati da `session_memory` DB |
 | F1-E-07 | Creare `pages/Workspace.jsx`: layout a 3 colonne (chat | upload | memory) | 🔴 P0 | `[x]` | Pagina placeholder creata (layout da completare)
 
 | F1-E-15 | Creare `pages/Journal.jsx`: tabella righe journal con export CSV | 🟡 P2 | `[x]` | Pagina placeholder creata

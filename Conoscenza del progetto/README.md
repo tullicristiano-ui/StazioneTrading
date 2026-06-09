@@ -57,9 +57,16 @@ Creare una webapp personale che permetta al trader di svolgere sessioni di anali
 
 | Fase | Stato |
 |---|---|
-| MVP (Fase 1) | � In corso |
+| MVP (Fase 1) | 🟠 In corso |
 | Workflow Trading (Fase 2) | 🔴 Non iniziato |
 | Produttività (Fase 3) | 🔴 Non iniziato |
+
+## Aggiornamenti recenti
+
+- Implementati i core backend per sessioni, messaggi, agent e journal.
+- Aggiunti moduli agent: `skillLoader`, `promptBuilder`, `providerClient` e `orchestrator`.
+- Realizzata la UI della chat con supporto upload screenshot, indicatori di invio e session memory.
+- Aggiunta esportazione CSV per il journal.
 
 ## Aggiornamenti recenti
 
