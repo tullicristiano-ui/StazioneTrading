@@ -16,7 +16,7 @@
 |---|---|
 | Frontend | React + Vite + Tailwind CSS + Zustand |
 | Backend | Node.js + Express |
-| Database | SQLite (better-sqlite3) |
+| Database | SQLite (`sqlite3`) |
 | AI Provider | OpenRouter (claude-3.5-sonnet con vision) |
 | Upload file | Multer |
 | Routing client | react-router-dom |

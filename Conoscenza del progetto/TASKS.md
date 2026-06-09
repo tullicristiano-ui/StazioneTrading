@@ -28,6 +28,7 @@
 | F1-A-07 | Creare `.env` da `.env.example` e inserire API key | 🔴 P0 | `[x]` | `.env.example` creato — non committare chiavi |
 | F1-A-08 | Creare `.gitignore` con le esclusioni previste | 🟠 P1 | `[x]` | Vedi PROJECT_PLAN §5 |
 | F1-A-09 | Copiare i file del kit in `/kit/` | 🔴 P0 | `[x]` | File 01,02,04,06,07,08,09 creati (placeholder) |
+| F1-A-10 | Configurare `npm run dev` dalla root con `concurrently` | 🔴 P0 | `[x]` | Avvio server+client con singolo comando |
 
 ### F1-B: Database e server base
 
@@ -38,7 +39,7 @@
 | F1-B-03 | Eseguire la migrazione all'avvio del server (auto-run in database.js) | 🔴 P0 | `[x]` | `initDatabase()` esegue le migration lette dal file
 | F1-B-04 | Creare `server/src/index.js` con Express base (cors, json, static uploads) | 🔴 P0 | `[x]` | Entry point creato con health check e Multer config
 | F1-B-05 | Creare cartella `server/uploads/` con `.gitkeep` | 🟠 P1 | `[x]` | Cartella e `.gitkeep` creati
-| F1-B-06 | Testare avvio server su `localhost:3001` | 🟠 P1 | `[~]` | Health endpoint implementato; avvio server non ancora verificato in questo ambiente
+| F1-B-06 | Testare avvio server su `localhost:3001` | 🟠 P1 | `[x]` | Health endpoint implementato; avvio server verificato con root `npm run dev`
 
 ### F1-C: Routes API base
 
@@ -67,7 +68,7 @@
 | F1-D-06 | `providerClient.js`: gestione errori API (rate limit, timeout, errori modello) | 🟠 P1 | `[x]` | Risposta leggibile all'utente |
 | F1-D-07 | Creare `agent/orchestrator.js`: coordina skillLoader + promptBuilder + providerClient | 🔴 P0 | `[x]` | Funzione principale `runAnalysis(session_id, message, screenshots)` |
 | F1-D-08 | Creare `routes/agent.js`: `POST /api/agent/analyze` — chiama orchestrator | 🔴 P0 | `[x]` | Restituisce risposta agente + salva in DB |
-| F1-D-09 | Testare chiamata end-to-end con immagine di test e messaggio libero | 🔴 P0 | `[~]` | Verifica che l'agente risponda in stile kit |
+| F1-D-09 | Testare chiamata end-to-end con immagine di test e messaggio libero | 🔴 P0 | `[x]` | Verifica che l'agente risponda in stile kit |
 
 
 ### F1-E: Frontend base (React)

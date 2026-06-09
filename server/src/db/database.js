@@ -4,7 +4,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const DB_PATH = process.env.DB_PATH || './server/data/aware_trading.db'
+const DB_PATH = process.env.DB_PATH || path.resolve(__dirname, '..', '..', 'data', 'aware_trading.db')
 
 // Ensure data directory exists
 const dataDir = path.dirname(DB_PATH)
@@ -46,7 +46,7 @@ export function initDatabase() {
 function runMigrations() {
   return new Promise((resolve, reject) => {
     const migrationPath = path.join(__dirname, 'migrations', '001_init.sql')
-    
+
     fs.readFile(migrationPath, 'utf8', (err, sql) => {
       if (err) {
         console.error('Failed to read migration file:', err)
@@ -54,29 +54,14 @@ function runMigrations() {
         return
       }
 
-      // Split by semicolon and execute each statement
-      const statements = sql
-        .split(';')
-        .map(s => s.trim())
-        .filter(s => s.length > 0)
+      db.exec(sql, (err) => {
+        if (err) {
+          console.error('Migration error:', err)
+          reject(err)
+          return
+        }
 
-      let completed = 0
-      let hasError = false
-
-      statements.forEach((statement) => {
-        db.run(statement, (err) => {
-          if (err && !hasError) {
-            console.error('Migration error:', err)
-            hasError = true
-            reject(err)
-            return
-          }
-
-          completed++
-          if (completed === statements.length && !hasError) {
-            resolve()
-          }
-        })
+        resolve()
       })
     })
   })

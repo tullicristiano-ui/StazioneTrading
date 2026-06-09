@@ -14,28 +14,26 @@ copy .env.example .env
 cp .env.example .env
 ```
 
-2. Apri due terminali separati.
-
-3. Terminale 1 — Server:
+2. Installa le dipendenze dalla root del repository:
 
 ```powershell
-cd server
 npm install
+```
+
+3. Avvia l'intero progetto dalla root con un solo comando:
+
+```powershell
 npm run dev
 ```
 
-Il server di default ascolta su `http://localhost:3001`. Verifica lo stato con:
+Questo comando avvierà automaticamente:
+- il server Express su `http://localhost:3001`
+- il client Vite su `http://localhost:5173`
+
+4. Verifica lo stato del backend con:
 
 ```powershell
 curl http://localhost:3001/health
-```
-
-4. Terminale 2 — Client:
-
-```powershell
-cd client
-npm install
-npm run dev
 ```
 
 Il client Vite è disponibile su `http://localhost:5173`.

@@ -9,6 +9,7 @@ Aware Trading Workspace è una webapp personale (localhost, utente singolo) per 
 ## Stato attuale
 
 - Phase 1-A (Project Setup) completata: struttura `server/`, `client/`, `kit/` creata, server Express e client React+Vite configurati, schema DB (SQLite) creato, primo commit effettuato.
+- Avvio root verificato: `npm run dev` dalla root ora avvia server e client insieme, e la migrazione SQLite è stata fixata per evitare l'errore `no such table: main.messages`.
 - Prossime attività principali: implementare le route API (`/api/sessions`, `/api/messages`, `/api/agent`, `/api/journal`), sviluppare l'orchestrator dell'agente e completare i componenti UI principali (ChatPanel, UploadArea, SessionMemory).
 
 ## Stack tecnologico
