@@ -19,7 +19,6 @@ Quando si incontra un bug:
 ---
 
 ## Bug attivi
-
 ### BUG-001 — Provider HuggingFace non selezionato correttamente in dev mode
 
 **Stato:** ✅ Risolto

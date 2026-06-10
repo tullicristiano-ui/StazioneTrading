@@ -84,9 +84,11 @@ F1-A (setup) → F1-B (DB) → F1-C (routes) → F1-D (agent) → F1-E (UI)
 **Milestone M7** — Archivio e ricerca
 - [ ] Ricerca sessioni per asset e data funzionante
 - [ ] Sessioni hanno titolo e asset visibili in lista
+- [x] Ricerca sessioni per asset e data funzionante (client-side)
+- [x] Sessioni hanno titolo e asset visibili in lista
 
 **Milestone M8** — Timeline e report
-- [ ] View timeline con messaggi + screenshot cronologici
+- [~] View timeline con messaggi + screenshot cronologici (in sviluppo)
 - [ ] Chiusura sessione con riassunto generato dall'AI
 - [ ] Snapshot analisi salvabili
 
@@ -133,4 +135,4 @@ Una milestone è completata quando:
 4. È stato fatto almeno un test manuale con screenshot reali di grafico
 
 ---
-*Ultima modifica: 2026-06-09 | Fase corrente: Fase 3*
+*Ultima modifica: 2026-06-10 | Fase corrente: Fase 3*

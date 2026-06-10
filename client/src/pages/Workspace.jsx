@@ -135,6 +135,9 @@ export default function Workspace() {
           <button onClick={() => navigate('/journal')} className="rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400">
             Apri Journal
           </button>
+          <button onClick={() => navigate(`/workspace/${id}/timeline`)} className="rounded-xl px-4 py-2 text-sm font-semibold transition bg-slate-800 text-slate-200 hover:bg-slate-700">
+            Apri Timeline
+          </button>
           <button
             onClick={() => setTradeOpen((prev) => !prev)}
             className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${tradeOpen ? 'bg-emerald-500 text-slate-950 hover:bg-emerald-400' : 'bg-slate-800 text-slate-200 hover:bg-slate-700'}`}

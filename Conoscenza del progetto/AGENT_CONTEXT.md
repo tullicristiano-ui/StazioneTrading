@@ -140,6 +140,7 @@ UPLOADS_PATH=./server/uploads
 - **Fase 2 — Workflow Trading**: completata (trade aperto, session memory automatica, journal CSV).
 - **Multi-provider**: implementato. OpenRouter continua a funzionare; HuggingFace/Gemma disponibile via `AI_PROVIDER=huggingface`.
 - **Fase 3 — Produttività**: da iniziare (ricerca sessioni, timeline, report).
+ - **Fase 3 — Produttività**: in corso — ricerca sessioni (client-side) completata, timeline sessione implementata client-side (in sviluppo).
 - Verificare `TASKS.md` per il dettaglio delle task in corso.
 - `BUG_LOG.md` contiene i problemi ancora aperti.
 

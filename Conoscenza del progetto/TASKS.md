@@ -145,8 +145,9 @@
 | ID | Task | Priorità | Stato | Note |
 |---|---|---|---|---|
 | F3-A-01 | Aggiungere campo `asset` e `title` alla lista sessioni in Dashboard | 🟡 P2 | `[ ]` | |
-| F3-A-02 | Implementare ricerca sessioni per data e asset | 🟡 P2 | `[ ]` | Filtro lato client o query SQL |
-| F3-A-03 | Creare view "Timeline sessione": messaggi + screenshot in ordine cronologico | 🟡 P2 | `[ ]` | |
+| F3-A-01 | Aggiungere campo `asset` e `title` alla lista sessioni in Dashboard | 🟡 P2 | `[x]` | Aggiunti nella UI (Dashboard) |
+| F3-A-02 | Implementare ricerca sessioni per data e asset | 🟡 P2 | `[x]` | Implementazione client-side nella Dashboard (filtri asset + date) |
+| F3-A-03 | Creare view "Timeline sessione": messaggi + screenshot in ordine cronologico | 🟡 P2 | `[~]` | Vista Timeline implementata client-side (in sviluppo) |
 | F3-A-04 | Implementare "Chiudi sessione" con generazione riassunto automatico | ⚪ P3 | `[ ]` | Riassunto generato da AI |
 | F3-A-05 | Snapshot analisi: salvare stato corrente come "snapshot" nominabile | ⚪ P3 | `[ ]` | |
 
@@ -174,4 +175,4 @@ Prima di ogni commit, verificare:
 - [ ] I componenti React nuovi hanno PropTypes o TypeScript types
 
 ---
-*Ultima modifica: 2026-06-09 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: in corso*
+*Ultima modifica: 2026-06-10 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: in corso*
