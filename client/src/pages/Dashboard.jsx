@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client.js'
 
 export default function Dashboard() {
   const [sessions, setSessions] = useState([])
+  const [assetFilter, setAssetFilter] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const navigate = useNavigate()
@@ -51,13 +54,63 @@ export default function Dashboard() {
       <section className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
         <h2 className="mb-4 text-xl font-semibold">Sessioni recenti</h2>
 
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <input
+              placeholder="Filtra per asset"
+              value={assetFilter}
+              onChange={(e) => setAssetFilter(e.target.value)}
+              className="rounded-md bg-slate-800 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500"
+            />
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="rounded-md bg-slate-800 px-3 py-2 text-sm text-slate-200"
+            />
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="rounded-md bg-slate-800 px-3 py-2 text-sm text-slate-200"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => { setAssetFilter(''); setDateFrom(''); setDateTo('') }}
+              className="rounded-md bg-slate-800 px-3 py-2 text-sm text-slate-200 hover:bg-slate-700"
+            >
+              Pulisci
+            </button>
+          </div>
+        </div>
+
         {loading ? (
           <div className="text-slate-400">Caricamento...</div>
         ) : sessions.length === 0 ? (
           <div className="text-slate-500">Nessuna sessione ancora creata. Clicca su "Nuova analisi" per iniziare.</div>
         ) : (
-          <div className="space-y-3">
-            {sessions.map((session) => (
+          (() => {
+            const filtered = sessions.filter((session) => {
+              if (assetFilter && !(session.asset || '').toLowerCase().includes(assetFilter.toLowerCase())) return false
+              if (dateFrom) {
+                const from = new Date(dateFrom)
+                const updated = new Date(session.updated_at)
+                if (updated < from) return false
+              }
+              if (dateTo) {
+                const to = new Date(dateTo)
+                // include the whole day
+                to.setHours(23, 59, 59, 999)
+                const updated = new Date(session.updated_at)
+                if (updated > to) return false
+              }
+              return true
+            })
+
+            return (
+              <div className="space-y-3">
+                {filtered.map((session) => (
               <button
                 key={session.id}
                 onClick={() => navigate(`/workspace/${session.id}`)}
@@ -72,8 +125,11 @@ export default function Dashboard() {
                 </div>
                 <div className="mt-3 text-slate-400">Asset: {session.asset || 'Non specificato'}</div>
               </button>
-            ))}
-          </div>
+                ))}
+                {filtered.length === 0 && <div className="text-slate-500">Nessuna sessione corrisponde ai filtri.</div>}
+              </div>
+            )
+          })()
         )}
       </section>
     </div>
