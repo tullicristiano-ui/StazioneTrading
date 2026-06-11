@@ -57,7 +57,7 @@ F1-A (setup) → F1-B (DB) → F1-C (routes) → F1-D (agent) → F1-E (UI)
 
 **Milestone M5** — Flussi operativi
 - [x] Modalità "trade aperto" distinguibile dalla pre-trade
-- [ ] L'agente guida la richiesta di screenshot mancanti
+- [x] L'agente guida la richiesta di screenshot mancanti
 - [x] Pulsante "genera riga journal" funzionante
 
 **Milestone M6** — Journal operativo
@@ -81,14 +81,17 @@ F1-A (setup) → F1-B (DB) → F1-C (routes) → F1-D (agent) → F1-E (UI)
 
 **Obiettivo:** migliorare la navigazione storica e la reportistica.
 
-**Milestone M7** — Archivio e ricerca
-- [ ] Ricerca sessioni per asset e data funzionante
-- [ ] Sessioni hanno titolo e asset visibili in lista
+**Milestone M7** — Archivio e ricerca ✅
+- [x] Ricerca sessioni per asset e data funzionante (filtri client-side in Dashboard)
+- [x] Sessioni hanno titolo e asset visibili in lista
 
-**Milestone M8** — Timeline e report
-- [ ] View timeline con messaggi + screenshot cronologici
-- [ ] Chiusura sessione con riassunto generato dall'AI
-- [ ] Snapshot analisi salvabili
+**Milestone M8** — Timeline e report ✅
+- [x] View timeline con messaggi + screenshot cronologici
+- [x] Chiusura sessione con riassunto generato dall'AI
+- [x] Snapshot analisi salvabili
+- [x] Apertura snapshot in sola lettura (memoria + messaggi salvati)
+- [x] Import screenshot da clipboard (Ctrl+V) nell'area chat
+- [x] Avviso modello text-only (Gemma) nell'area upload via `GET /api/agent/info`
 
 **Dipendenze:** Fase 3 richiede Fase 2 completa (Milestone M6).
 
@@ -133,4 +136,15 @@ Una milestone è completata quando:
 4. È stato fatto almeno un test manuale con screenshot reali di grafico
 
 ---
-*Ultima modifica: 2026-06-09 | Fase corrente: Fase 3*
+
+## Prossima fase — Visione (vision) e modello Sonnet
+
+**Contesto:** al momento il provider attivo è **Gemma via HuggingFace** (`AI_PROVIDER=huggingface`), che è **text-only**: l'agente non può leggere gli screenshot dei grafici. Le Fasi 1-3 sono completate, ma l'analisi visiva reale richiede un modello con vision.
+
+**Milestone M9 (futura)** — Integrazione Anthropic / Sonnet (vision)
+- [ ] Attivare un modello vision per la lettura reale degli screenshot — via OpenRouter (`AI_PROVIDER=openrouter`, `OPENROUTER_MODEL=anthropic/claude-3.5-sonnet`) oppure con un adapter Anthropic dedicato (`providers/anthropicProvider.js`)
+- [ ] F2-D-06: test del provider con chiave reale (chat + immagini)
+- [ ] Verifica end-to-end: analisi di uno screenshot di grafico reale
+
+---
+*Ultima modifica: 2026-06-11 | Fasi 1-3 ✅ (M1–M8) | Prossimo: M9 — vision/Sonnet*

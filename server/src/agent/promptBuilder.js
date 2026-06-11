@@ -24,36 +24,38 @@ export async function buildMessages(systemPrompt, history = [], userContent = ''
     })
   }
 
-  if (screenshotUrls.length > 0) {
-    const imageBlocks = []
-    for (const url of screenshotUrls) {
-      const localPath = url.startsWith('/uploads/')
-        ? path.join(uploadsRoot, url.replace('/uploads/', ''))
-        : null
+  // Costruisce i blocchi immagine (data URL base64) dagli screenshot allegati.
+  const imageBlocks = []
+  for (const url of screenshotUrls) {
+    const localPath = url.startsWith('/uploads/')
+      ? path.join(uploadsRoot, url.replace('/uploads/', ''))
+      : null
 
-      if (localPath) {
-        try {
-          const dataUrl = await toDataUrl(localPath)
-          imageBlocks.push({
-            type: 'image_url',
-            image_url: { url: dataUrl },
-            caption: 'Screenshot allegato'
-          })
-        } catch (error) {
-          console.warn('promptBuilder: impossibile leggere immagine', localPath, error.message)
-        }
+    if (localPath) {
+      try {
+        const dataUrl = await toDataUrl(localPath)
+        imageBlocks.push({ type: 'image_url', image_url: { url: dataUrl } })
+      } catch (error) {
+        console.warn('promptBuilder: impossibile leggere immagine', localPath, error.message)
       }
-    }
-
-    if (imageBlocks.length > 0) {
-      messages.push({
-        role: 'user',
-        content: `Allego ${imageBlocks.length} screenshot per analizzare la struttura del mercato.`
-      })
-      imageBlocks.forEach((block) => messages.push(block))
     }
   }
 
-  messages.push({ role: 'user', content: userContent })
+  if (imageBlocks.length > 0) {
+    // Formato corretto per i provider con vision (OpenRouter, futuro Anthropic):
+    // UN SOLO messaggio user con content = array di blocchi [testo, immagine, ...].
+    // I provider text-only (HuggingFace/Gemma) ricevono lo stesso array e lo
+    // appiattiscono a testo nel loro adapter (normalizeMessagesForTextModel).
+    const text = userContent && userContent.trim().length > 0
+      ? userContent
+      : 'Analizza gli screenshot allegati applicando il metodo Aware Trader.'
+
+    const contentBlocks = [{ type: 'text', text }]
+    imageBlocks.forEach((block) => contentBlocks.push(block))
+    messages.push({ role: 'user', content: contentBlocks })
+  } else {
+    messages.push({ role: 'user', content: userContent })
+  }
+
   return messages
 }

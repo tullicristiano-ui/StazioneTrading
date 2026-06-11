@@ -9,11 +9,12 @@
 ```
 Browser (React)
     │
-    ├── Dashboard Page
+    ├── Dashboard Page (lista sessioni + filtri asset/data)
     ├── Workspace Page (analisi)
     │       ├── Chat Panel
     │       ├── Upload Panel
     │       └── Session Memory Panel (sidebar)
+    ├── Timeline Page (messaggi + screenshot in ordine cronologico)
     └── Journal Page
     
     │ HTTP / fetch
@@ -23,16 +24,16 @@ Node.js + Express (API Server)
     ├── /api/sessions       → CRUD sessioni
     ├── /api/messages       → messaggi chat + upload screenshot
     ├── /api/journal        → righe CSV journal
-    └── /api/agent          → orchestrazione AI (OpenRouter)
+    └── /api/agent          → orchestrazione AI (provider selezionabile)
     
     │
-    ├── SQLite (better-sqlite3)   → persistenza locale
-    ├── /uploads/                 → screenshot su disco
+    ├── SQLite (sqlite3, API asincrona)   → persistenza locale (file su disco)
+    ├── /uploads/                          → screenshot su disco
     └── Agent Orchestrator
             │
-            ├── Skill Loader      → carica i file del kit (01,04,06,07,08,09)
-            ├── Prompt Builder    → costruisce il system prompt + history
-            └── Provider Client   → chiamata OpenRouter (vision + text)
+            ├── Skill Loader      → carica i file del kit (01,02,04,06,07,08,09)
+            ├── Prompt Builder    → costruisce il system prompt + history + screenshot base64
+            └── Provider Client   → router multi-provider (OpenRouter / HuggingFace)
 ```
 
 ---
@@ -157,17 +158,28 @@ La session memory NON è gestita automaticamente dall'AI. Dopo ogni risposta del
 Questo viene salvato in `session_memory` e mostrato nel pannello laterale.  
 *(Ottimizzazione MVP: si può fare manualmente con un pulsante "aggiorna memoria" invece di automaticamente)*
 
-### 3.5 Provider AI (OpenRouter)
+### 3.5 Provider AI (multi-provider)
 
-Endpoint: `https://openrouter.ai/api/v1/chat/completions`  
-Modello MVP: `anthropic/claude-3.5-sonnet` (vision support)  
-Headers richiesti:
-```
-Authorization: Bearer {OPENROUTER_API_KEY}
-HTTP-Referer: http://localhost:3000
-X-Title: Aware Trading Workspace
-Content-Type: application/json
-```
+Il provider attivo si sceglie via `.env` con `AI_PROVIDER`, **senza toccare il codice**.
+`providerClient.js` è un *router*: in base a `AI_PROVIDER` delega all'adapter giusto in `providers/`.
+
+| `AI_PROVIDER` | Adapter | Capacità | Chiave richiesta |
+|---|---|---|---|
+| `huggingface` / `hf` | `providers/huggingfaceProvider.js` | **solo testo** (Gemma) | `HUGGINGFACE_API_KEY` o `HF_TOKEN` |
+| `openrouter` | `providers/openrouterProvider.js` | vision + testo | `OPENROUTER_API_KEY` |
+
+Ogni adapter espone la stessa interfaccia: `requestCompletion(payload)` e `parseResponse(data)`.
+L'orchestrator resta invariato perché chiama sempre `requestCompletion()`/`parseCompletionResponse()`.
+
+HuggingFace — endpoint `https://router.huggingface.co/v1/chat/completions`, modello da `HUGGINGFACE_MODEL`/`HF_MODEL` (es. `google/gemma-2-9b-it`); essendo text-only, le immagini vengono rimosse e sostituite da una nota testuale.
+OpenRouter — endpoint `https://openrouter.ai/api/v1/chat/completions`, modello da `OPENROUTER_MODEL` (es. `anthropic/claude-3.5-sonnet`, con vision).
+
+#### Stato attuale e piano provider
+
+- **Adesso (giugno 2026):** in uso **esclusivamente Gemma via HuggingFace** (`AI_PROVIDER=huggingface`).
+- **⚠️ Limite importante:** Gemma è **text-only**, quindi **l'agente NON può "vedere" gli screenshot dei grafici**. Le immagini vengono caricate, salvate e mostrate in chat/Timeline, ma all'AI arriva solo una nota testuale che segnala la presenza di allegati: l'analisi visiva del grafico **non è disponibile** con il provider attuale.
+- **Costruzione messaggio corretta:** `promptBuilder.js` impacchetta gli screenshot nel formato vision standard (un unico messaggio `user` con `content` = array `[testo, image_url...]`). I provider con vision lo usano direttamente; l'adapter HuggingFace lo appiattisce a testo. Così, appena si attiva un provider vision, le immagini funzionano senza altre modifiche.
+- **Futuro:** integrazione di **Anthropic con un modello Sonnet** (vision-capable) per abilitare la vera lettura degli screenshot. Si potrà usare in due modi: (a) subito via OpenRouter impostando `AI_PROVIDER=openrouter` e `OPENROUTER_MODEL=anthropic/claude-3.5-sonnet`; (b) in seguito con un adapter Anthropic dedicato (`providers/anthropicProvider.js`) e API key diretta. Quando si farà, aggiornare questa sezione e `AGENT_CONTEXT.md`.
 
 ---
 
@@ -238,13 +250,26 @@ aware-trading-workspace/
 
 ## 5. Configurazione ambiente
 
-### `.env.example`
+### `.env` (vedi `.env.example` per il template completo)
 ```
+# Provider attivo
+AI_PROVIDER=openrouter
+
+# OpenRouter (se AI_PROVIDER=openrouter)
 OPENROUTER_API_KEY=sk-or-...
+OPENROUTER_MODEL=anthropic/claude-3.5-sonnet
+
+# HuggingFace (se AI_PROVIDER=huggingface)
+HUGGINGFACE_API_KEY=hf-...   # oppure HF_TOKEN
+HUGGINGFACE_MODEL=google/gemma-2-9b-it
+
+# Server
 PORT=3001
 DB_PATH=./server/data/aware_trading.db
 UPLOADS_PATH=./server/uploads
 ```
+
+> Il server carica le variabili da `.env` se presente, altrimenti da `.env.local` come fallback (vedi `server/src/index.js`).
 
 ### `.gitignore` (elementi chiave)
 ```
@@ -279,4 +304,13 @@ dist/
 - Aggiungere un semplice PIN locale solo se si decide di esporre su rete locale
 
 ---
-*Ultima modifica: — | Versione: 0.1*
+
+## 8. Note tecniche sullo stato reale del codice
+
+- **Meccanismo migrazioni:** `server/src/db/database.js` esegue all'avvio **solo** il file `migrations/001_init.sql` (percorso hardcoded), non l'intera cartella. Le tabelle usano `CREATE TABLE IF NOT EXISTS`. Per aggiungere nuove tabelle/colonne in modo persistente bisogna o estenderle dentro `001_init.sql` (idempotente) oppure aggiornare il runner di `database.js` perché legga più file di migrazione.
+- **Wrapper DB asincroni:** usare sempre `runQuery` / `getQuery` / `allQuery` esportati da `database.js` (driver `sqlite3`, basato su callback incapsulati in Promise).
+- **Persistenza attuale = SQLite locale.** Il file vive in `server/data/aware_trading.db`. L'app **non** scrive su Supabase.
+- **Supabase / GitHub (connettori esterni):** il progetto ha un connettore Supabase attivo (organizzazione e progetto creati, regione `eu-west-2`, Postgres 17) e un repository GitHub (`tullicristiano-ui/StazioneTrading`). Al momento servono come strumenti/infrastruttura disponibile, ma **il codice dell'app continua a usare SQLite locale**: un'eventuale migrazione a Supabase/Postgres è una scelta futura non ancora implementata.
+
+---
+*Ultima modifica: 2026-06-11 | Versione: 0.2 (allineata allo stato reale del codice: multi-provider, pagina Timeline, sqlite3 async, fallback .env.local)*

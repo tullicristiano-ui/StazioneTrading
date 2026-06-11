@@ -43,28 +43,70 @@ export function initDatabase() {
   })
 }
 
-function runMigrations() {
+function execAsync(sql) {
   return new Promise((resolve, reject) => {
-    const migrationPath = path.join(__dirname, 'migrations', '001_init.sql')
-
-    fs.readFile(migrationPath, 'utf8', (err, sql) => {
-      if (err) {
-        console.error('Failed to read migration file:', err)
-        reject(err)
-        return
-      }
-
-      db.exec(sql, (err) => {
-        if (err) {
-          console.error('Migration error:', err)
-          reject(err)
-          return
-        }
-
-        resolve()
-      })
+    db.exec(sql, (err) => {
+      if (err) reject(err)
+      else resolve()
     })
   })
+}
+
+function getAsync(sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.get(sql, params, (err, row) => {
+      if (err) reject(err)
+      else resolve(row)
+    })
+  })
+}
+
+function runAsync(sql, params = []) {
+  return new Promise((resolve, reject) => {
+    db.run(sql, params, (err) => {
+      if (err) reject(err)
+      else resolve()
+    })
+  })
+}
+
+/**
+ * Applica in ordine tutti i file .sql presenti in /migrations.
+ * Tiene traccia delle migrazioni già applicate nella tabella
+ * schema_migrations, così ogni file viene eseguito una sola volta.
+ */
+async function runMigrations() {
+  const migrationsDir = path.join(__dirname, 'migrations')
+
+  // Tabella di controllo delle migrazioni applicate
+  await execAsync(
+    'CREATE TABLE IF NOT EXISTS schema_migrations (name TEXT PRIMARY KEY, applied_at TEXT NOT NULL)'
+  )
+
+  const files = fs
+    .readdirSync(migrationsDir)
+    .filter((file) => file.endsWith('.sql'))
+    .sort()
+
+  for (const file of files) {
+    const already = await getAsync('SELECT name FROM schema_migrations WHERE name = ?', [file])
+    if (already) {
+      continue
+    }
+
+    const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8')
+    try {
+      await execAsync(sql)
+      await runAsync(
+        'INSERT INTO schema_migrations (name, applied_at) VALUES (?, ?)',
+        [file, new Date().toISOString()]
+      )
+      console.log(`✓ Migrazione applicata: ${file}`)
+    } catch (err) {
+      console.error(`Migration error in ${file}:`, err)
+      throw err
+    }
+  }
 }
 
 export function getDatabase() {

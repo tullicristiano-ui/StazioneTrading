@@ -102,6 +102,7 @@
 | F2-A-02 | "Modalità trade aperto" con bottone dedicato | 🟠 P1 | `[x]` | |
 | F2-A-03 | Variante system prompt "trade aperto" | 🟠 P1 | `[x]` | |
 | F2-A-04 | Badge UI modalità "trade aperto" | 🟡 P2 | `[x]` | |
+| F2-A-05 | L'agente guida la richiesta di screenshot mancanti | 🟠 P1 | `[x]` | Orchestrator: se nessuno screenshot allegato (modalità standard/new_analysis), istruzione nel system prompt per chiedere il grafico (TF contesto + decisionale) |
 
 ### F2-B: Session Memory automatica
 
@@ -144,12 +145,13 @@
 
 | ID | Task | Priorità | Stato | Note |
 |---|---|---|---|---|
-| F3-A-01 | Aggiungere campo `asset` e `title` alla lista sessioni in Dashboard | 🟡 P2 | `[ ]` | |
 | F3-A-01 | Aggiungere campo `asset` e `title` alla lista sessioni in Dashboard | 🟡 P2 | `[x]` | Aggiunti nella UI (Dashboard) |
 | F3-A-02 | Implementare ricerca sessioni per data e asset | 🟡 P2 | `[x]` | Implementazione client-side nella Dashboard (filtri asset + date) |
-| F3-A-03 | Creare view "Timeline sessione": messaggi + screenshot in ordine cronologico | 🟡 P2 | `[~]` | Vista Timeline implementata client-side (in sviluppo) |
-| F3-A-04 | Implementare "Chiudi sessione" con generazione riassunto automatico | ⚪ P3 | `[ ]` | Riassunto generato da AI |
-| F3-A-05 | Snapshot analisi: salvare stato corrente come "snapshot" nominabile | ⚪ P3 | `[ ]` | |
+| F3-A-03 | Creare view "Timeline sessione": messaggi + screenshot in ordine cronologico | 🟡 P2 | `[x]` | Timeline solida: ordinamento cronologico esplicito, header sessione (titolo/asset/stato), riassunto, screenshot cliccabili (proxy `/uploads` in Vite), lista vuota gestita |
+| F3-A-04 | Implementare "Chiudi sessione" con generazione riassunto automatico | ⚪ P3 | `[x]` | `POST /api/sessions/:id/close` → status=closed + riassunto AI in `sessions.summary` (migration 002). Pulsante in Workspace con conferma |
+| F3-A-05 | Snapshot analisi: salvare stato corrente come "snapshot" nominabile | ⚪ P3 | `[x]` | Tabella `snapshots` (migration 002), `POST/GET /api/sessions/:id/snapshots`, pannello UI in Workspace |
+| F3-A-06 | Apertura snapshot in sola lettura | 🟡 P2 | `[x]` | `GET /api/sessions/:id/snapshots/:snapshotId` (memory_json/messages_json parsati), pulsante "Apri" + modale di sola visualizzazione in Workspace |
+| F3-A-07 | Endpoint info provider AI + avviso modello text-only | 🟡 P2 | `[x]` | `GET /api/agent/info` → `{provider, visionSupported}`. Avviso visibile nell'area upload quando il modello (Gemma) non legge le immagini |
 
 ---
 
@@ -160,7 +162,7 @@
 | V2-01 | Skill Manager UI: visualizzare skill caricate, poterle attivare/disattivare | |
 | V2-02 | Prompt Composer: interfaccia visuale per modificare l'harness | |
 | V2-03 | Multi Provider: supporto HuggingFace e API custom oltre OpenRouter | ✅ Completato in F2-D |
-| V2-04 | Import screenshot da clipboard (paste diretto nella chat) | |
+| V2-04 | Import screenshot da clipboard (paste diretto nella chat) | ✅ Completato — `UploadArea.jsx` gestisce l'evento paste (Ctrl+V) e aggiunge l'immagine ai file selezionati |
 | V2-05 | Aggiungere altri provider (Mistral, Ollama locale) seguendo il pattern adapter | Basta creare `providers/nomeProvider.js` |
 
 ---
@@ -175,4 +177,4 @@ Prima di ogni commit, verificare:
 - [ ] I componenti React nuovi hanno PropTypes o TypeScript types
 
 ---
-*Ultima modifica: 2026-06-10 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: in corso*
+*Ultima modifica: 2026-06-11 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | F2-A-05, F3-A-06/07, V2-04 completate*

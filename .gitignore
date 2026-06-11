@@ -12,6 +12,7 @@ server/data/
 # Uploads
 server/uploads/*
 !server/uploads/.gitkeep
+server/src/uploads/
 
 # Node
 node_modules/

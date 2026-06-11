@@ -31,6 +31,15 @@ export const api = {
   getSession: (id) => request(`/sessions/${id}`),
   createSession: (data) => request('/sessions', { method: 'POST', body: JSON.stringify(data) }),
   updateSession: (id, data) => request(`/sessions/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  closeSession: (id) => request(`/sessions/${id}/close`, { method: 'POST' }),
+
+  // Snapshots
+  getSnapshots: (id) => request(`/sessions/${id}/snapshots`),
+  getSnapshot: (sessionId, snapshotId) => request(`/sessions/${sessionId}/snapshots/${snapshotId}`),
+  createSnapshot: (id, name) => request(`/sessions/${id}/snapshots`, { method: 'POST', body: JSON.stringify({ name }) }),
+
+  // Agent info (provider attivo, supporto vision)
+  getAgentInfo: () => request('/agent/info'),
 
   // Messages & Agent
   sendMessage: (sessionId, content = '', screenshots = [], options = {}) => {

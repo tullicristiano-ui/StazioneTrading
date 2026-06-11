@@ -17,6 +17,14 @@ export default function Workspace() {
   const [tradeOpen, setTradeOpen] = useState(false)
   const [journalPreview, setJournalPreview] = useState(null)
   const [previewMessage, setPreviewMessage] = useState(null)
+  const [closing, setClosing] = useState(false)
+  const [snapshots, setSnapshots] = useState([])
+  const [snapshotName, setSnapshotName] = useState('')
+  const [savingSnapshot, setSavingSnapshot] = useState(false)
+  const [statusMessage, setStatusMessage] = useState(null)
+  const [openedSnapshot, setOpenedSnapshot] = useState(null)
+  const [loadingSnapshot, setLoadingSnapshot] = useState(false)
+  const [visionSupported, setVisionSupported] = useState(true)
   const messagesEndRef = useRef(null)
 
   const loadSession = async () => {
@@ -35,9 +43,94 @@ export default function Workspace() {
     }
   }
 
+  const loadSnapshots = async () => {
+    try {
+      const result = await api.getSnapshots(id)
+      setSnapshots(Array.isArray(result) ? result : [])
+    } catch (err) {
+      // Lo snapshot è una funzione secondaria: non blocchiamo la pagina
+      console.error('Impossibile caricare gli snapshot', err)
+    }
+  }
+
+  const loadAgentInfo = async () => {
+    try {
+      const info = await api.getAgentInfo()
+      setVisionSupported(info?.visionSupported !== false)
+    } catch (err) {
+      // Funzione informativa: in caso di errore manteniamo il default (true)
+      console.error('Impossibile caricare le info del provider AI', err)
+    }
+  }
+
   useEffect(() => {
     loadSession()
+    loadSnapshots()
+    loadAgentInfo()
   }, [id])
+
+  const handleOpenSnapshot = async (snapshotId) => {
+    setLoadingSnapshot(true)
+    setError(null)
+    try {
+      const result = await api.getSnapshot(id, snapshotId)
+      setOpenedSnapshot(result)
+    } catch (err) {
+      setError(err.message || 'Errore durante l\'apertura dello snapshot')
+    } finally {
+      setLoadingSnapshot(false)
+    }
+  }
+
+  const handleCloseSnapshotView = () => {
+    setOpenedSnapshot(null)
+  }
+
+  const handleCloseSession = async () => {
+    const confirmed = window.confirm(
+      'Chiudere la sessione genererà un riassunto tramite AI (può comportare una chiamata al provider) e segnerà la sessione come "chiusa". Procedere?'
+    )
+    if (!confirmed) {
+      return
+    }
+
+    setClosing(true)
+    setError(null)
+    setStatusMessage(null)
+
+    try {
+      const updated = await api.closeSession(id)
+      setSession(updated)
+      setStatusMessage('Sessione chiusa. Riassunto generato e salvato.')
+    } catch (err) {
+      setError(err.message || 'Errore durante la chiusura della sessione')
+    } finally {
+      setClosing(false)
+    }
+  }
+
+  const handleCreateSnapshot = async () => {
+    const name = snapshotName.trim()
+    if (!name) {
+      setError('Inserisci un nome per lo snapshot.')
+      return
+    }
+
+    setSavingSnapshot(true)
+    setError(null)
+    setStatusMessage(null)
+
+    try {
+      await api.createSnapshot(id, name)
+      setSnapshotName('')
+      setStatusMessage(`Snapshot "${name}" salvato.`)
+      await loadSnapshots()
+    } catch (err) {
+      setError(err.message || 'Errore durante il salvataggio dello snapshot')
+    } finally {
+      setSavingSnapshot(false)
+    }
+  }
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -144,8 +237,28 @@ export default function Workspace() {
           >
             {tradeOpen ? 'Modalità trade aperto: ON' : 'Attiva trade aperto'}
           </button>
+          <button
+            onClick={handleCloseSession}
+            disabled={closing || session?.status === 'closed'}
+            className="rounded-xl bg-rose-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-rose-400 disabled:opacity-50"
+          >
+            {session?.status === 'closed' ? 'Sessione chiusa' : closing ? 'Chiusura...' : 'Chiudi sessione'}
+          </button>
         </div>
       </div>
+
+      {statusMessage && (
+        <div className="mb-5 rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-4 text-sm text-cyan-200">
+          {statusMessage}
+        </div>
+      )}
+
+      {session?.summary && (
+        <div className="mb-5 rounded-3xl border border-emerald-500/20 bg-emerald-500/5 p-5 shadow-xl">
+          <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-emerald-300">Riassunto sessione</h2>
+          <p className="mt-2 whitespace-pre-wrap text-sm text-slate-100">{session.summary}</p>
+        </div>
+      )}
 
       <div className="grid gap-6 xl:grid-cols-[1.7fr_1fr]">
         <div className="space-y-6">
@@ -159,6 +272,7 @@ export default function Workspace() {
             onGenerateJournal={handleGenerateJournal}
             loading={loading}
             error={error}
+            visionSupported={visionSupported}
           />
 
           {previewMessage && (
@@ -204,8 +318,119 @@ export default function Workspace() {
           )}
         </div>
 
-        <SessionMemory memory={memory} />
+        <div className="space-y-6">
+          <SessionMemory memory={memory} />
+
+          <section className="rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-xl">
+            <h2 className="text-lg font-semibold text-slate-100">Snapshot analisi</h2>
+            <p className="mt-1 text-sm text-slate-400">Salva lo stato corrente come fotografia nominabile.</p>
+
+            <div className="mt-3 flex gap-2">
+              <input
+                type="text"
+                value={snapshotName}
+                onChange={(e) => setSnapshotName(e.target.value)}
+                placeholder="Nome snapshot (es. Setup 4H)"
+                className="flex-1 rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:border-cyan-500 focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={handleCreateSnapshot}
+                disabled={savingSnapshot || !snapshotName.trim()}
+                className="rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-50"
+              >
+                {savingSnapshot ? 'Salvataggio...' : 'Salva snapshot'}
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-2">
+              {snapshots.length === 0 ? (
+                <div className="text-sm text-slate-500">Nessuno snapshot salvato.</div>
+              ) : (
+                snapshots.map((s) => (
+                  <div key={s.id} className="flex items-center justify-between gap-2 rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm">
+                    <div className="min-w-0">
+                      <div className="truncate text-slate-100">{s.name}</div>
+                      <div className="text-xs text-slate-500">{new Date(s.created_at).toLocaleString()}</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenSnapshot(s.id)}
+                      disabled={loadingSnapshot}
+                      className="shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-200 transition hover:border-cyan-500 hover:bg-slate-900 disabled:opacity-50"
+                    >
+                      Apri
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          </section>
+        </div>
       </div>
+
+      {openedSnapshot && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={handleCloseSnapshotView}>
+          <div
+            className="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-100">Snapshot: {openedSnapshot.name}</h2>
+                <p className="mt-1 text-sm text-slate-400">
+                  Sola lettura — fotografia salvata il {new Date(openedSnapshot.created_at).toLocaleString()}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleCloseSnapshotView}
+                className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-slate-700"
+              >
+                Chiudi
+              </button>
+            </div>
+
+            <div className="mb-5 rounded-2xl border border-slate-800 bg-slate-950 p-4">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-400">Memoria salvata</h3>
+              {openedSnapshot.memory ? (
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {['asset', 'timeframes', 'structure', 'levels', 'notes'].map((key) => (
+                    <div key={key} className="rounded-xl border border-slate-800 bg-slate-900 p-3 text-sm">
+                      <div className="text-xs uppercase tracking-[0.12em] text-slate-500">{key}</div>
+                      <div className="mt-1 whitespace-pre-wrap text-slate-100">{openedSnapshot.memory[key] || '-'}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-2 text-sm text-slate-500">Nessuna memoria salvata in questo snapshot.</p>
+              )}
+            </div>
+
+            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-400">Messaggi salvati</h3>
+              {openedSnapshot.messages && openedSnapshot.messages.length > 0 ? (
+                <div className="mt-3 space-y-3">
+                  {openedSnapshot.messages.map((m, index) => (
+                    <div
+                      key={m.id || index}
+                      className={`rounded-2xl border p-3 text-sm ${m.role === 'user' ? 'border-cyan-500/20 bg-cyan-500/5' : 'border-slate-800 bg-slate-900'}`}
+                    >
+                      <div className="mb-1 text-xs uppercase tracking-[0.12em] text-slate-500">
+                        {m.role === 'user' ? 'Trader' : 'Agente'}
+                      </div>
+                      <div className="whitespace-pre-wrap text-slate-100">{m.content}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-2 text-sm text-slate-500">Nessun messaggio salvato in questo snapshot.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div ref={messagesEndRef} />
     </div>
   )

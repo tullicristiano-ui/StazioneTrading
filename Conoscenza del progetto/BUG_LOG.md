@@ -19,6 +19,30 @@ Quando si incontra un bug:
 ---
 
 ## Bug attivi
+
+*Nessun bug attivo al momento.* Le entry qui sotto sono **già risolte** e conservate come cronologia (non si cancellano mai i bug risolti).
+
+### BUG-002 — Screenshot non visibili in dev (manca proxy /uploads in Vite)
+
+**Stato:** ✅ Risolto
+**Priorità:** P2 Minore
+**Data apertura:** 2026-06-11
+**Componente:** `client/vite.config.js`, `client/src/pages/Timeline.jsx`, `client/src/components/chat/MessageBubble.jsx`
+**Fase progetto:** Fase 3
+
+#### Descrizione
+Gli screenshot vengono salvati con path `/uploads/{sessionId}/file.png` e serviti dal server Express (porta 3001). In sviluppo il client gira su Vite (porta 5173) che proxava solo `/api`, quindi i tag `<img src="/uploads/...">` puntavano alla porta sbagliata e le immagini non si caricavano (sia nella chat sia nella nuova Timeline).
+
+#### Come riprodurre
+1. Avviare `npm run dev`
+2. Aprire una sessione con screenshot allegati
+3. Atteso: l'immagine appare. Ottenuto (prima del fix): immagine rotta/non caricata in dev.
+
+#### Soluzione finale
+Aggiunto il proxy `/uploads` → `http://localhost:3001` in `client/vite.config.js`. Così gli screenshot si caricano sia in dev (proxy) sia in produzione (stesso origin). Nella Timeline gli screenshot sono inoltre cliccabili (aprono l'immagine a piena dimensione in una nuova scheda).
+
+---
+
 ### BUG-001 — Provider HuggingFace non selezionato correttamente in dev mode
 
 **Stato:** ✅ Risolto
@@ -110,4 +134,6 @@ La causa radice era una validazione non condizionata di `OPENROUTER_API_KEY` den
 *(nessun bug risolto ancora)*
 
 ---
-*Ultima modifica: 2026-06-09 | Bug aperti: 0 | Bug risolti: 0*
+*Ultima modifica: 2026-06-11 | Bug aperti: **0** | Bug risolti: 2 (BUG-001, BUG-002)*
+
+> Nota: il fatto che con Gemma (text-only) l'agente non legga gli screenshot **non è un bug** ma una limitazione nota del provider attuale; sarà superata con un modello vision (Sonnet). Vedi `PROJECT_PLAN.md` §3.5.

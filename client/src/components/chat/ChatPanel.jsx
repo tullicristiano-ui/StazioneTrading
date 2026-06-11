@@ -10,7 +10,8 @@ export default function ChatPanel({
   onSubmit,
   onGenerateJournal,
   loading,
-  error
+  error,
+  visionSupported = true
 }) {
   return (
     <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
@@ -51,7 +52,7 @@ export default function ChatPanel({
         />
 
         <div className="mt-4">
-          <UploadArea files={files} onFilesChange={onFilesChange} />
+          <UploadArea files={files} onFilesChange={onFilesChange} visionSupported={visionSupported} />
         </div>
 
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

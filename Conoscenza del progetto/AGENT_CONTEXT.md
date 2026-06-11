@@ -16,10 +16,12 @@
 |---|---|
 | Frontend | React + Vite + Tailwind CSS + Zustand |
 | Backend | Node.js + Express |
-| Database | SQLite (`sqlite3`) |
-| AI Provider | Multi-provider: OpenRouter (default, con vision) o HuggingFace (Gemma, text-only) |
+| Database | SQLite (`sqlite3`, API asincrona) |
+| AI Provider | Multi-provider via `AI_PROVIDER`: **HuggingFace/Gemma (in uso ora, text-only)** o OpenRouter (vision) |
 | Upload file | Multer |
 | Routing client | react-router-dom |
+
+> **Provider attivo oggi:** `AI_PROVIDER=huggingface` (Gemma). Gemma è **text-only** → l'agente NON legge gli screenshot (le immagini si caricano e si vedono, ma all'AI arriva solo una nota testuale). L'analisi visiva reale arriverà con **Anthropic/Sonnet** (vision) — vedi PROJECT_PLAN.md §3.5.
 
 ---
 
@@ -28,70 +30,79 @@
 ```
 aware-trading-workspace/
 ├── client/src/
-│   ├── pages/          Dashboard.jsx | Workspace.jsx | Journal.jsx
-│   ├── components/     chat/ | session/ | journal/
+│   ├── pages/          Dashboard.jsx | Workspace.jsx | Journal.jsx | Timeline.jsx
+│   ├── components/     chat/ (ChatPanel, MessageBubble, UploadArea) | session/ | journal/
 │   ├── store/          sessionStore.js | uiStore.js (Zustand)
 │   └── api/            client.js (fetch wrapper)
 ├── server/src/
 │   ├── routes/         sessions.js | messages.js | agent.js | journal.js
 │   ├── agent/
-│   │   ├── orchestrator.js       ← logica principale (invariata)
+│   │   ├── orchestrator.js       ← logica principale + generateSessionSummary + richiesta screenshot mancante
 │   │   ├── skillLoader.js        ← carica file kit
-│   │   ├── promptBuilder.js      ← costruisce i messaggi
-│   │   ├── providerClient.js     ← router provider (AGGIORNATO)
+│   │   ├── promptBuilder.js      ← costruisce i messaggi (screenshot in formato vision: 1 msg user con content array)
+│   │   ├── providerClient.js     ← router provider (getActiveProvider)
 │   │   └── providers/
-│   │       ├── openrouterProvider.js   ← adapter OpenRouter
-│   │       └── huggingfaceProvider.js  ← adapter HuggingFace/Gemma
-│   └── db/             database.js | migrations/001_init.sql
+│   │       ├── openrouterProvider.js   ← adapter OpenRouter (vision)
+│   │       └── huggingfaceProvider.js  ← adapter HuggingFace/Gemma (text-only)
+│   └── db/             database.js | migrations/001_init.sql | migrations/002_close_session_and_snapshots.sql
 └── kit/                File skill dell'agente (01,02,04,06,07,08,09 del Trade Analysis Agent Kit v3)
 ```
 
 ---
 
-## Database (SQLite) — 4 tabelle
+## Database (SQLite) — 5 tabelle
 
-- **sessions**: `id, created_at, updated_at, asset, status, title`
+- **sessions**: `id, created_at, updated_at, asset, status, title, summary, closed_at` (`summary`/`closed_at` aggiunti in migration 002)
 - **messages**: `id, session_id, created_at, role, content, screenshots (JSON array di path)`
 - **session_memory**: `id, session_id, asset, timeframes, structure, levels, notes, updated_at`
 - **journal_entries**: tutti i campi del CSV journal (vedi PROJECT_PLAN.md §2)
+- **snapshots**: `id, session_id, created_at, name, asset, status, memory_json, messages_json` (migration 002)
+
+### Sistema migrazioni
+`database.js` applica in ordine alfabetico tutti i file `.sql` in `migrations/` e ne tiene traccia nella tabella `schema_migrations` (ogni file eseguito una sola volta). Per aggiungere uno schema: creare un nuovo file numerato (es. `003_*.sql`) — verrà applicato all'avvio.
 
 ---
 
 ## Logica agente AI
 
-1. **Skill Loader** (`skillLoader.js`): legge i file `.md` in `/kit/` all'avvio e li concatena come system prompt
-2. **Prompt Builder** (`promptBuilder.js`): prende history messaggi da DB + nuovo messaggio + screenshot (convertiti base64) e costruisce l'array `messages`
-3. **Provider Client** (`providerClient.js`): seleziona il provider da `AI_PROVIDER` env e delega a `providers/openrouterProvider.js` o `providers/huggingfaceProvider.js`
-4. **Orchestrator** (`orchestrator.js`): coordina i tre moduli, salva risposta in DB, aggiorna session_memory — **invariato**
+1. **Skill Loader** (`skillLoader.js`): legge i file `.md` in `/kit/` all'avvio e li concatena come system prompt.
+2. **Prompt Builder** (`promptBuilder.js`): prende history messaggi da DB + nuovo messaggio + screenshot (convertiti in data URL base64) e costruisce l'array `messages`. Gli screenshot sono impacchettati nel formato vision standard: **un unico messaggio `user` con `content` = array `[testo, image_url...]`** (corretto per OpenRouter/Anthropic; l'adapter HuggingFace lo appiattisce a testo).
+3. **Provider Client** (`providerClient.js`): seleziona il provider da `AI_PROVIDER` e delega a `providers/openrouterProvider.js` o `providers/huggingfaceProvider.js`. Espone anche `getActiveProvider()`.
+4. **Orchestrator** (`orchestrator.js`): coordina i moduli, salva la risposta in `messages`, aggiorna `session_memory`. Include `generateSessionSummary()` (riassunto alla chiusura sessione) e, se non sono allegati screenshot in modalità standard/new_analysis, istruisce l'agente a chiederli.
 
 ### Selezione provider
+Si configura via `.env` — nessun cambio di codice:
+```
+AI_PROVIDER=huggingface     → HuggingFace Inference API (Gemma, text-only)   ← ATTIVO ORA
+AI_PROVIDER=openrouter      → OpenRouter (vision, modelli Anthropic/GPT/ecc.)
+```
 
-Il provider si configura via `.env` — nessun cambio di codice necessario:
-```
-AI_PROVIDER=openrouter      → usa OpenRouter (vision support, modelli Anthropic/GPT/ecc.)
-AI_PROVIDER=huggingface     → usa HuggingFace Inference API (Gemma, text-only)
-```
+---
 
-### Selezione provider
+## API principali
 
-Il provider si configura via `.env` — nessun cambio di codice necessario:
-```
-AI_PROVIDER=openrouter      → usa OpenRouter (vision support, modelli Anthropic/GPT/ecc.)
-AI_PROVIDER=huggingface     → usa HuggingFace Inference API (Gemma, text-only)
-```
+| Metodo | Endpoint | Scopo |
+|---|---|---|
+| POST/GET | `/api/sessions` · `/api/sessions/:id` · PATCH `/api/sessions/:id` | CRUD sessioni |
+| POST | `/api/sessions/:id/close` | Chiude la sessione + riassunto AI in `summary` |
+| POST/GET | `/api/sessions/:id/snapshots` | Crea / elenca snapshot |
+| GET | `/api/sessions/:id/snapshots/:snapshotId` | Apre un singolo snapshot (sola lettura) |
+| POST | `/api/agent/analyze` | Turno di analisi (testo + screenshot multipart) |
+| GET | `/api/agent/info` | `{ provider, visionSupported }` (per avviso UI text-only) |
+| POST/GET | `/api/messages` · `/api/journal` · `/api/journal/export.csv` | Messaggi e journal |
 
 ---
 
 ## Flusso principale (happy path)
 
 ```
-Utente scrive messaggio + allega screenshot
+Utente scrive messaggio + allega/incolla screenshot
   → POST /api/agent/analyze {session_id, content, screenshots[]}
   → Multer salva screenshot in /uploads/{session_id}/
   → Orchestrator costruisce prompt (system + history + messaggio + immagini base64)
   → providerClient.requestCompletion() → provider selezionato da AI_PROVIDER
-      [openrouter] → invia immagini come image_url blocks (vision)
-      [huggingface] → strip immagini + nota testuale (text-only)
+      [huggingface] → strip immagini + nota testuale (text-only)   ← ATTIVO ORA
+      [openrouter]  → invia immagini come image_url blocks (vision)
   → Risposta salvata in messages (role: "assistant")
   → Session memory aggiornata
   → Frontend mostra risposta nella chat
@@ -102,22 +113,24 @@ Utente scrive messaggio + allega screenshot
 ## Variabili d'ambiente richieste
 
 ```
-# Provider attivo
-AI_PROVIDER=openrouter
+# Provider attivo (oggi: huggingface)
+AI_PROVIDER=huggingface
+
+# HuggingFace (se AI_PROVIDER=huggingface)
+HUGGINGFACE_API_KEY=hf_...        # oppure HF_TOKEN
+HUGGINGFACE_MODEL=google/gemma-2-9b-it
 
 # OpenRouter (se AI_PROVIDER=openrouter)
 OPENROUTER_API_KEY=sk-or-...
 OPENROUTER_MODEL=anthropic/claude-3.5-sonnet
-
-# HuggingFace (se AI_PROVIDER=huggingface)
-HUGGINGFACE_API_KEY=hf_...
-HUGGINGFACE_MODEL=google/gemma-2-9b-it
 
 # Server
 PORT=3001
 DB_PATH=./server/data/aware_trading.db
 UPLOADS_PATH=./server/uploads
 ```
+
+> Il server carica le variabili da `.env`, con fallback su `.env.local` (vedi `server/src/index.js`).
 
 ---
 
@@ -127,35 +140,36 @@ UPLOADS_PATH=./server/uploads
 |---|---|---|
 | Node.js | v24.16.0 | `node -v` |
 | npm | 11.13.0 | `npm -v` |
-| npx | 11.13.0 | `npx -v` |
 | Git | 2.54.0 | `git --version` |
 | GitHub CLI | 2.93.0 | `gh --version` \| `gh auth status` |
 | Supabase CLI | 2.105.0 | `npx supabase --version` |
+
+> **Connettori esterni configurati:** GitHub (`tullicristiano-ui/StazioneTrading`) e Supabase (progetto attivo, regione `eu-west-2`, Postgres 17). **Nota:** l'app persiste su **SQLite locale**; Supabase non è ancora usato dal codice.
 
 ---
 
 ## Stato corrente del progetto
 
-- **Fase 1 — MVP**: completata.
-- **Fase 2 — Workflow Trading**: completata (trade aperto, session memory automatica, journal CSV).
-- **Multi-provider**: implementato. OpenRouter continua a funzionare; HuggingFace/Gemma disponibile via `AI_PROVIDER=huggingface`.
-- **Fase 3 — Produttività**: da iniziare (ricerca sessioni, timeline, report).
- - **Fase 3 — Produttività**: in corso — ricerca sessioni (client-side) completata, timeline sessione implementata client-side (in sviluppo).
-- Verificare `TASKS.md` per il dettaglio delle task in corso.
-- `BUG_LOG.md` contiene i problemi ancora aperti.
+- **Fase 1 — MVP**: ✅ completata.
+- **Fase 2 — Workflow Trading**: ✅ completata (trade aperto, session memory automatica, journal CSV).
+- **Multi-provider**: ✅ implementato. In uso Gemma/HuggingFace; OpenRouter disponibile.
+- **Fase 3 — Produttività**: ✅ completata (Timeline, Chiudi sessione con riassunto AI, Snapshot + apertura, ricerca/filtri, paste Ctrl+V, avviso modello text-only).
+- **Prossimo (M9)**: integrazione Anthropic/Sonnet (vision) per la lettura reale degli screenshot; F2-D-06 (test Gemma con chiave reale).
+- Vedi `TASKS.md` e `ROADMAP.md` per il dettaglio. `BUG_LOG.md`: 0 bug aperti.
 
 ---
 
 ## Regole importanti per chi contribuisce al codice
 
-1. **Mai inserire API key nel codice** — solo `.env`
-2. **Le route Express usano sempre try/catch** con risposta JSON strutturata `{error: "..."}` in caso di errore
-3. **Gli upload sono limitati** a immagini (png/jpg/webp) max 10MB
-4. **Il system prompt dell'agente** è definito dai file in `/kit/` — non modificare il comportamento dell'agente modificando il codice, modificare i file kit
-5. **SQLite usa l'API asincrona** (`sqlite3`) — il driver in uso è async, usare i wrapper `runQuery`, `getQuery`, `allQuery`
-6. **Il frontend non accede direttamente al DB** — passa sempre dall'API Express
-7. **Zustand store** è la fonte di verità per lo stato UI
-8. **Per aggiungere provider**: creare `server/src/agent/providers/{nomeProvider}.js` con `export async function requestCompletion(payload)` e `export function parseResponse(data)`, poi registrarlo in `providerClient.js`
+1. **Mai inserire API key nel codice** — solo `.env`.
+2. **Le route Express usano sempre try/catch** con risposta JSON `{error: "..."}` in caso di errore.
+3. **Gli upload sono limitati** a immagini (png/jpg/webp) max 10MB.
+4. **Il system prompt dell'agente** è definito dai file in `/kit/` — non modificare il comportamento dell'agente cambiando il codice, modificare i file kit.
+5. **SQLite usa l'API asincrona** (`sqlite3`) — usare i wrapper `runQuery`, `getQuery`, `allQuery`.
+6. **Il frontend non accede direttamente al DB** — passa sempre dall'API Express.
+7. **Zustand store** è la fonte di verità per lo stato UI.
+8. **Per aggiungere provider**: creare `server/src/agent/providers/{nomeProvider}.js` con `export async function requestCompletion(payload)` e `export function parseResponse(data)`, poi registrarlo in `providerClient.js`.
+9. **Per modifiche allo schema DB**: creare un nuovo file di migrazione numerato in `migrations/`.
 
 ---
 
@@ -164,10 +178,10 @@ UPLOADS_PATH=./server/uploads
 Per l'architettura completa, le decisioni tecniche e il data model dettagliato: vedere `PROJECT_PLAN.md`.
 
 ---
-*Versione contesto: 0.3 | Aggiornare dopo ogni cambio architetturale significativo*
+*Versione contesto: 0.4 | Aggiornare dopo ogni cambio architetturale significativo*
 
 ## Ultime modifiche
 
-- 2026-06-09: Implementato `new_analysis` flow server-side (commit 69de11e).
-- 2026-06-09: Aggiornamento task F2-A-01 in `TASKS.md` (commit 318f448).
-- 2026-06-09: Refactoring multi-provider: introdotti adapter OpenRouter e HuggingFace/Gemma; `providerClient.js` diventa provider router; zero breaking changes su API e orchestrator.
+- 2026-06-09: Implementato `new_analysis` flow server-side; refactoring multi-provider (adapter OpenRouter + HuggingFace/Gemma; `providerClient.js` provider router).
+- 2026-06-11: **Fase 3 completata.** Sistema migrazioni multi-file con `schema_migrations`; migration 002 (`summary`/`closed_at` su sessions + tabella `snapshots`). Nuove route: `/api/sessions/:id/close`, `/api/sessions/:id/snapshots` (POST/GET), `/api/sessions/:id/snapshots/:snapshotId`, `/api/agent/info`. Timeline resa solida + proxy `/uploads` in Vite. Apertura snapshot in sola lettura; paste Ctrl+V; avviso modello text-only; l'agente chiede lo screenshot se manca.
+- 2026-06-11: Fix formato screenshot in `promptBuilder.js` (un unico messaggio user con content array — pronto per provider vision). Decisione: in uso solo Gemma/HuggingFace ora, Anthropic/Sonnet (vision) in futuro.

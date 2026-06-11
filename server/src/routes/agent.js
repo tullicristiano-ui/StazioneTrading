@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url'
 import { v4 as uuidv4 } from 'uuid'
 import { runQuery, getQuery } from '../db/database.js'
 import { runAnalysis } from '../agent/orchestrator.js'
+import { getActiveProvider } from '../agent/providerClient.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const router = express.Router()
@@ -126,6 +127,19 @@ function parseJournalCsv(text) {
   row.csv_row = csvLine
   return row
 }
+
+// Info sul provider AI attivo: usato dal client per avvisare quando il
+// modello attivo è text-only (non legge le immagini).
+router.get('/info', async (req, res, next) => {
+  try {
+    const provider = getActiveProvider()
+    // I provider basati su HuggingFace/Gemma sono text-only (niente vision).
+    const visionSupported = provider !== 'huggingface' && provider !== 'hf'
+    res.json({ provider, visionSupported })
+  } catch (err) {
+    next(err)
+  }
+})
 
 router.post('/analyze', upload.array('screenshots'), async (req, res, next) => {
   try {

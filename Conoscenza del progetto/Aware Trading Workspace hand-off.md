@@ -6,13 +6,14 @@ Questo documento è la versione Markdown aggiornata del hand-off del progetto "A
 
 Aware Trading Workspace è una webapp personale (localhost, utente singolo) per sessioni di analisi di trading assistite da un agente AI. L'agente legge screenshot di grafici e applica il metodo "Aware Trader" per supportare il trader nel leggere la struttura del mercato. Non fornisce consigli finanziari né segnali operativi.
 
-## Stato attuale
+## Stato attuale (2026-06-11)
 
-- Phase 1-A (Project Setup) completata: struttura `server/`, `client/`, `kit/` creata, server Express e client React+Vite configurati, schema DB (SQLite) creato, primo commit effettuato.
-- Avvio root verificato: `npm run dev` dalla root ora avvia server e client insieme, e la migrazione SQLite è stata fixata per evitare l'errore `no such table: main.messages`.
-- Phase 2 iniziata: implementata la modalità `trade aperto`, l'estrazione automatica di `session_memory` dalla risposta agente, e il workflow di generazione automatica di righe journal in formato CSV.
-- Phase 3 aggiornamento (2026-06-10): ricerca sessioni client-side e filtri aggiunti nella Dashboard; vista `Timeline` per sessione aggiunta client-side (in sviluppo).
-- Prossime attività principali: completare la Timeline (ottimizzare visualizzazione screenshot e paginazione), implementare "Chiudi sessione" con riassunto automatico generato dall'AI, aggiungere snapshot analisi salvabili.
+- **Fasi 1, 2 e 3 completate** (Milestone M1–M8).
+- Avvio root: `npm run dev` dalla root avvia server e client insieme; le migrazioni SQLite vengono applicate automaticamente all'avvio.
+- Fase 2: modalità `trade aperto`, estrazione automatica di `session_memory`, workflow journal CSV, architettura **multi-provider** (`AI_PROVIDER`).
+- Fase 3: pagina **Timeline** (messaggi + screenshot cronologici), **Chiudi sessione** con riassunto AI, **Snapshot** nominabili + apertura in sola lettura, ricerca/filtri sessioni, **paste Ctrl+V**, avviso quando il modello è text-only, e fix del formato screenshot per l'AI.
+- **Provider attivo:** Gemma via HuggingFace (`AI_PROVIDER=huggingface`), **text-only** → l'agente NON legge gli screenshot. L'analisi visiva reale richiederà un modello vision.
+- **Prossime attività (M9):** integrare **Anthropic/Sonnet** (vision) per la lettura reale dei grafici; test Gemma con chiave reale (F2-D-06).
 
 ## Stack tecnologico
 
@@ -20,7 +21,7 @@ Aware Trading Workspace è una webapp personale (localhost, utente singolo) per 
 - Backend: Node.js + Express
 - Database: SQLite (`sqlite3` npm package)
 - Upload file: Multer
-- AI Provider (MVP): OpenRouter (es. modello `anthropic/claude-3.5-sonnet`) o HuggingFace/Gemma in modalità text-only (`AI_PROVIDER=huggingface`)
+- AI Provider (via `AI_PROVIDER`): **HuggingFace/Gemma in uso ora** (text-only) o OpenRouter (vision, es. `anthropic/claude-3.5-sonnet`). Futuro: Anthropic/Sonnet per la vision.
 
 ## Struttura cartelle (principale)
 
@@ -37,10 +38,13 @@ aware-trading-workspace/
 
 ## Database (SQLite) — tabelle principali
 
-- `sessions`: id, created_at, updated_at, asset, status, title
+- `sessions`: id, created_at, updated_at, asset, status, title, **summary, closed_at** (gli ultimi due da migration 002)
 - `messages`: id, session_id, created_at, role, content, screenshots (JSON)
 - `session_memory`: id, session_id, asset, timeframes, structure, levels, notes, updated_at
 - `journal_entries`: id, session_id, created_at, data, ora, asset, timeframe, bias, setup, entry, stop_loss, take_profit_1, take_profit_2, risk_reward, size, decisione_agente, decisione_trader, esito, durata_trade, nota, screenshot_link, csv_row
+- `snapshots`: id, session_id, created_at, name, asset, status, memory_json, messages_json (migration 002)
+
+> **Migrazioni:** `database.js` applica in ordine tutti i file `.sql` in `migrations/` non ancora registrati (tracciamento in `schema_migrations`). Per nuovi schemi creare un file numerato (es. `003_*.sql`).
 
 ## Logica agente AI (overview)
 
@@ -62,17 +66,16 @@ aware-trading-workspace/
 ## Variabili d'ambiente richieste
 
 ```
-AI_PROVIDER=openrouter
+# Provider attivo (oggi: huggingface)
+AI_PROVIDER=huggingface
+
+# HuggingFace (se AI_PROVIDER=huggingface)
+HUGGINGFACE_API_KEY=hf_...        # oppure HF_TOKEN
+HUGGINGFACE_MODEL=google/gemma-2-9b-it
 
 # OpenRouter (se AI_PROVIDER=openrouter)
 OPENROUTER_API_KEY=sk-or-...
 OPENROUTER_MODEL=anthropic/claude-3.5-sonnet
-
-# HuggingFace (se AI_PROVIDER=huggingface)
-HUGGINGFACE_API_KEY=hf_...
-HUGGINGFACE_MODEL=google/gemma-2-9b-it
-HF_TOKEN=hf_...
-HF_MODEL=google/gemma-2-9b-it
 
 # Server
 PORT=3001
@@ -115,4 +118,4 @@ npm run dev
 
 ---
 
-*Versione: 0.2 — Aggiornato il 2026-06-09: hand-off convertito in Markdown e allineato allo stato Phase 1-A.*
+*Versione: 0.3 — Aggiornato il 2026-06-11: allineato a Fasi 1-3 completate (M1–M8), multi-provider Gemma/HuggingFace attivo, migrazioni multi-file, nuove route sessioni/snapshot/agent-info.*

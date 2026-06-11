@@ -40,8 +40,8 @@ Creare una webapp personale che permetta al trader di svolgere sessioni di anali
 | Frontend | React + Vite | Leggerezza, HMR veloce, compatibile con VS Code + Copilot |
 | Styling | Tailwind CSS | Utility-first, niente config complessa |
 | Backend | Node.js + Express | Semplicità, buon supporto multipart/form-data per upload |
-| DB | SQLite (better-sqlite3) | File locale, zero infrastruttura, perfetto per uso singolo |
-| AI Provider | OpenRouter (MVP) | Multi-modello, vision support, chiave API singola |
+| DB | SQLite (`sqlite3`, async) | File locale, zero infrastruttura, perfetto per uso singolo |
+| AI Provider | Multi-provider via `AI_PROVIDER`: **Gemma/HuggingFace (in uso ora)** o OpenRouter | Chiave singola, adapter intercambiabili senza toccare il codice |
 | Upload immagini | Multer | Standard Express per file handling |
 | State management | Zustand | Leggero, compatibile con React 18 |
 
@@ -58,20 +58,23 @@ Creare una webapp personale che permetta al trader di svolgere sessioni di anali
 | Fase | Stato |
 |---|---|
 | MVP (Fase 1) | ✅ Completata |
-| Workflow Trading (Fase 2) | 🟠 In corso |
-| Produttività (Fase 3) | 🔴 Non iniziato |
+| Workflow Trading (Fase 2) | ✅ Completata |
+| Produttività (Fase 3) | ✅ Completata |
+| Vision / Sonnet (M9) | 🔴 Da fare |
+
+> **Provider attivo:** Gemma via HuggingFace (`AI_PROVIDER=huggingface`), **text-only**: l'agente non legge ancora gli screenshot. L'analisi visiva reale arriverà con Anthropic/Sonnet (vedi PROJECT_PLAN.md §3.5).
 
 ## Aggiornamenti recenti
 
-- Implementata la modalità `trade aperto` con toggle UI e prompt specializzato.
-- Aggiunta estrazione automatica di `session_memory` da ogni risposta agente.
-- Implementata generazione, parsing e salvataggio delle righe journal CSV.
-- Aggiunta la pagina Journal con esportazione CSV e visualizzazione delle voci salvate.
+- Modalità `trade aperto`, estrazione automatica di `session_memory`, generazione/parsing/salvataggio righe journal CSV e pagina Journal con export.
+- Architettura **multi-provider** (`AI_PROVIDER`): adapter OpenRouter (vision) e HuggingFace/Gemma (text-only).
+- **Fase 3:** pagina **Timeline** (messaggi + screenshot cronologici), **Chiudi sessione** con riassunto AI, **Snapshot** nominabili + apertura in sola lettura, ricerca/filtri sessioni, **paste Ctrl+V** degli screenshot, avviso quando il modello è text-only.
+- Fix del formato screenshot per l'AI (pronto per i provider con vision).
 
 ## Note operative
 
-- `TASKS.md` è aggiornato con lo stato corrente delle task di Fase 2.
-- `ROADMAP.md` riflette l'avanzamento verso le milestone M5/M6.
+- `TASKS.md` e `ROADMAP.md` riflettono le Fasi 1-3 completate (Milestone M1–M8); prossimo obiettivo M9 (vision/Sonnet).
+- `BUG_LOG.md`: 0 bug aperti.
 
 ## Avvio rapido
 
@@ -111,7 +114,7 @@ npm run dev
 
 Il client Vite è disponibile su `http://localhost:5173`.
 
-**Nota:** lo `server/src/index.js` esegue le migrazioni SQL in `server/src/db/migrations/001_init.sql` all'avvio (se `DB_PATH` è impostato). Assicurati che `DB_PATH` punti a una cartella scrivibile.
+**Nota:** all'avvio `server/src/db/database.js` applica in ordine **tutti** i file `.sql` in `server/src/db/migrations/` non ancora registrati (tracciamento nella tabella `schema_migrations`). Assicurati che `DB_PATH` punti a una cartella scrivibile.
 
 ---
 *Documento creato: da aggiornare con data inizio*  
