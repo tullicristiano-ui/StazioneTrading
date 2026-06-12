@@ -21,6 +21,32 @@ Io (il proprietario del progetto) **non ho conoscenze tecniche**. Tu sei il tecn
 
 ---
 
+## 1-bis. I due agenti che lavorano al codice
+
+Quando si lavora su nuove funzioni o modifiche importanti, vengono usati **due agenti distinti** che collaborano in sequenza:
+
+### Agente ask (pianificazione)
+- Ragiona con l'utente per capire bene cosa vuole e perché.
+- Esplora le aree di codice coinvolte e mappa le dipendenze.
+- Prepara un **prompt preciso e auto-contenuto** da consegnare all'agente esecutore.
+
+**Frase di attivazione — quando l'utente scrive "lavoro ok"**, l'agente ask esegue in ordine:
+1. Legge il **report** dell'agente esecutore.
+2. **Controverifica attivamente il codice**: cerca potenziali regressioni (cose che prima funzionavano e potrebbero essersi rotte), conflitti e bug non considerati.
+3. **Se trova problemi** → prepara un nuovo prompt per l'agente esecutore, che applicherà i fix.
+4. **Se è tutto ok** → aggiorna **tutta la documentazione di contesto** dell'app (`AGENT_CONTEXT.md`, `TASKS.md`, `ROADMAP.md`, `PROJECT_PLAN.md`, ecc.) per allinearla allo stato reale del codice.
+5. Al termine **chiede all'utente se fare commit e push** (e li esegue solo dopo conferma esplicita).
+
+### Agente esecutore (implementazione)
+- Riceve il prompt preparato dall'agente ask e lo esegue integralmente.
+- Non prende decisioni di direzione: se c'è ambiguità, applica l'interpretazione più sicura e la documenta nel report.
+- A fine lavoro **compila obbligatoriamente il report di sessione** (vedi §4) e aggiorna `TASKS.md`.
+- Non fa commit né push: questo spetta all'agente ask dopo la revisione.
+
+> **Perché questo flusso?** Separa la responsabilità di *capire cosa fare* da quella di *farlo*, riducendo errori e garantendo che la documentazione sia sempre allineata al codice reale.
+
+---
+
 ## 2. Cos'è questo progetto (in breve)
 
 **Aware Trading Workspace**: un'app personale che gira solo sul mio computer. Carico screenshot di grafici di trading, un agente AI li legge applicando il metodo "Aware Trader" e mi aiuta a leggere la struttura del mercato. **Non dà segnali operativi né consigli finanziari.**

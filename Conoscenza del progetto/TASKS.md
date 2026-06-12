@@ -177,4 +177,18 @@ Prima di ogni commit, verificare:
 - [ ] I componenti React nuovi hanno PropTypes o TypeScript types
 
 ---
-*Ultima modifica: 2026-06-11 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | F2-A-05, F3-A-06/07, V2-04 completate*
+## Dashboard — Gestione sessioni (aggiunta 2026-06-12)
+
+| ID | Task | Priorità | Stato | Note |
+|---|---|---|---|---|
+| DASH-01 | Elimina sessione con cestino (DELETE route + client) | 🟠 P1 | `[x]` | Cancella tutto il collegato: messaggi, snapshots, journal, session_memory, file su disco |
+| DASH-02 | Due date sulla card (Aperta + Aggiornata) | 🟡 P2 | `[x]` | created_at + updated_at già presenti nel DB |
+| DASH-03 | Sidebar fissa nella sola Dashboard (Home + Journal) | 🟡 P2 | `[x]` | Nessuna Timeline nella sidebar |
+| DASH-04 | Documenta flusso a due agenti nel CLAUDE.md | 🟡 P2 | `[x]` | Sezione 1-bis aggiunta |
+| DASH-05 | Regola d'oro: updated_at cambia solo con messaggi AI | 🟠 P1 | `[x]` | PATCH non tocca più updated_at; agent.js già corretto |
+| DASH-06 | Modale nome asset alla creazione nuova analisi | 🟡 P2 | `[x]` | Campo facoltativo; se compilato → title=asset |
+| DASH-07 | Icona matita per modificare titolo e asset dalla card | 🟡 P2 | `[x]` | Modale inline; aggiorna session_memory.asset in cascade |
+
+---
+
+*Ultima modifica: 2026-06-12 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 completate*

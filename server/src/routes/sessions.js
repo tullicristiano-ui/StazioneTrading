@@ -1,7 +1,12 @@
 import express from 'express'
+import path from 'path'
+import fs from 'fs'
+import { fileURLToPath } from 'url'
 import { v4 as uuidv4 } from 'uuid'
 import { runQuery, getQuery, allQuery } from '../db/database.js'
 import { generateSessionSummary } from '../agent/orchestrator.js'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const router = express.Router()
 
@@ -84,11 +89,17 @@ router.patch('/:id', async (req, res, next) => {
       return res.status(404).json({ error: 'Session not found' })
     }
 
-    const updatedAt = now()
     await runQuery(
-      'UPDATE sessions SET asset = ?, status = ?, title = ?, updated_at = ? WHERE id = ?',
-      [asset ?? session.asset, status ?? session.status, title ?? session.title, updatedAt, id]
+      'UPDATE sessions SET asset = ?, status = ?, title = ? WHERE id = ?',
+      [asset ?? session.asset, status ?? session.status, title ?? session.title, id]
     )
+
+    if (asset && asset !== session.asset) {
+      await runQuery(
+        'UPDATE session_memory SET asset = ? WHERE session_id = ?',
+        [asset, id]
+      )
+    }
 
     const updatedSession = await getQuery('SELECT * FROM sessions WHERE id = ?', [id])
     res.json(updatedSession)
@@ -256,6 +267,35 @@ router.get('/:id/snapshots/:snapshotId', async (req, res, next) => {
       memory,
       messages: parsedMessages
     })
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const session = await getQuery('SELECT * FROM sessions WHERE id = ?', [id])
+
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' })
+    }
+
+    await runQuery('DELETE FROM journal_entries WHERE session_id = ?', [id])
+    await runQuery('DELETE FROM snapshots WHERE session_id = ?', [id])
+    await runQuery('DELETE FROM messages WHERE session_id = ?', [id])
+    await runQuery('DELETE FROM session_memory WHERE session_id = ?', [id])
+    await runQuery('DELETE FROM sessions WHERE id = ?', [id])
+
+    const uploadsDir = process.env.UPLOADS_PATH
+      ? path.resolve(process.env.UPLOADS_PATH, id)
+      : path.resolve(__dirname, '..', 'uploads', id)
+
+    if (fs.existsSync(uploadsDir)) {
+      fs.rmSync(uploadsDir, { recursive: true, force: true })
+    }
+
+    res.json({ ok: true, id })
   } catch (err) {
     next(err)
   }

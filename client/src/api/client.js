@@ -32,6 +32,7 @@ export const api = {
   createSession: (data) => request('/sessions', { method: 'POST', body: JSON.stringify(data) }),
   updateSession: (id, data) => request(`/sessions/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   closeSession: (id) => request(`/sessions/${id}/close`, { method: 'POST' }),
+  deleteSession: (id) => request(`/sessions/${id}`, { method: 'DELETE' }),
 
   // Snapshots
   getSnapshots: (id) => request(`/sessions/${id}/snapshots`),
