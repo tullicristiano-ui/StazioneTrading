@@ -201,6 +201,9 @@ Prima di ogni commit, verificare:
 | MKT-04 | `TradingViewWidget.jsx` — wrapper riusabile per embed TradingView | 🟠 P1 | `[x]` | Cleanup unmount, guardia StrictMode doppio montaggio |
 | MKT-05 | Aggiornare link "Torna alla dashboard" → "Torna alle analisi" (`/analisi`) | 🟠 P1 | `[x]` | Workspace.jsx e Journal.jsx |
 | MKT-06 | Dashboard usa sidebar condivisa (rimossa sidebar interna) | 🟠 P1 | `[x]` | Dashboard.jsx |
+| MKT-07 | Correzione simboli Market Overview (CFD FOREXCOM per indici) | 🟠 P1 | `[x]` | FOREXCOM:SPXUSD, FOREXCOM:NSXUSD, INDEX:FTSEMIB; rimosso NG1! |
+| MKT-08 | Widget Grafico avanzato (Advanced Chart) a tutta larghezza | 🟠 P1 | `[x]` | Login manuale TradingView dentro il grafico, simbolo cambiabile |
+| MKT-09 | Layout a 3 widget: grafico in alto, panoramica+calendario sotto | 🟠 P1 | `[x]` | Grafico 600px; griglia xl:grid-cols-2 per gli altri due |
 
 ## Cruscotto Mercati — Fase 2 (futura, non in questo sprint)
 

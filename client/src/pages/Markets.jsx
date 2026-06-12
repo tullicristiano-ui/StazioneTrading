@@ -20,11 +20,8 @@ const MARKET_OVERVIEW_CONFIG = {
     {
       title: 'Indici',
       symbols: [
-        { s: 'SP:SPX', d: 'S&P 500' },
-        { s: 'NASDAQ:IXIC', d: 'Nasdaq' },
-        { s: 'DJ:DJI', d: 'Dow Jones' },
-        { s: 'XETR:DAX', d: 'DAX' },
-        { s: 'EURONEXT:PX1', d: 'CAC 40' },
+        { s: 'FOREXCOM:SPXUSD', d: 'S&P 500 (US500)' },
+        { s: 'FOREXCOM:NSXUSD', d: 'Nasdaq 100 (US100)' },
         { s: 'INDEX:FTSEMIB', d: 'FTSE MIB' },
       ],
       originalTitle: 'Indices',
@@ -45,7 +42,6 @@ const MARKET_OVERVIEW_CONFIG = {
         { s: 'TVC:GOLD', d: 'Gold' },
         { s: 'TVC:SILVER', d: 'Silver' },
         { s: 'TVC:USOIL', d: 'Oil (WTI)' },
-        { s: 'NYMEX:NG1!', d: 'Natural Gas' },
       ],
       originalTitle: 'Commodities',
     },
@@ -73,12 +69,29 @@ const EVENTS_CONFIG = {
   countryFilter: 'us,eu,it,gb,jp,de,fr',
 }
 
+const ADVANCED_CHART_SRC =
+  'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js'
+
+const ADVANCED_CHART_CONFIG = {
+  colorTheme: 'dark',
+  locale: 'it',
+  autosize: true,
+  symbol: 'FOREXCOM:SPXUSD',
+  interval: 'D',
+  timezone: 'Europe/Rome',
+  style: '1',
+  allow_symbol_change: true,
+  withdateranges: true,
+  hide_side_toolbar: false,
+  save_image: true,
+}
+
 export default function Markets() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  // useMemo evita che i config vengano ricreati a ogni render (prevenendo unmount/remount del widget)
   const overviewConfig = useMemo(() => MARKET_OVERVIEW_CONFIG, [])
   const eventsConfig = useMemo(() => EVENTS_CONFIG, [])
+  const chartConfig = useMemo(() => ADVANCED_CHART_CONFIG, [])
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
@@ -104,7 +117,16 @@ export default function Markets() {
           </div>
         </header>
 
-        {/* Griglia widget */}
+        {/* Grafico avanzato — blocco principale a tutta larghezza */}
+        <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl overflow-hidden mb-6" style={{ height: '600px' }}>
+          <h2 className="mb-3 text-base font-semibold text-slate-200">Grafico avanzato</h2>
+          <p className="mb-2 text-xs text-slate-500">Puoi cambiare simbolo, timeframe e fare login al tuo account TradingView direttamente dentro il grafico.</p>
+          <div style={{ height: 'calc(100% - 3.5rem)' }}>
+            <TradingViewWidget scriptSrc={ADVANCED_CHART_SRC} config={chartConfig} />
+          </div>
+        </div>
+
+        {/* Griglia inferiore: Panoramica + Calendario */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {/* Market Overview */}
           <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl overflow-hidden" style={{ height: '550px' }}>
