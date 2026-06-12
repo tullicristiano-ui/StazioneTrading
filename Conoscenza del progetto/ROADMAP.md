@@ -148,10 +148,14 @@ Una milestone è completata quando:
 - [x] Widget Calendario Economico TradingView (importanza media/alta)
 - [x] `TradingViewWidget.jsx` — wrapper riusabile, tema dark, cleanup sicuro
 
-**Milestone M11** — Cruscotto avanzato (FASE 2, futura)
-- [ ] Global Market Heatmap (heatmap TradingView: stock, crypto, etf)
-- [ ] News globali in tempo reale (widget news/timeline TradingView)
-- [ ] Filtri avanzati, fullscreen, watchlist personalizzata
+**Milestone M11** — Cruscotto avanzato ✅ (2026-06-12)
+- [x] Pagina Mercati a schede (Grafico · Panoramica · Heatmap · News · Calendario) — solo la tab attiva è montata
+- [x] Tab Heatmap con sotto-schede: Stock Heatmap (SPX500, cambio indice), Crypto Heatmap, Forex Cross Rates
+- [x] Tab News con sotto-schede: Azioni / Forex / Crypto / Macro (feedMode market + all_symbols)
+- [x] Nessuna heatmap commodity (non disponibile gratuitamente su TradingView — concordato con utente)
+
+**Milestone M12** — Cruscotto futuro (Fase 3)
+- [ ] Filtri avanzati, fullscreen widget, watchlist personalizzata
 - [ ] Multi-timeframe e varianti 1D/1W/1M
 
 ---

@@ -205,15 +205,21 @@ Prima di ogni commit, verificare:
 | MKT-08 | Widget Grafico avanzato (Advanced Chart) a tutta larghezza | 🟠 P1 | `[x]` | Login manuale TradingView dentro il grafico, simbolo cambiabile |
 | MKT-09 | Layout a 3 widget: grafico in alto, panoramica+calendario sotto | 🟠 P1 | `[x]` | Grafico 600px; griglia xl:grid-cols-2 per gli altri due |
 
-## Cruscotto Mercati — Fase 2 (futura, non in questo sprint)
+## Cruscotto Mercati — Fase 2 (2026-06-12)
 
 | ID | Task | Priorità | Stato | Note |
 |---|---|---|---|---|
-| MKT-10 | Global Market Heatmap (widget heatmap TradingView: stock/crypto/etf) | 🟡 P2 | `[ ]` | FASE 2 |
-| MKT-11 | News globali in tempo reale (widget news/timeline TradingView) | 🟡 P2 | `[ ]` | FASE 2 |
-| MKT-12 | Filtri avanzati, fullscreen widget, watchlist personalizzata | ⚪ P3 | `[ ]` | FASE 2 |
-| MKT-13 | Multi-timeframe e varianti 1D/1W/1M | ⚪ P3 | `[ ]` | FASE 2 |
+| MKT-10 | Pagina Mercati a schede (Grafico · Panoramica · Heatmap · News · Calendario) | 🟠 P1 | `[x]` | activeTab state, solo tab attiva montata |
+| MKT-11 | Tab Heatmap con sotto-schede Azioni / Crypto / Forex | 🟠 P1 | `[x]` | Stock heatmap SPX500+cambio indice, Crypto heatmap, Forex Cross Rates |
+| MKT-12 | Tab News con sotto-schede Azioni / Forex / Crypto / Macro | 🟠 P1 | `[x]` | feedMode:'market' per Azioni/Forex/Crypto; feedMode:'all_symbols' per Macro |
+
+## Cruscotto Mercati — Fase 3 (futura)
+
+| ID | Task | Priorità | Stato | Note |
+|---|---|---|---|---|
+| MKT-20 | Filtri avanzati, fullscreen widget, watchlist personalizzata | ⚪ P3 | `[ ]` | Futura |
+| MKT-21 | Multi-timeframe e varianti 1D/1W/1M nel grafico | ⚪ P3 | `[ ]` | Futura |
 
 ---
 
-*Ultima modifica: 2026-06-12 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | Cruscotto Mercati Fase 1: MKT-01…06 ✅*
+*Ultima modifica: 2026-06-12 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | Cruscotto MKT Fase 1: MKT-01…09 ✅ | Cruscotto MKT Fase 2: MKT-10…12 ✅*
