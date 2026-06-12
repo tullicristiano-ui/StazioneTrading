@@ -222,8 +222,8 @@ export default function Workspace() {
           <p className="mt-1 text-slate-400">Sessione: {session?.title || 'Nuova sessione'}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <button onClick={() => navigate('/')} className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-200 transition hover:bg-slate-800">
-            Torna alla dashboard
+          <button onClick={() => navigate('/analisi')} className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-200 transition hover:bg-slate-800">
+            Torna alle analisi
           </button>
           <button onClick={() => navigate('/journal')} className="rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400">
             Apri Journal

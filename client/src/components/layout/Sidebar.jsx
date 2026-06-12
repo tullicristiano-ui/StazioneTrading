@@ -1,0 +1,70 @@
+import { useNavigate, useLocation } from 'react-router-dom'
+
+const NAV_ITEMS = [
+  { label: 'Mercati', icon: '🏠', path: '/' },
+  { label: 'Analisi', icon: '🗂', path: '/analisi' },
+  { label: 'Journal', icon: '📓', path: '/journal' },
+]
+
+export default function Sidebar({ open, onClose }) {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const handleNav = (path) => {
+    navigate(path)
+    onClose()
+  }
+
+  return (
+    <>
+      {/* Overlay scurito su mobile */}
+      {open && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 md:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Pannello sidebar */}
+      <aside
+        className={`
+          fixed top-0 left-0 z-40 h-full w-56 bg-slate-900 border-r border-slate-800
+          flex flex-col gap-2 p-4 shadow-2xl
+          transform transition-transform duration-300 ease-in-out
+          ${open ? 'translate-x-0' : '-translate-x-full'}
+        `}
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <span className="text-cyan-400 font-bold text-lg tracking-tight">Aware Trading</span>
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition"
+            aria-label="Chiudi menu"
+          >
+            ✕
+          </button>
+        </div>
+
+        <nav className="flex flex-col gap-1">
+          {NAV_ITEMS.map(({ label, icon, path }) => {
+            const isActive = location.pathname === path
+            return (
+              <button
+                key={path}
+                onClick={() => handleNav(path)}
+                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition text-left
+                  ${isActive
+                    ? 'bg-cyan-500/20 text-cyan-400'
+                    : 'text-slate-200 hover:bg-slate-800'
+                  }`}
+              >
+                <span>{icon}</span>
+                {label}
+              </button>
+            )
+          })}
+        </nav>
+      </aside>
+    </>
+  )
+}

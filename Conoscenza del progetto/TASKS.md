@@ -191,4 +191,26 @@ Prima di ogni commit, verificare:
 
 ---
 
-*Ultima modifica: 2026-06-12 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 completate*
+## Cruscotto Mercati — Fase 1 (2026-06-12)
+
+| ID | Task | Priorità | Stato | Note |
+|---|---|---|---|---|
+| MKT-01 | Routing: `/` → Markets, `/analisi` → Dashboard | 🟠 P1 | `[x]` | App.jsx aggiornato |
+| MKT-02 | Sidebar condivisa a scomparsa (hamburger) — `Sidebar.jsx` | 🟠 P1 | `[x]` | Overlay mobile, animazione CSS, link attivo evidenziato |
+| MKT-03 | Pagina `Markets.jsx` con widget TradingView | 🟠 P1 | `[x]` | Market Overview (tab indici/forex/commodity/crypto) + Calendario economico |
+| MKT-04 | `TradingViewWidget.jsx` — wrapper riusabile per embed TradingView | 🟠 P1 | `[x]` | Cleanup unmount, guardia StrictMode doppio montaggio |
+| MKT-05 | Aggiornare link "Torna alla dashboard" → "Torna alle analisi" (`/analisi`) | 🟠 P1 | `[x]` | Workspace.jsx e Journal.jsx |
+| MKT-06 | Dashboard usa sidebar condivisa (rimossa sidebar interna) | 🟠 P1 | `[x]` | Dashboard.jsx |
+
+## Cruscotto Mercati — Fase 2 (futura, non in questo sprint)
+
+| ID | Task | Priorità | Stato | Note |
+|---|---|---|---|---|
+| MKT-10 | Global Market Heatmap (widget heatmap TradingView: stock/crypto/etf) | 🟡 P2 | `[ ]` | FASE 2 |
+| MKT-11 | News globali in tempo reale (widget news/timeline TradingView) | 🟡 P2 | `[ ]` | FASE 2 |
+| MKT-12 | Filtri avanzati, fullscreen widget, watchlist personalizzata | ⚪ P3 | `[ ]` | FASE 2 |
+| MKT-13 | Multi-timeframe e varianti 1D/1W/1M | ⚪ P3 | `[ ]` | FASE 2 |
+
+---
+
+*Ultima modifica: 2026-06-12 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | Cruscotto Mercati Fase 1: MKT-01…06 ✅*

@@ -24,8 +24,8 @@ export default function Journal() {
           <p className="mt-1 text-slate-400">Riepilogo delle righe salvate durante le sessioni.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button onClick={() => navigate('/')} className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-200 transition hover:bg-slate-800">
-            Torna alla dashboard
+          <button onClick={() => navigate('/analisi')} className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-200 transition hover:bg-slate-800">
+            Torna alle analisi
           </button>
           <a
             href={api.exportJournalCSV()}

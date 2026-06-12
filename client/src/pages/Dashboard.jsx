@@ -1,30 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client.js'
-
-function Sidebar() {
-  const navigate = useNavigate()
-
-  return (
-    <aside className="w-52 shrink-0 bg-slate-900 border-r border-slate-800 flex flex-col gap-2 p-4 min-h-screen">
-      <div className="mb-4">
-        <span className="text-cyan-400 font-bold text-lg tracking-tight">Aware Trading</span>
-      </div>
-      <button
-        onClick={() => navigate('/')}
-        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 transition text-left"
-      >
-        <span>🏠</span> Dashboard
-      </button>
-      <button
-        onClick={() => navigate('/journal')}
-        className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-800 transition text-left"
-      >
-        <span>📓</span> Journal
-      </button>
-    </aside>
-  )
-}
+import Sidebar from '../components/layout/Sidebar.jsx'
 
 function Modal({ title, onConfirm, onCancel, children }) {
   return (
@@ -105,6 +82,7 @@ export default function Dashboard() {
   const [newTitle, setNewTitle] = useState('')
 
   const [editingSession, setEditingSession] = useState(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const navigate = useNavigate()
 
@@ -165,14 +143,27 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-950 text-slate-100">
-      <Sidebar />
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="flex-1 p-5">
+      <div className="p-5">
         <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-semibold">Aware Trading Workspace</h1>
-            <p className="mt-1 text-slate-400">Avvia una nuova sessione o riapri una sessione esistente.</p>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition"
+              aria-label="Apri menu"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+            <div>
+              <h1 className="text-3xl font-semibold">Le mie analisi</h1>
+              <p className="mt-1 text-slate-400">Avvia una nuova sessione o riapri una sessione esistente.</p>
+            </div>
           </div>
           <button
             onClick={() => { setNewAsset(''); setNewTitle(''); setShowNewModal(true) }}

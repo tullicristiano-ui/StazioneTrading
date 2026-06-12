@@ -137,6 +137,25 @@ Una milestone è completata quando:
 
 ---
 
+## Fase 4 — Cruscotto Mercati
+
+**Obiettivo:** trasformare la home in un cruscotto professionale con dati di mercato in tempo reale (solo widget gratuiti TradingView, nessuna chiave API, nessun costo).
+
+**Milestone M10** — Cruscotto base ✅ (2026-06-12)
+- [x] Routing: `/` = pagina Mercati, `/analisi` = lista analisi/sessioni
+- [x] Sidebar condivisa a scomparsa (hamburger) con animazione fluida
+- [x] Widget Market Overview TradingView (tab Indici, Forex, Commodity, Crypto)
+- [x] Widget Calendario Economico TradingView (importanza media/alta)
+- [x] `TradingViewWidget.jsx` — wrapper riusabile, tema dark, cleanup sicuro
+
+**Milestone M11** — Cruscotto avanzato (FASE 2, futura)
+- [ ] Global Market Heatmap (heatmap TradingView: stock, crypto, etf)
+- [ ] News globali in tempo reale (widget news/timeline TradingView)
+- [ ] Filtri avanzati, fullscreen, watchlist personalizzata
+- [ ] Multi-timeframe e varianti 1D/1W/1M
+
+---
+
 ## Prossima fase — Visione (vision) e modello Sonnet
 
 **Contesto:** al momento il provider attivo è **Gemma via HuggingFace** (`AI_PROVIDER=huggingface`), che è **text-only**: l'agente non può leggere gli screenshot dei grafici. Le Fasi 1-3 sono completate, ma l'analisi visiva reale richiede un modello con vision.
@@ -147,4 +166,4 @@ Una milestone è completata quando:
 - [ ] Verifica end-to-end: analisi di uno screenshot di grafico reale
 
 ---
-*Ultima modifica: 2026-06-11 | Fasi 1-3 ✅ (M1–M8) | Prossimo: M9 — vision/Sonnet*
+*Ultima modifica: 2026-06-12 | Fasi 1-3 ✅ (M1–M8) | M10 ✅ — Cruscotto base | Prossimo: M11 (cruscotto avanzato) e M9 (vision/Sonnet)*
