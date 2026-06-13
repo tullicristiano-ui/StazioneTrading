@@ -1,253 +1,159 @@
-import { useState, useMemo } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Sidebar from '../components/layout/Sidebar.jsx'
-import TradingViewWidget from '../components/markets/TradingViewWidget.jsx'
 
-// ── Widget configs ────────────────────────────────────────────────────────────
+// ── Canvas animato ────────────────────────────────────────────────────────────
 
-const ADVANCED_CHART_SRC =
-  'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js'
-const ADVANCED_CHART_CONFIG = {
-  colorTheme: 'dark', locale: 'it', autosize: true,
-  symbol: 'FOREXCOM:SPXUSD', interval: 'D', timezone: 'Europe/Rome',
-  style: '1', allow_symbol_change: true, withdateranges: true,
-  hide_side_toolbar: false, save_image: true,
-}
+function AnimatedBackground() {
+  const canvasRef = useRef(null)
 
-const MARKET_OVERVIEW_SRC =
-  'https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js'
-const MARKET_OVERVIEW_CONFIG = {
-  colorTheme: 'dark', dateRange: '12M', showChart: true, locale: 'it',
-  largeChartUrl: '', isTransparent: false, showSymbolLogo: true,
-  showFloatingTooltip: false, width: '100%', height: '100%',
-  tabs: [
-    {
-      title: 'Indici', originalTitle: 'Indices',
-      symbols: [
-        { s: 'FOREXCOM:SPXUSD', d: 'S&P 500 (US500)' },
-        { s: 'FOREXCOM:NSXUSD', d: 'Nasdaq 100 (US100)' },
-        { s: 'INDEX:FTSEMIB', d: 'FTSE MIB' },
-      ],
-    },
-    {
-      title: 'Forex', originalTitle: 'Forex',
-      symbols: [
-        { s: 'FX:EURUSD', d: 'EUR/USD' }, { s: 'FX:GBPUSD', d: 'GBP/USD' },
-        { s: 'FX:USDJPY', d: 'USD/JPY' }, { s: 'FX:USDCHF', d: 'USD/CHF' },
-      ],
-    },
-    {
-      title: 'Commodity', originalTitle: 'Commodities',
-      symbols: [
-        { s: 'TVC:GOLD', d: 'Gold' }, { s: 'TVC:SILVER', d: 'Silver' },
-        { s: 'TVC:USOIL', d: 'Oil (WTI)' },
-      ],
-    },
-    {
-      title: 'Crypto', originalTitle: 'Crypto',
-      symbols: [
-        { s: 'BITSTAMP:BTCUSD', d: 'Bitcoin' },
-        { s: 'BITSTAMP:ETHUSD', d: 'Ethereum' },
-      ],
-    },
-  ],
-}
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
 
-const EVENTS_SRC =
-  'https://s3.tradingview.com/external-embedding/embed-widget-events.js'
-const EVENTS_CONFIG = {
-  colorTheme: 'dark', isTransparent: false, width: '100%', height: '100%',
-  locale: 'it', importanceFilter: '0,1', countryFilter: 'us,eu,it,gb,jp,de,fr',
-}
+    const particles = []
+    const COUNT = 70
 
-const STOCK_HEATMAP_SRC =
-  'https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js'
-const STOCK_HEATMAP_CONFIG = {
-  colorTheme: 'dark', dataSource: 'SPX500', grouping: 'sector',
-  blockSize: 'market_cap_basic', blockColor: 'change',
-  hasTopBar: true, isDataSetEnabled: true,
-  locale: 'it', width: '100%', height: '100%',
-}
+    function resize() {
+      canvas.width  = canvas.offsetWidth
+      canvas.height = canvas.offsetHeight
+    }
 
-const CRYPTO_HEATMAP_SRC =
-  'https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js'
-const CRYPTO_HEATMAP_CONFIG = {
-  colorTheme: 'dark', dataSource: 'Crypto',
-  blockSize: 'market_cap_calc', blockColor: 'change',
-  locale: 'it', width: '100%', height: '100%',
-}
+    function initParticles() {
+      particles.length = 0
+      for (let i = 0; i < COUNT; i++) {
+        particles.push({
+          x:       Math.random() * canvas.width,
+          y:       Math.random() * canvas.height,
+          vx:      (Math.random() - 0.5) * 0.8,
+          vy:      (Math.random() - 0.5) * 0.8,
+          opacity: 0.2 + Math.random() * 0.3,
+          radius:  1.5 + Math.random(),
+        })
+      }
+    }
 
-const FOREX_HEATMAP_SRC =
-  'https://s3.tradingview.com/external-embedding/embed-widget-forex-cross-rates.js'
-const FOREX_HEATMAP_CONFIG = {
-  colorTheme: 'dark', isTransparent: false, locale: 'it',
-  currencies: ['EUR', 'USD', 'JPY', 'GBP', 'CHF', 'AUD', 'CAD'],
-  width: '100%', height: '100%',
-}
+    let rafId
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-const NEWS_SRC =
-  'https://s3.tradingview.com/external-embedding/embed-widget-timeline.js'
+      for (const p of particles) {
+        p.x += p.vx
+        p.y += p.vy
+        if (p.x < 0 || p.x > canvas.width)  p.vx *= -1
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1
 
-const makeNewsConfig = (market) => ({
-  colorTheme: 'dark', isTransparent: false, displayMode: 'regular',
-  locale: 'it', width: '100%', height: '100%',
-  feedMode: 'market', market,
-})
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(16,185,129,${p.opacity})`
+        ctx.fill()
+      }
 
-const NEWS_STOCKS_CONFIG  = makeNewsConfig('stock')
-const NEWS_FOREX_CONFIG   = makeNewsConfig('forex')
-const NEWS_CRYPTO_CONFIG  = makeNewsConfig('crypto')
-// 'economy' non è un market supportato dal widget Timeline → usiamo feedMode:'all_symbols' per Macro
-const NEWS_MACRO_CONFIG   = {
-  colorTheme: 'dark', isTransparent: false, displayMode: 'regular',
-  locale: 'it', width: '100%', height: '100%',
-  feedMode: 'all_symbols',
-}
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x
+          const dy = particles[i].y - particles[j].y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          if (dist < 120) {
+            const alpha = (1 - dist / 120) * 0.25
+            ctx.beginPath()
+            ctx.moveTo(particles[i].x, particles[i].y)
+            ctx.lineTo(particles[j].x, particles[j].y)
+            ctx.strokeStyle = `rgba(20,184,166,${alpha})`
+            ctx.lineWidth = 0.8
+            ctx.stroke()
+          }
+        }
+      }
 
-// ── Componenti UI ─────────────────────────────────────────────────────────────
+      rafId = requestAnimationFrame(draw)
+    }
 
-function TabBar({ tabs, active, onSelect }) {
+    const observer = new ResizeObserver(() => {
+      resize()
+      initParticles()
+    })
+    observer.observe(canvas.parentElement)
+
+    resize()
+    initParticles()
+    draw()
+
+    return () => {
+      cancelAnimationFrame(rafId)
+      observer.disconnect()
+    }
+  }, [])
+
   return (
-    <div className="flex gap-1 mb-5 border-b border-slate-800 overflow-x-auto">
-      {tabs.map(({ id, label }) => (
-        <button
-          key={id}
-          onClick={() => onSelect(id)}
-          className={`px-4 py-2 text-sm font-medium whitespace-nowrap transition border-b-2 -mb-px
-            ${active === id
-              ? 'border-cyan-400 text-cyan-400'
-              : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-600'
-            }`}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'absolute', inset: 0,
+        width: '100%', height: '100%',
+        pointerEvents: 'none', zIndex: 0,
+      }}
+    />
   )
 }
 
-function WidgetCard({ title, hint, children }) {
+// ── Icona candela SVG ─────────────────────────────────────────────────────────
+
+function CandleIcon() {
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl overflow-hidden" style={{ height: '620px' }}>
-      <h2 className="mb-1 text-base font-semibold text-slate-200">{title}</h2>
-      {hint && <p className="mb-2 text-xs text-slate-500">{hint}</p>}
-      <div style={{ height: hint ? 'calc(100% - 3.2rem)' : 'calc(100% - 2rem)' }}>
-        {children}
-      </div>
-    </div>
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Miccia superiore */}
+      <line x1="24" y1="2" x2="24" y2="10" stroke="#10b981" strokeWidth="2" strokeLinecap="round" />
+      {/* Corpo verde (rialzista) */}
+      <rect x="16" y="10" width="16" height="22" rx="2" fill="#10b981" />
+      {/* Miccia inferiore */}
+      <line x1="24" y1="32" x2="24" y2="46" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
+      {/* Piccolo rettangolo rosso sotto per richiamare la candela ribassista */}
+      <rect x="19" y="38" width="10" height="6" rx="1" fill="#ef4444" opacity="0.7" />
+    </svg>
   )
 }
 
-// ── Tab Heatmap ───────────────────────────────────────────────────────────────
+// ── Home page ─────────────────────────────────────────────────────────────────
 
-const HEATMAP_SUBTABS = [
-  { id: 'azioni', label: 'Azioni' },
-  { id: 'crypto', label: 'Crypto' },
-  { id: 'forex',  label: 'Forex' },
-]
-
-function HeatmapTab() {
-  const [sub, setSub] = useState('azioni')
-
-  const stockConfig  = useMemo(() => STOCK_HEATMAP_CONFIG, [])
-  const cryptoConfig = useMemo(() => CRYPTO_HEATMAP_CONFIG, [])
-  const forexConfig  = useMemo(() => FOREX_HEATMAP_CONFIG, [])
-
-  return (
-    <>
-      <TabBar tabs={HEATMAP_SUBTABS} active={sub} onSelect={setSub} />
-      {sub === 'azioni' && (
-        <WidgetCard title="Heatmap Azioni" hint="Puoi cambiare indice (S&P500, Nasdaq, DAX, FTSE MIB…) dalla barra in alto nel widget.">
-          <TradingViewWidget scriptSrc={STOCK_HEATMAP_SRC} config={stockConfig} />
-        </WidgetCard>
-      )}
-      {sub === 'crypto' && (
-        <WidgetCard title="Heatmap Crypto">
-          <TradingViewWidget scriptSrc={CRYPTO_HEATMAP_SRC} config={cryptoConfig} />
-        </WidgetCard>
-      )}
-      {sub === 'forex' && (
-        <WidgetCard title="Forex Cross Rates">
-          <TradingViewWidget scriptSrc={FOREX_HEATMAP_SRC} config={forexConfig} />
-        </WidgetCard>
-      )}
-    </>
-  )
-}
-
-// ── Tab News ──────────────────────────────────────────────────────────────────
-
-const NEWS_SUBTABS = [
-  { id: 'azioni', label: 'Azioni' },
-  { id: 'forex',  label: 'Forex' },
-  { id: 'crypto', label: 'Crypto' },
-  { id: 'macro',  label: 'Macro' },
-]
-
-function NewsTab() {
-  const [sub, setSub] = useState('azioni')
-
-  const stocksConfig = useMemo(() => NEWS_STOCKS_CONFIG, [])
-  const forexConfig  = useMemo(() => NEWS_FOREX_CONFIG, [])
-  const cryptoConfig = useMemo(() => NEWS_CRYPTO_CONFIG, [])
-  const macroConfig  = useMemo(() => NEWS_MACRO_CONFIG, [])
-
-  return (
-    <>
-      <TabBar tabs={NEWS_SUBTABS} active={sub} onSelect={setSub} />
-      {sub === 'azioni' && (
-        <WidgetCard title="News Azioni">
-          <TradingViewWidget scriptSrc={NEWS_SRC} config={stocksConfig} />
-        </WidgetCard>
-      )}
-      {sub === 'forex' && (
-        <WidgetCard title="News Forex">
-          <TradingViewWidget scriptSrc={NEWS_SRC} config={forexConfig} />
-        </WidgetCard>
-      )}
-      {sub === 'crypto' && (
-        <WidgetCard title="News Crypto">
-          <TradingViewWidget scriptSrc={NEWS_SRC} config={cryptoConfig} />
-        </WidgetCard>
-      )}
-      {sub === 'macro' && (
-        <WidgetCard title="News Macro" hint="Feed generale multi-mercato (market:'economy' non supportato dal widget Timeline).">
-          <TradingViewWidget scriptSrc={NEWS_SRC} config={macroConfig} />
-        </WidgetCard>
-      )}
-    </>
-  )
-}
-
-// ── Pagina principale ─────────────────────────────────────────────────────────
-
-const MAIN_TABS = [
-  { id: 'grafico',    label: 'Grafico' },
-  { id: 'panoramica', label: 'Panoramica' },
-  { id: 'heatmap',    label: 'Heatmap' },
-  { id: 'news',       label: 'News' },
-  { id: 'calendario', label: 'Calendario' },
+const FEATURE_CARDS = [
+  {
+    icon: '🤖',
+    title: 'Agente AI',
+    desc: 'Analizza i tuoi grafici con il metodo Aware Trader e ricevi analisi strutturate della price action.',
+  },
+  {
+    icon: '📊',
+    title: 'Mercati Live',
+    desc: 'Grafici avanzati, heatmap, news e calendario economico in tempo reale grazie ai widget TradingView.',
+  },
+  {
+    icon: '📓',
+    title: 'Journal',
+    desc: 'Registra ogni trade analizzato, tieni traccia delle tue decisioni e scarica il diario in formato CSV.',
+  },
 ]
 
 export default function Markets() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState('grafico')
   const navigate = useNavigate()
 
-  const chartConfig    = useMemo(() => ADVANCED_CHART_CONFIG, [])
-  const overviewConfig = useMemo(() => MARKET_OVERVIEW_CONFIG, [])
-  const eventsConfig   = useMemo(() => EVENTS_CONFIG, [])
-
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div
+      className="relative min-h-screen overflow-hidden text-slate-100"
+      style={{ background: '#050f0a' }}
+    >
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <AnimatedBackground />
 
-      <div className="p-5">
-        {/* Header hamburger */}
-        <header className="mb-0 flex items-center gap-4">
+      <div className="relative z-10 flex flex-col min-h-screen">
+
+        {/* Hamburger */}
+        <header className="p-4">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition"
+            className="rounded-lg p-2 text-slate-400 hover:bg-emerald-900/40 hover:text-slate-200 transition"
             aria-label="Apri menu"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -258,68 +164,64 @@ export default function Markets() {
           </button>
         </header>
 
-        {/* Hero section */}
-        <section className="relative py-14 text-center overflow-hidden">
-          {/* Luci di sfondo decorative */}
-          <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 w-[500px] h-[300px] rounded-full bg-cyan-500/5 blur-3xl" />
-          <div className="pointer-events-none absolute top-10 right-1/4 w-[200px] h-[200px] rounded-full bg-blue-500/5 blur-3xl" />
+        {/* Hero */}
+        <main className="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center">
 
-          <h1 className="relative text-5xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-4">
+          <CandleIcon />
+
+          <h1 className="mt-6 text-6xl font-bold tracking-tight bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
             Stazione di Trading
           </h1>
-          <p className="relative text-slate-400 text-base mb-8">
-            Il tuo spazio personale per analizzare i mercati con l'aiuto dell'AI
+
+          <p className="mt-4 max-w-2xl text-slate-300 text-lg leading-relaxed">
+            Il tuo spazio di lavoro personale per analizzare i mercati finanziari con l'aiuto dell'intelligenza artificiale.
+            Carica i grafici, discuti la struttura del mercato con l'agente Aware Trader e tieni traccia di ogni operazione nel journal.
+            Tutto sul tuo computer, sempre disponibile.
           </p>
-          <div className="relative flex items-center justify-center gap-3 flex-wrap">
+
+          {/* CTA */}
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
             <button
               onClick={() => navigate('/analisi?new=1')}
-              className="rounded-xl bg-cyan-500 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400"
+              className="rounded-xl bg-emerald-500 px-6 py-3 font-semibold text-black transition hover:bg-emerald-400"
             >
               ➕ Nuova Analisi
             </button>
             <button
               onClick={() => navigate('/analisi')}
-              className="rounded-xl border border-slate-700 px-6 py-3 font-semibold text-slate-200 transition hover:bg-slate-800"
+              className="rounded-xl border border-emerald-700 px-6 py-3 font-semibold text-emerald-300 transition hover:bg-emerald-950"
             >
               📂 Le mie Analisi
             </button>
             <button
               onClick={() => navigate('/journal')}
-              className="rounded-xl border border-slate-700 px-6 py-3 font-semibold text-slate-200 transition hover:bg-slate-800"
+              className="rounded-xl border border-slate-700 px-6 py-3 font-semibold text-slate-300 transition hover:bg-slate-800"
             >
               📓 Journal
             </button>
+            <button
+              onClick={() => navigate('/trading-live')}
+              className="rounded-xl border border-teal-700 px-6 py-3 font-semibold text-teal-300 transition hover:bg-teal-950"
+            >
+              📈 Trading Live
+            </button>
           </div>
-        </section>
 
-        {/* Barra schede principale */}
-        <TabBar tabs={MAIN_TABS} active={activeTab} onSelect={setActiveTab} />
+          {/* Feature cards */}
+          <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl w-full">
+            {FEATURE_CARDS.map(({ icon, title, desc }) => (
+              <div
+                key={title}
+                className="rounded-2xl border border-emerald-900/50 bg-emerald-950/20 backdrop-blur-sm p-5 text-left"
+              >
+                <div className="text-2xl mb-2">{icon}</div>
+                <h3 className="font-semibold text-emerald-300 mb-1">{title}</h3>
+                <p className="text-sm text-slate-400 leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
 
-        {/* Contenuto tab — solo la tab attiva è montata */}
-        {activeTab === 'grafico' && (
-          <WidgetCard
-            title="Grafico avanzato"
-            hint="Puoi cambiare simbolo, timeframe e fare login al tuo account TradingView direttamente dentro il grafico."
-          >
-            <TradingViewWidget scriptSrc={ADVANCED_CHART_SRC} config={chartConfig} />
-          </WidgetCard>
-        )}
-
-        {activeTab === 'panoramica' && (
-          <WidgetCard title="Panoramica mercati">
-            <TradingViewWidget scriptSrc={MARKET_OVERVIEW_SRC} config={overviewConfig} />
-          </WidgetCard>
-        )}
-
-        {activeTab === 'heatmap' && <HeatmapTab />}
-
-        {activeTab === 'news' && <NewsTab />}
-
-        {activeTab === 'calendario' && (
-          <WidgetCard title="Calendario economico">
-            <TradingViewWidget scriptSrc={EVENTS_SRC} config={eventsConfig} />
-          </WidgetCard>
-        )}
+        </main>
       </div>
     </div>
   )

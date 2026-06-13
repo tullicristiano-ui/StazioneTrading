@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Markets from './pages/Markets'
+import TradingLive from './pages/TradingLive'
 import Dashboard from './pages/Dashboard'
 import Workspace from './pages/Workspace'
 import Journal from './pages/Journal'
@@ -10,6 +11,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Markets />} />
+        <Route path="/trading-live" element={<TradingLive />} />
         <Route path="/analisi" element={<Dashboard />} />
         <Route path="/workspace/:id" element={<Workspace />} />
         <Route path="/journal" element={<Journal />} />

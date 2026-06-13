@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 
 const NAV_ITEMS = [
   { label: 'Home',           icon: '🏠', path: '/' },
-  { label: 'Mercati',        icon: '📈', path: '/' },
+  { label: 'Trading Live',   icon: '📈', path: '/trading-live' },
   { label: 'Nuova Analisi',  icon: '➕', path: '/analisi?new=1' },
   { label: 'Le mie Analisi', icon: '📂', path: '/analisi' },
   { label: 'Journal',        icon: '📓', path: '/journal' },
