@@ -1,6 +1,31 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api/client.js'
 import { useNavigate } from 'react-router-dom'
+import AnimatedBackground from '../components/layout/AnimatedBackground.jsx'
+
+function JournalStats({ entries }) {
+  const total = entries.length
+  const assetCount = {}
+  entries.forEach(e => { if (e.asset) assetCount[e.asset] = (assetCount[e.asset] || 0) + 1 })
+  const topAsset = Object.entries(assetCount).sort((a, b) => b[1] - a[1])[0]?.[0] || '—'
+  const lastDate = entries.length > 0
+    ? new Date(Math.max(...entries.map(e => new Date(e.created_at).getTime()))).toLocaleDateString('it-IT')
+    : '—'
+  return (
+    <div className="mb-5 grid grid-cols-3 gap-3">
+      {[
+        { value: total, label: 'Analisi totali', color: 'text-emerald-400', size: 'text-2xl' },
+        { value: topAsset, label: 'Asset più analizzato', color: 'text-teal-400', size: 'text-lg' },
+        { value: lastDate, label: 'Ultima analisi', color: 'text-slate-200', size: 'text-sm' },
+      ].map(({ value, label, color, size }) => (
+        <div key={label} className="rounded-2xl border border-emerald-900/50 bg-emerald-950/20 p-4 text-center">
+          <div className={`${size} font-bold ${color}`}>{value}</div>
+          <div className="text-xs text-slate-400 mt-1">{label}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export default function Journal() {
   const [entries, setEntries] = useState([])
@@ -17,7 +42,9 @@ export default function Journal() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-5">
+    <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: '#050f0a' }}>
+      <AnimatedBackground />
+      <div className="relative z-10 p-5">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <button
@@ -49,6 +76,8 @@ export default function Journal() {
 
       {error && <div className="mb-4 rounded-xl bg-red-500/20 p-4 text-sm text-red-100">{error}</div>}
 
+      {!loading && <JournalStats entries={entries} />}
+
       <div className="rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-xl">
         {loading ? (
           <div className="text-slate-400">Caricamento...</div>
@@ -72,6 +101,7 @@ export default function Journal() {
             ))}
           </div>
         )}
+      </div>
       </div>
     </div>
   )

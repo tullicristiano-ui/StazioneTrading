@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client.js'
+import AnimatedBackground from '../components/layout/AnimatedBackground.jsx'
 
 const ROLE_LABEL = {
   user: 'Tu',
@@ -48,7 +49,9 @@ export default function Timeline() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-5">
+    <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: '#050f0a' }}>
+      <AnimatedBackground />
+      <div className="relative z-10 p-5">
       <div className="mb-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
@@ -131,6 +134,7 @@ export default function Timeline() {
           </ol>
         )}
       </section>
+      </div>
     </div>
   )
 }

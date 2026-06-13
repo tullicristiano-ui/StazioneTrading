@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard'
 import Workspace from './pages/Workspace'
 import Journal from './pages/Journal'
 import Timeline from './pages/Timeline'
+import Notes from './pages/Notes'
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/workspace/:id" element={<Workspace />} />
         <Route path="/journal" element={<Journal />} />
         <Route path="/workspace/:id/timeline" element={<Timeline />} />
+        <Route path="/note" element={<Notes />} />
       </Routes>
     </BrowserRouter>
   )

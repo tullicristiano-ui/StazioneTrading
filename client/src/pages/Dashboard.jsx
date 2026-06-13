@@ -2,6 +2,18 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { api } from '../api/client.js'
 import Sidebar from '../components/layout/Sidebar.jsx'
+import AnimatedBackground from '../components/layout/AnimatedBackground.jsx'
+
+function SessionBadge({ status, updatedAt }) {
+  const daysSince = (Date.now() - new Date(updatedAt).getTime()) / 86400000
+  if (status === 'closed')
+    return <span className="inline-flex items-center gap-1 rounded-full bg-slate-700/50 px-2 py-0.5 text-xs text-slate-400">⚫ Chiusa</span>
+  if (daysSince < 1)
+    return <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs text-emerald-300">🟢 Attiva oggi</span>
+  if (daysSince < 7)
+    return <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-xs text-amber-300">🟡 Recente</span>
+  return <span className="inline-flex items-center gap-1 rounded-full bg-slate-700/30 px-2 py-0.5 text-xs text-slate-500">⚪ Inattiva</span>
+}
 
 function Modal({ title, onConfirm, onCancel, children }) {
   return (
@@ -153,9 +165,11 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: '#050f0a' }}>
+      <AnimatedBackground />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
+      <div className="relative z-10">
       <div className="p-5">
         <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
@@ -281,7 +295,7 @@ export default function Dashboard() {
 
                       <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-start pr-16">
                         <div>
-                          <div className="text-sm text-slate-400">{session.status?.toUpperCase() || 'ACTIVE'}</div>
+                          <SessionBadge status={session.status} updatedAt={session.updated_at} />
                           <div className="mt-1 text-lg font-semibold text-white">{session.title || 'Sessione senza titolo'}</div>
                         </div>
                         <div className="text-sm text-slate-500 flex flex-col items-end gap-0.5">
@@ -342,6 +356,7 @@ export default function Dashboard() {
           onCancel={() => setEditingSession(null)}
         />
       )}
+      </div>
     </div>
   )
 }

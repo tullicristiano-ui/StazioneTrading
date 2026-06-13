@@ -1,117 +1,54 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Sidebar from '../components/layout/Sidebar.jsx'
-
-// ── Canvas animato ────────────────────────────────────────────────────────────
-
-function AnimatedBackground() {
-  const canvasRef = useRef(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-
-    const particles = []
-    const COUNT = 70
-
-    function resize() {
-      canvas.width  = canvas.offsetWidth
-      canvas.height = canvas.offsetHeight
-    }
-
-    function initParticles() {
-      particles.length = 0
-      for (let i = 0; i < COUNT; i++) {
-        particles.push({
-          x:       Math.random() * canvas.width,
-          y:       Math.random() * canvas.height,
-          vx:      (Math.random() - 0.5) * 0.8,
-          vy:      (Math.random() - 0.5) * 0.8,
-          opacity: 0.2 + Math.random() * 0.3,
-          radius:  1.5 + Math.random(),
-        })
-      }
-    }
-
-    let rafId
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-      for (const p of particles) {
-        p.x += p.vx
-        p.y += p.vy
-        if (p.x < 0 || p.x > canvas.width)  p.vx *= -1
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1
-
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(16,185,129,${p.opacity})`
-        ctx.fill()
-      }
-
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x
-          const dy = particles[i].y - particles[j].y
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < 120) {
-            const alpha = (1 - dist / 120) * 0.25
-            ctx.beginPath()
-            ctx.moveTo(particles[i].x, particles[i].y)
-            ctx.lineTo(particles[j].x, particles[j].y)
-            ctx.strokeStyle = `rgba(20,184,166,${alpha})`
-            ctx.lineWidth = 0.8
-            ctx.stroke()
-          }
-        }
-      }
-
-      rafId = requestAnimationFrame(draw)
-    }
-
-    const observer = new ResizeObserver(() => {
-      resize()
-      initParticles()
-    })
-    observer.observe(canvas.parentElement)
-
-    resize()
-    initParticles()
-    draw()
-
-    return () => {
-      cancelAnimationFrame(rafId)
-      observer.disconnect()
-    }
-  }, [])
-
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        position: 'absolute', inset: 0,
-        width: '100%', height: '100%',
-        pointerEvents: 'none', zIndex: 0,
-      }}
-    />
-  )
-}
+import AnimatedBackground from '../components/layout/AnimatedBackground.jsx'
 
 // ── Icona candela SVG ─────────────────────────────────────────────────────────
 
 function CandleIcon() {
   return (
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Miccia superiore */}
       <line x1="24" y1="2" x2="24" y2="10" stroke="#10b981" strokeWidth="2" strokeLinecap="round" />
-      {/* Corpo verde (rialzista) */}
       <rect x="16" y="10" width="16" height="22" rx="2" fill="#10b981" />
-      {/* Miccia inferiore */}
       <line x1="24" y1="32" x2="24" y2="46" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
-      {/* Piccolo rettangolo rosso sotto per richiamare la candela ribassista */}
       <rect x="19" y="38" width="10" height="6" rx="1" fill="#ef4444" opacity="0.7" />
     </svg>
+  )
+}
+
+// ── Calendario mensile ────────────────────────────────────────────────────────
+
+function MiniCalendar() {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = today.getMonth()
+  const todayDate = today.getDate()
+  const monthNames = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre']
+  const dayNames = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom']
+  const firstDay = new Date(year, month, 1).getDay()
+  const startOffset = (firstDay + 6) % 7
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const cells = []
+  for (let i = 0; i < startOffset; i++) cells.push(null)
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d)
+
+  return (
+    <div className="mt-10 max-w-sm mx-auto rounded-2xl border border-emerald-900/50 bg-emerald-950/20 backdrop-blur-sm p-4">
+      <div className="text-center text-sm font-semibold text-emerald-300 mb-3">
+        {monthNames[month]} {year}
+      </div>
+      <div className="grid grid-cols-7 gap-1 text-center">
+        {dayNames.map(d => (
+          <div key={d} className="text-xs text-slate-500 pb-1">{d}</div>
+        ))}
+        {cells.map((day, i) => (
+          <div key={i} className={`text-xs rounded-full w-7 h-7 flex items-center justify-center mx-auto
+            ${day === todayDate ? 'bg-emerald-500 text-black font-bold' : day ? 'text-slate-300 hover:bg-emerald-900/30' : ''}`}>
+            {day || ''}
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -135,9 +72,25 @@ const FEATURE_CARDS = [
   },
 ]
 
+function isMarketOpen(openHourUTC, closeHourUTC, openMinUTC, closeMinUTC) {
+  const now = new Date()
+  const day = now.getUTCDay()
+  if (day === 0 || day === 6) return false
+  const totalMinNow = now.getUTCHours() * 60 + now.getUTCMinutes()
+  const openTotal  = openHourUTC  * 60 + openMinUTC
+  const closeTotal = closeHourUTC * 60 + closeMinUTC
+  return totalMinNow >= openTotal && totalMinNow < closeTotal
+}
+
 export default function Markets() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [now, setNow] = useState(new Date())
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(id)
+  }, [])
 
   return (
     <div
@@ -149,8 +102,8 @@ export default function Markets() {
 
       <div className="relative z-10 flex flex-col min-h-screen">
 
-        {/* Hamburger */}
-        <header className="p-4">
+        {/* Header: hamburger + orologio + mercati */}
+        <header className="p-4 flex items-center">
           <button
             onClick={() => setSidebarOpen(true)}
             className="rounded-lg p-2 text-slate-400 hover:bg-emerald-900/40 hover:text-slate-200 transition"
@@ -162,6 +115,25 @@ export default function Markets() {
               <line x1="3" y1="18" x2="21" y2="18" />
             </svg>
           </button>
+
+          <div className="flex items-center gap-4 ml-auto">
+            <div className="text-right">
+              <div className="text-lg font-mono font-semibold text-emerald-400">
+                {now.toLocaleTimeString('it-IT')}
+              </div>
+              <div className="flex gap-2 mt-1">
+                {[
+                  { name: 'LON', open: isMarketOpen(8, 16, 0, 30) },
+                  { name: 'NY',  open: isMarketOpen(13, 20, 30, 0) },
+                  { name: 'TYO', open: isMarketOpen(0, 6, 0, 0) },
+                ].map(({ name, open }) => (
+                  <span key={name} className={`text-xs px-1.5 py-0.5 rounded-full ${open ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-700/50 text-slate-500'}`}>
+                    {open ? '●' : '○'} {name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
         </header>
 
         {/* Hero */}
@@ -206,6 +178,8 @@ export default function Markets() {
               📈 Trading Live
             </button>
           </div>
+
+          <MiniCalendar />
 
           {/* Feature cards */}
           <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl w-full">

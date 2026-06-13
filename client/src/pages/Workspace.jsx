@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../api/client.js'
 import ChatPanel from '../components/chat/ChatPanel.jsx'
 import SessionMemory from '../components/session/SessionMemory.jsx'
+import AnimatedBackground from '../components/layout/AnimatedBackground.jsx'
 
 export default function Workspace() {
   const { id } = useParams()
@@ -215,7 +216,9 @@ export default function Workspace() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-5">
+    <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: '#050f0a' }}>
+      <AnimatedBackground />
+      <div className="relative z-10 p-5">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <button
@@ -443,6 +446,7 @@ export default function Workspace() {
       )}
 
       <div ref={messagesEndRef} />
+      </div>
     </div>
   )
 }

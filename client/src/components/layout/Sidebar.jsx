@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { label: 'Nuova Analisi',  icon: '➕', path: '/analisi?new=1' },
   { label: 'Le mie Analisi', icon: '📂', path: '/analisi' },
   { label: 'Journal',        icon: '📓', path: '/journal' },
+  { label: 'Note',           icon: '📝', path: '/note' },
 ]
 
 export default function Sidebar({ open, onClose }) {

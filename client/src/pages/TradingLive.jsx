@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Sidebar from '../components/layout/Sidebar.jsx'
 import TradingViewWidget from '../components/markets/TradingViewWidget.jsx'
+import AnimatedBackground from '../components/layout/AnimatedBackground.jsx'
 
 // ── Widget configs ────────────────────────────────────────────────────────────
 
@@ -240,9 +241,11 @@ export default function TradingLive() {
   const eventsConfig   = useMemo(() => EVENTS_CONFIG, [])
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: '#050f0a' }}>
+      <AnimatedBackground />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
+      <div className="relative z-10">
       <div className="p-5">
         <header className="mb-5 flex items-center gap-4">
           <button
@@ -297,6 +300,7 @@ export default function TradingLive() {
             <TradingViewWidget scriptSrc={EVENTS_SRC} config={eventsConfig} />
           </WidgetCard>
         )}
+      </div>
       </div>
     </div>
   )
