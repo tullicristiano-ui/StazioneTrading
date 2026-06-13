@@ -26,6 +26,7 @@ export default function Workspace() {
   const [openedSnapshot, setOpenedSnapshot] = useState(null)
   const [loadingSnapshot, setLoadingSnapshot] = useState(false)
   const [visionSupported, setVisionSupported] = useState(true)
+  const [focusMode, setFocusMode] = useState(false)
   const messagesEndRef = useRef(null)
 
   const loadSession = async () => {
@@ -137,6 +138,12 @@ export default function Workspace() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  useEffect(() => {
+    const handleKeyDown = (e) => { if (e.key === 'Escape') setFocusMode(false) }
+    if (focusMode) window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [focusMode])
+
   const handleSaveJournalPreview = async () => {
     if (!journalPreview) {
       setError('Nessuna anteprima journal disponibile da salvare.')
@@ -233,6 +240,17 @@ export default function Workspace() {
           <div>
             <h1 className="text-3xl font-semibold">Workspace Aware Trading</h1>
             <p className="mt-1 text-slate-400">Sessione: {session?.title || 'Nuova sessione'}</p>
+            {session?.tags && (() => {
+              let tags = []
+              try { tags = JSON.parse(session.tags) } catch { tags = [] }
+              return tags.length > 0 ? (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {tags.map(tag => (
+                    <span key={tag} className="rounded-full bg-violet-500/20 px-2 py-0.5 text-xs text-violet-300">{tag}</span>
+                  ))}
+                </div>
+              ) : null
+            })()}
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -250,6 +268,12 @@ export default function Workspace() {
             className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${tradeOpen ? 'bg-emerald-500 text-slate-950 hover:bg-emerald-400' : 'bg-slate-800 text-slate-200 hover:bg-slate-700'}`}
           >
             {tradeOpen ? 'Modalità trade aperto: ON' : 'Attiva trade aperto'}
+          </button>
+          <button
+            onClick={() => setFocusMode(true)}
+            className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-200 transition hover:bg-slate-800"
+          >
+            🎯 Focus
           </button>
           <button
             onClick={handleCloseSession}
@@ -446,6 +470,34 @@ export default function Workspace() {
       )}
 
       <div ref={messagesEndRef} />
+
+      {focusMode && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-slate-950/95 p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-sm text-slate-400">🎯 Focus Mode — premi Esc per uscire</span>
+            <button
+              onClick={() => setFocusMode(false)}
+              className="rounded-lg border border-slate-700 px-3 py-1 text-sm text-slate-300 hover:bg-slate-800 transition"
+            >
+              Esci
+            </button>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <ChatPanel
+              messages={messages}
+              content={content}
+              onContentChange={setContent}
+              files={files}
+              onFilesChange={setFiles}
+              onSubmit={handleSubmit}
+              onGenerateJournal={handleGenerateJournal}
+              loading={loading}
+              error={error}
+              visionSupported={visionSupported}
+            />
+          </div>
+        </div>
+      )}
       </div>
     </div>
   )

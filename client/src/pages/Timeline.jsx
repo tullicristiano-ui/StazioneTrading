@@ -34,6 +34,20 @@ export default function Timeline() {
     load()
   }, [id])
 
+  useEffect(() => {
+    const style = document.createElement('style')
+    style.id = 'timeline-print'
+    style.textContent = `
+      @media print {
+        .no-print { display: none !important; }
+        body { background: white !important; color: black !important; }
+        .print-area { border: none !important; background: white !important; }
+      }
+    `
+    document.head.appendChild(style)
+    return () => document.getElementById('timeline-print')?.remove()
+  }, [])
+
   // Ordinamento cronologico esplicito (dal più vecchio al più recente)
   const orderedMessages = useMemo(() => {
     return [...messages].sort((a, b) => {
@@ -52,7 +66,7 @@ export default function Timeline() {
     <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: '#050f0a' }}>
       <AnimatedBackground />
       <div className="relative z-10 p-5">
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-5 flex items-center justify-between no-print">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(`/workspace/${id}`)}
@@ -87,6 +101,7 @@ export default function Timeline() {
           <button onClick={() => navigate(`/workspace/${id}`)} className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800">Apri Workspace</button>
           <button onClick={() => navigate(-1)} className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800">Indietro</button>
           <button onClick={load} className="rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-cyan-400">Aggiorna</button>
+          <button onClick={() => window.print()} className="rounded-xl border border-slate-600 bg-slate-800 px-4 py-2 text-sm text-slate-200 hover:bg-slate-700">⬇ Salva PDF</button>
         </div>
       </div>
 
@@ -97,7 +112,7 @@ export default function Timeline() {
         </section>
       )}
 
-      <section className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+      <section className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl print-area">
         {loading ? (
           <div className="text-slate-400">Caricamento timeline...</div>
         ) : error ? (

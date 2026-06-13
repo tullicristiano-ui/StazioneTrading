@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { api } from '../api/client.js'
 import Sidebar from '../components/layout/Sidebar.jsx'
 import AnimatedBackground from '../components/layout/AnimatedBackground.jsx'
 
@@ -82,14 +83,42 @@ function isMarketOpen(openHourUTC, closeHourUTC, openMinUTC, closeMinUTC) {
   return totalMinNow >= openTotal && totalMinNow < closeTotal
 }
 
+function ActiveSessionBanner({ session, onOpen }) {
+  if (!session) return null
+  return (
+    <div className="mt-6 flex items-center justify-between gap-3 rounded-2xl border border-cyan-500/30 bg-cyan-500/10 px-5 py-3 max-w-lg mx-auto">
+      <div className="text-sm">
+        <span className="text-cyan-300 font-semibold">Sessione in corso:</span>{' '}
+        <span className="text-slate-200">{session.title || session.asset || 'Nuova sessione'}</span>
+      </div>
+      <button
+        onClick={onOpen}
+        className="shrink-0 rounded-lg bg-cyan-500 px-3 py-1 text-xs font-semibold text-slate-950 hover:bg-cyan-400 transition"
+      >
+        Riapri →
+      </button>
+    </div>
+  )
+}
+
 export default function Markets() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [now, setNow] = useState(new Date())
+  const [activeSession, setActiveSession] = useState(null)
   const navigate = useNavigate()
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000)
     return () => clearInterval(id)
+  }, [])
+
+  useEffect(() => {
+    api.getSessions()
+      .then(sessions => {
+        const active = sessions.find(s => s.status !== 'closed')
+        setActiveSession(active || null)
+      })
+      .catch(() => {})
   }, [])
 
   return (
@@ -178,6 +207,8 @@ export default function Markets() {
               📈 Trading Live
             </button>
           </div>
+
+          <ActiveSessionBanner session={activeSession} onOpen={() => navigate(`/workspace/${activeSession?.id}`)} />
 
           <MiniCalendar />
 

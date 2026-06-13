@@ -82,7 +82,7 @@ router.get('/:id', async (req, res, next) => {
 router.patch('/:id', async (req, res, next) => {
   try {
     const { id } = req.params
-    const { asset, status, title } = req.body
+    const { asset, status, title, tags } = req.body
     const session = await getQuery('SELECT * FROM sessions WHERE id = ?', [id])
 
     if (!session) {
@@ -90,8 +90,9 @@ router.patch('/:id', async (req, res, next) => {
     }
 
     await runQuery(
-      'UPDATE sessions SET asset = ?, status = ?, title = ? WHERE id = ?',
-      [asset ?? session.asset, status ?? session.status, title ?? session.title, id]
+      'UPDATE sessions SET asset = ?, status = ?, title = ?, tags = ? WHERE id = ?',
+      [asset ?? session.asset, status ?? session.status, title ?? session.title,
+       tags !== undefined ? JSON.stringify(tags) : session.tags, id]
     )
 
     if (asset && asset !== session.asset) {

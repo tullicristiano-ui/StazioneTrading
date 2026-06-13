@@ -15,6 +15,58 @@ function SessionBadge({ status, updatedAt }) {
   return <span className="inline-flex items-center gap-1 rounded-full bg-slate-700/30 px-2 py-0.5 text-xs text-slate-500">⚪ Inattiva</span>
 }
 
+function parseTags(raw) {
+  if (!raw) return []
+  try { return JSON.parse(raw) } catch { return [] }
+}
+
+function TagEditor({ tags, onSave }) {
+  const [editing, setEditing] = useState(false)
+  const [input, setInput] = useState('')
+
+  const handleAdd = () => {
+    const tag = input.trim()
+    if (!tag || tags.includes(tag)) { setInput(''); return }
+    onSave([...tags, tag])
+    setInput('')
+  }
+
+  const handleRemove = (tag) => onSave(tags.filter(t => t !== tag))
+
+  if (!editing) {
+    return (
+      <div className="mt-2 flex flex-wrap items-center gap-1" onClick={e => e.stopPropagation()}>
+        {tags.map(tag => (
+          <span key={tag} className="rounded-full bg-violet-500/20 px-2 py-0.5 text-xs text-violet-300">{tag}</span>
+        ))}
+        <button onClick={() => setEditing(true)} className="rounded-full bg-slate-700/50 px-2 py-0.5 text-xs text-slate-400 hover:bg-slate-700 transition">
+          {tags.length === 0 ? '+ Tag' : '✏️'}
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-1" onClick={e => e.stopPropagation()}>
+      {tags.map(tag => (
+        <button key={tag} onClick={() => handleRemove(tag)} className="rounded-full bg-violet-500/20 px-2 py-0.5 text-xs text-violet-300 hover:bg-rose-500/20 hover:text-rose-300 transition">
+          {tag} ✕
+        </button>
+      ))}
+      <input
+        autoFocus
+        value={input}
+        onChange={e => setInput(e.target.value)}
+        onKeyDown={e => { if (e.key === 'Enter') handleAdd(); if (e.key === 'Escape') setEditing(false) }}
+        placeholder="Nuovo tag..."
+        className="rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-200 placeholder:text-slate-500 outline-none w-24"
+      />
+      <button onClick={handleAdd} className="rounded-full bg-violet-500 px-2 py-0.5 text-xs text-slate-950 font-semibold hover:bg-violet-400 transition">OK</button>
+      <button onClick={() => setEditing(false)} className="rounded-full bg-slate-700 px-2 py-0.5 text-xs text-slate-300 hover:bg-slate-600 transition">Fine</button>
+    </div>
+  )
+}
+
 function Modal({ title, onConfirm, onCancel, children }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
@@ -150,6 +202,15 @@ export default function Dashboard() {
       setSessions((prev) => prev.filter((s) => s.id !== sessionId))
     } catch (err) {
       setError(err.message || "Errore durante l'eliminazione della sessione")
+    }
+  }
+
+  const handleSaveTags = async (sessionId, newTags) => {
+    try {
+      const updated = await api.updateSession(sessionId, { tags: newTags })
+      setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, tags: updated.tags } : s))
+    } catch (err) {
+      setError(err.message || 'Errore salvataggio tag')
     }
   }
 
@@ -312,6 +373,10 @@ export default function Dashboard() {
                           Vedi Timeline →
                         </button>
                       </div>
+                      <TagEditor
+                        tags={parseTags(session.tags)}
+                        onSave={(newTags) => handleSaveTags(session.id, newTags)}
+                      />
                     </div>
                   ))}
                   {filtered.length === 0 && <div className="text-slate-500">Nessuna sessione corrisponde ai filtri.</div>}

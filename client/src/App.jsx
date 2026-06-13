@@ -6,6 +6,7 @@ import Workspace from './pages/Workspace'
 import Journal from './pages/Journal'
 import Timeline from './pages/Timeline'
 import Notes from './pages/Notes'
+import SearchPage from './pages/SearchPage'
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/journal" element={<Journal />} />
         <Route path="/workspace/:id/timeline" element={<Timeline />} />
         <Route path="/note" element={<Notes />} />
+        <Route path="/cerca" element={<SearchPage />} />
       </Routes>
     </BrowserRouter>
   )
