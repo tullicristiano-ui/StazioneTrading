@@ -235,4 +235,31 @@ Prima di ogni commit, verificare:
 
 ---
 
-*Ultima modifica: 2026-06-13 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | Cruscotto MKT Fase 1: MKT-01…09 ✅ | Cruscotto MKT Fase 2: MKT-10…12 ✅ | Home+Sidebar+Fix: HOME-01…03 ✅ SIDEBAR-01 ✅ DASH-FIX-01…02 ✅*
+## Home visiva + Trading Live (2026-06-14)
+
+| ID | Task | Priorità | Stato | Note |
+|---|---|---|---|---|
+| HOME-04 | Home completamente ridisegnata: sfondo #050f0a, canvas animato con particelle verdi | 🟠 P1 | `[x]` | AnimatedBackground con ResizeObserver, 70 particelle, linee di connessione teal |
+| HOME-05 | Icona candela SVG inline sopra il titolo | 🟡 P2 | `[x]` | Corpo verde + miccia rossa, 48x48, no dipendenze esterne |
+| HOME-06 | Titolo text-6xl con gradiente emerald→teal; descrizione lunga 3 righe; 4 pulsanti CTA | 🟠 P1 | `[x]` | 4° pulsante "Trading Live" bordo teal; pulsante primario bg-emerald-500 |
+| HOME-07 | Tre feature card glass sotto i pulsanti (Agente AI · Mercati Live · Journal) | 🟡 P2 | `[x]` | bg-emerald-950/20 backdrop-blur, bordo emerald-900/50 |
+| TRADLIVE-01 | Nuova pagina TradingLive.jsx su route /trading-live con tutti i widget TradingView | 🟠 P1 | `[x]` | Copia esatta dei componenti da Markets.jsx: TabBar, WidgetCard, HeatmapTab, NewsTab, 5 schede |
+| SIDEBAR-02 | Voce "Mercati" → "Trading Live" (path /trading-live) nella sidebar | 🟠 P1 | `[x]` | Home rimane su / |
+| APP-01 | Route /trading-live aggiunta in App.jsx | 🟠 P1 | `[x]` | Import TradingLive + Route element |
+
+---
+
+## Frecce di navigazione (2026-06-14)
+
+| ID | Task | Priorità | Stato | Note |
+|---|---|---|---|---|
+| FIX-01 | TradingLive.jsx: useNavigate era importato ma non usato — aggiunto `const navigate = useNavigate()` | 🟠 P1 | `[x]` | Correzione import inutile |
+| NAV-01 | Freccia ← in TradingLive.jsx → naviga a `/` | 🟠 P1 | `[x]` | Prima dell'hamburger nell'header |
+| NAV-02 | Freccia ← in Dashboard.jsx → naviga a `/` | 🟠 P1 | `[x]` | Prima dell'hamburger nel div flex header |
+| NAV-03 | Freccia ← in Journal.jsx → naviga a `/` | 🟠 P1 | `[x]` | Avvolge titolo+freccia in div flex gap-3 |
+| NAV-04 | Freccia ← in Workspace.jsx → naviga a `/analisi` | 🟠 P1 | `[x]` | Prima del titolo nell'header sinistro |
+| NAV-05 | Freccia ← in Timeline.jsx → naviga a `/workspace/${id}` | 🟠 P1 | `[x]` | Prima del titolo; pulsante "Indietro" esistente invariato |
+
+---
+
+*Ultima modifica: 2026-06-14 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | Cruscotto MKT Fase 1: MKT-01…09 ✅ | Cruscotto MKT Fase 2: MKT-10…12 ✅ | Home+Sidebar+Fix: HOME-01…07 ✅ SIDEBAR-01…02 ✅ DASH-FIX-01…02 ✅ TRADLIVE-01 ✅ APP-01 ✅ | Nav frecce: NAV-01…05 ✅ FIX-01 ✅*

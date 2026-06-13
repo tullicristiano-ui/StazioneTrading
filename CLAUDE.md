@@ -35,13 +35,14 @@ Quando si lavora su nuove funzioni o modifiche importanti, vengono usati **due a
 2. **Controverifica attivamente il codice**: cerca potenziali regressioni (cose che prima funzionavano e potrebbero essersi rotte), conflitti e bug non considerati.
 3. **Se trova problemi** → prepara un nuovo prompt per l'agente esecutore, che applicherà i fix.
 4. **Se è tutto ok** → aggiorna **tutta la documentazione di contesto** dell'app (`AGENT_CONTEXT.md`, `TASKS.md`, `ROADMAP.md`, `PROJECT_PLAN.md`, ecc.) per allinearla allo stato reale del codice.
-5. Al termine **chiede all'utente se fare commit e push** (e li esegue solo dopo conferma esplicita).
+5. **Scrive sempre un proprio report di sessione** (vedi §4) nella cartella `Conoscenza del progetto/Sessione di lavoro/{DATA}/`, che documenta la revisione svolta (cosa ha controllato, cosa ha trovato, decisioni prese). Questo report è **obbligatorio a ogni "lavoro ok"**, oltre a quello già scritto dall'esecutore.
+6. Al termine **chiede all'utente se fare il push** (e lo esegue solo dopo conferma esplicita). Il commit del lavoro è già stato fatto dall'agente esecutore; l'agente ask può aggiungere un commit per gli aggiornamenti di documentazione.
 
 ### Agente esecutore (implementazione)
 - Riceve il prompt preparato dall'agente ask e lo esegue integralmente.
 - Non prende decisioni di direzione: se c'è ambiguità, applica l'interpretazione più sicura e la documenta nel report.
 - A fine lavoro **compila obbligatoriamente il report di sessione** (vedi §4) e aggiorna `TASKS.md`.
-- Non fa commit né push: questo spetta all'agente ask dopo la revisione.
+- Fa il **commit** del proprio lavoro, ma **NON fa il push**. Il push spetta all'agente ask, dopo la revisione e solo dopo conferma esplicita dell'utente.
 
 > **Perché questo flusso?** Separa la responsabilità di *capire cosa fare* da quella di *farlo*, riducendo errori e garantendo che la documentazione sia sempre allineata al codice reale.
 

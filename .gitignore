@@ -43,3 +43,7 @@ logs/
 tmp/
 temp/
 node_modules
+
+# Documentazione di contesto (richiesta utente: non tracciata da git, da qui in poi)
+CLAUDE.md
+Conoscenza del progetto/

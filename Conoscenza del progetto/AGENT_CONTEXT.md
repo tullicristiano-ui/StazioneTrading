@@ -83,7 +83,7 @@ AI_PROVIDER=openrouter      → OpenRouter (vision, modelli Anthropic/GPT/ecc.)
 
 | Metodo | Endpoint | Scopo |
 |---|---|---|
-| POST/GET | `/api/sessions` · `/api/sessions/:id` · PATCH `/api/sessions/:id` | CRUD sessioni |
+| POST/GET/PATCH/DELETE | `/api/sessions` · `/api/sessions/:id` | CRUD sessioni. PATCH (asset/status/title) **non** tocca `updated_at`; DELETE elimina la sessione e tutto il collegato (messaggi, `session_memory`, snapshot, `journal_entries`, cartella `uploads/:id`) |
 | POST | `/api/sessions/:id/close` | Chiude la sessione + riassunto AI in `summary` |
 | POST/GET | `/api/sessions/:id/snapshots` | Crea / elenca snapshot |
 | GET | `/api/sessions/:id/snapshots/:snapshotId` | Apre un singolo snapshot (sola lettura) |
@@ -154,8 +154,9 @@ UPLOADS_PATH=./server/uploads
 - **Fase 2 — Workflow Trading**: ✅ completata (trade aperto, session memory automatica, journal CSV).
 - **Multi-provider**: ✅ implementato. In uso Gemma/HuggingFace; OpenRouter disponibile.
 - **Fase 3 — Produttività**: ✅ completata (Timeline, Chiudi sessione con riassunto AI, Snapshot + apertura, ricerca/filtri, paste Ctrl+V, avviso modello text-only).
-- **Prossimo (M9)**: integrazione Anthropic/Sonnet (vision) per la lettura reale degli screenshot; F2-D-06 (test Gemma con chiave reale).
-- Vedi `TASKS.md` e `ROADMAP.md` per il dettaglio. `BUG_LOG.md`: 0 bug aperti.
+- **Restyling UI (2026-06-13/14)**: ✅ completato. Nuova home "Stazione di Trading" (sfondo nero-verde, canvas animato particelle, hero con descrizione, 4 CTA). Nuova pagina `TradingLive` (`/trading-live`) con tutti i widget TradingView. Sidebar aggiornata: 5 voci (Home · Trading Live · Nuova Analisi · Le mie Analisi · Journal). Freccia ← "torna indietro" in ogni pagina. Fix Timeline sulla card analisi (in basso, non sovrapposta alle date).
+- **Provider vision**: da avviare su indicazione dell'utente (non imminente).
+- Vedi `TASKS.md` per il dettaglio. `BUG_LOG.md`: 0 bug aperti.
 
 ---
 
@@ -185,3 +186,7 @@ Per l'architettura completa, le decisioni tecniche e il data model dettagliato: 
 - 2026-06-09: Implementato `new_analysis` flow server-side; refactoring multi-provider (adapter OpenRouter + HuggingFace/Gemma; `providerClient.js` provider router).
 - 2026-06-11: **Fase 3 completata.** Sistema migrazioni multi-file con `schema_migrations`; migration 002 (`summary`/`closed_at` su sessions + tabella `snapshots`). Nuove route: `/api/sessions/:id/close`, `/api/sessions/:id/snapshots` (POST/GET), `/api/sessions/:id/snapshots/:snapshotId`, `/api/agent/info`. Timeline resa solida + proxy `/uploads` in Vite. Apertura snapshot in sola lettura; paste Ctrl+V; avviso modello text-only; l'agente chiede lo screenshot se manca.
 - 2026-06-11: Fix formato screenshot in `promptBuilder.js` (un unico messaggio user con content array — pronto per provider vision). Decisione: in uso solo Gemma/HuggingFace ora, Anthropic/Sonnet (vision) in futuro.
+- 2026-06-12: **Dashboard migliorata.** Nuova route `DELETE /api/sessions/:id` (elimina sessione + collegati + cartella uploads). `PATCH /api/sessions/:id` non modifica più `updated_at` e allinea in cascata `session_memory.asset`. Regola d'oro: `sessions.updated_at` cambia **solo** su un vero scambio col modello (`POST /api/agent/analyze`, ramo non-preview), non su apertura/anteprima/snapshot/modifica metadati. Dashboard: sidebar fissa (Home + Journal), card con due date (Aperta/Aggiornata), cestino per eliminare, matita per modificare titolo/asset, modale "Nuova analisi" con Titolo e Asset separati. CLAUDE.md §1-bis: flusso a due agenti (ask pianifica/controverifica/push; esecutore implementa/commit, niente push).
+- 2026-06-12: **Cruscotto Mercati (solo client, nessuna modifica server).** La home `/` ora è la pagina **`Markets`** (cruscotto a schede: **Grafico** avanzato · **Panoramica** · **Heatmap** Azioni/Crypto/Forex · **News** Azioni/Forex/Crypto/Macro · **Calendario** economico), basata su **widget gratuiti ufficiali TradingView** (nessuna chiave, nessun costo, richiede internet). La lista analisi/sessioni si è spostata su **`/analisi`** (componente `Dashboard` invariato); i pulsanti "Torna alle analisi" in Workspace/Journal puntano lì. **Sidebar condivisa a scomparsa** (hamburger): Mercati · Analisi · Journal. Nuovi file: `client/src/pages/Markets.jsx`, `client/src/components/markets/TradingViewWidget.jsx` (wrapper embed riusabile), `client/src/components/layout/Sidebar.jsx`. Lazy-mount: solo la scheda attiva monta il widget. Limiti noti (widget gratuiti): nessun login automatico all'account TradingView (solo login manuale nel Grafico), nessuna heatmap commodities, News "Macro" = feed `all_symbols`.
+- 2026-06-13: **Home "Stazione di Trading" + Sidebar aggiornata.** `Markets.jsx` ridisegnata: hero con titolo gradiente, tagline, 3 CTA. Sidebar: brand → "Stazione di Trading", 5 voci (Home·Mercati·Nuova Analisi·Le mie Analisi·Journal). Fix pulsante Timeline nella card analisi (spostato in basso, "Vedi Timeline →"). Apertura modale "Nuova Analisi" via query param `?new=1`.
+- 2026-06-14: **Home visiva + pagina Trading Live + frecce navigazione.** `Markets.jsx` completamente ridisegnata: sfondo `#050f0a`, canvas animato con 70 particelle verdi + linee di connessione (JavaScript puro, no librerie), icona candela SVG, descrizione app estesa, 4 CTA (incluso Trading Live), 3 feature cards glass. Nuovo file `client/src/pages/TradingLive.jsx` (`/trading-live`) con tutti i widget TradingView. Sidebar: "Trading Live" al posto di "Mercati". **Freccia ← "torna indietro"** aggiunta in tutte le pagine: TradingLive→/, Dashboard→/, Journal→/, Workspace→/analisi, Timeline→/workspace/:id.
