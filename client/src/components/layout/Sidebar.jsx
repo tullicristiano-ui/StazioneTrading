@@ -1,9 +1,11 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 
 const NAV_ITEMS = [
-  { label: 'Mercati', icon: '🏠', path: '/' },
-  { label: 'Analisi', icon: '🗂', path: '/analisi' },
-  { label: 'Journal', icon: '📓', path: '/journal' },
+  { label: 'Home',           icon: '🏠', path: '/' },
+  { label: 'Mercati',        icon: '📈', path: '/' },
+  { label: 'Nuova Analisi',  icon: '➕', path: '/analisi?new=1' },
+  { label: 'Le mie Analisi', icon: '📂', path: '/analisi' },
+  { label: 'Journal',        icon: '📓', path: '/journal' },
 ]
 
 export default function Sidebar({ open, onClose }) {
@@ -35,7 +37,7 @@ export default function Sidebar({ open, onClose }) {
         `}
       >
         <div className="mb-4 flex items-center justify-between">
-          <span className="text-cyan-400 font-bold text-lg tracking-tight">Aware Trading</span>
+          <span className="text-cyan-400 font-bold text-lg tracking-tight">Stazione di Trading</span>
           <button
             onClick={onClose}
             className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition"
@@ -47,7 +49,8 @@ export default function Sidebar({ open, onClose }) {
 
         <nav className="flex flex-col gap-1">
           {NAV_ITEMS.map(({ label, icon, path }) => {
-            const isActive = location.pathname === path
+            const basePath = path.split('?')[0]
+            const isActive = location.pathname === basePath
             return (
               <button
                 key={path}

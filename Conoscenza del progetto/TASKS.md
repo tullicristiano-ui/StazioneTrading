@@ -222,4 +222,17 @@ Prima di ogni commit, verificare:
 
 ---
 
-*Ultima modifica: 2026-06-12 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | Cruscotto MKT Fase 1: MKT-01…09 ✅ | Cruscotto MKT Fase 2: MKT-10…12 ✅*
+## Home + Sidebar + Fix Timeline (2026-06-13)
+
+| ID | Task | Priorità | Stato | Note |
+|---|---|---|---|---|
+| HOME-01 | Sezione hero in `Markets.jsx`: titolo "Stazione di Trading" con gradiente cyan→blue | 🟠 P1 | `[x]` | Luci decorative blur, py-14, bottoni CTA |
+| HOME-02 | Tre pulsanti CTA nella hero: Nuova Analisi (`/analisi?new=1`) · Le mie Analisi · Journal | 🟠 P1 | `[x]` | Pulsante primario cyan, secondari con bordo slate |
+| HOME-03 | Widget TradingView sotto la hero, layout invariato | 🟠 P1 | `[x]` | Stesso codice tab/widget, solo hero aggiunta sopra |
+| SIDEBAR-01 | Brand sidebar: "Aware Trading" → "Stazione di Trading"; 5 voci menu | 🟠 P1 | `[x]` | Home · Mercati · Nuova Analisi · Le mie Analisi · Journal; isActive su pathname senza query string |
+| DASH-FIX-01 | Pulsante Timeline spostato dalla zona top-right alla fine della card (vicino ad Asset) | 🟠 P1 | `[x]` | Non si sovrappone più alle date; diventa link "Vedi Timeline →" |
+| DASH-FIX-02 | `?new=1` query param apre modale Nuova Analisi automaticamente in Dashboard | 🟠 P1 | `[x]` | useLocation + useEffect; param pulito con replaceState dopo l'apertura |
+
+---
+
+*Ultima modifica: 2026-06-13 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | Cruscotto MKT Fase 1: MKT-01…09 ✅ | Cruscotto MKT Fase 2: MKT-10…12 ✅ | Home+Sidebar+Fix: HOME-01…03 ✅ SIDEBAR-01 ✅ DASH-FIX-01…02 ✅*

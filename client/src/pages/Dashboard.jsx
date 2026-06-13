@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { api } from '../api/client.js'
 import Sidebar from '../components/layout/Sidebar.jsx'
 
@@ -85,6 +85,16 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const navigate = useNavigate()
+  const location = useLocation()
+
+  useEffect(() => {
+    if (new URLSearchParams(location.search).get('new') === '1') {
+      setNewAsset('')
+      setNewTitle('')
+      setShowNewModal(true)
+      window.history.replaceState({}, '', '/analisi')
+    }
+  }, [location.search])
 
   useEffect(() => {
     setLoading(true)
@@ -270,7 +280,15 @@ export default function Dashboard() {
                           <span>Aggiornata: {new Date(session.updated_at).toLocaleString()}</span>
                         </div>
                       </div>
-                      <div className="mt-3 text-slate-400">Asset: {session.asset || 'Non specificato'}</div>
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="text-slate-400">Asset: {session.asset || 'Non specificato'}</div>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); navigate(`/workspace/${session.id}/timeline`) }}
+                          className="text-xs text-slate-500 hover:text-cyan-400 transition"
+                        >
+                          Vedi Timeline →
+                        </button>
+                      </div>
                     </div>
                   ))}
                   {filtered.length === 0 && <div className="text-slate-500">Nessuna sessione corrisponde ai filtri.</div>}

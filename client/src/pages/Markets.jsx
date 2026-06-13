@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Sidebar from '../components/layout/Sidebar.jsx'
 import TradingViewWidget from '../components/markets/TradingViewWidget.jsx'
 
@@ -231,6 +232,7 @@ const MAIN_TABS = [
 export default function Markets() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('grafico')
+  const navigate = useNavigate()
 
   const chartConfig    = useMemo(() => ADVANCED_CHART_CONFIG, [])
   const overviewConfig = useMemo(() => MARKET_OVERVIEW_CONFIG, [])
@@ -241,8 +243,8 @@ export default function Markets() {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="p-5">
-        {/* Header */}
-        <header className="mb-5 flex items-center gap-4">
+        {/* Header hamburger */}
+        <header className="mb-0 flex items-center gap-4">
           <button
             onClick={() => setSidebarOpen(true)}
             className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition"
@@ -254,11 +256,41 @@ export default function Markets() {
               <line x1="3" y1="18" x2="21" y2="18" />
             </svg>
           </button>
-          <div>
-            <h1 className="text-2xl font-semibold">Mercati</h1>
-            <p className="text-sm text-slate-400">Panoramica in tempo reale · dati TradingView</p>
-          </div>
         </header>
+
+        {/* Hero section */}
+        <section className="relative py-14 text-center overflow-hidden">
+          {/* Luci di sfondo decorative */}
+          <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 w-[500px] h-[300px] rounded-full bg-cyan-500/5 blur-3xl" />
+          <div className="pointer-events-none absolute top-10 right-1/4 w-[200px] h-[200px] rounded-full bg-blue-500/5 blur-3xl" />
+
+          <h1 className="relative text-5xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-4">
+            Stazione di Trading
+          </h1>
+          <p className="relative text-slate-400 text-base mb-8">
+            Il tuo spazio personale per analizzare i mercati con l'aiuto dell'AI
+          </p>
+          <div className="relative flex items-center justify-center gap-3 flex-wrap">
+            <button
+              onClick={() => navigate('/analisi?new=1')}
+              className="rounded-xl bg-cyan-500 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-400"
+            >
+              ➕ Nuova Analisi
+            </button>
+            <button
+              onClick={() => navigate('/analisi')}
+              className="rounded-xl border border-slate-700 px-6 py-3 font-semibold text-slate-200 transition hover:bg-slate-800"
+            >
+              📂 Le mie Analisi
+            </button>
+            <button
+              onClick={() => navigate('/journal')}
+              className="rounded-xl border border-slate-700 px-6 py-3 font-semibold text-slate-200 transition hover:bg-slate-800"
+            >
+              📓 Journal
+            </button>
+          </div>
+        </section>
 
         {/* Barra schede principale */}
         <TabBar tabs={MAIN_TABS} active={activeTab} onSelect={setActiveTab} />
