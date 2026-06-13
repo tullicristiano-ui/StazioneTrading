@@ -217,9 +217,20 @@ export default function Workspace() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-5">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold">Workspace Aware Trading</h1>
-          <p className="mt-1 text-slate-400">Sessione: {session?.title || 'Nuova sessione'}</p>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate('/analisi')}
+            className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition"
+            aria-label="Torna indietro"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <div>
+            <h1 className="text-3xl font-semibold">Workspace Aware Trading</h1>
+            <p className="mt-1 text-slate-400">Sessione: {session?.title || 'Nuova sessione'}</p>
+          </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button onClick={() => navigate('/analisi')} className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-200 transition hover:bg-slate-800">

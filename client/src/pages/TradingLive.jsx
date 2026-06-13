@@ -233,6 +233,7 @@ const MAIN_TABS = [
 export default function TradingLive() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('grafico')
+  const navigate = useNavigate()
 
   const chartConfig    = useMemo(() => ADVANCED_CHART_CONFIG, [])
   const overviewConfig = useMemo(() => MARKET_OVERVIEW_CONFIG, [])
@@ -244,6 +245,15 @@ export default function TradingLive() {
 
       <div className="p-5">
         <header className="mb-5 flex items-center gap-4">
+          <button
+            onClick={() => navigate('/')}
+            className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition"
+            aria-label="Torna indietro"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
           <button
             onClick={() => setSidebarOpen(true)}
             className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition"
