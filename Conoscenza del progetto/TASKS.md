@@ -262,4 +262,40 @@ Prima di ogni commit, verificare:
 
 ---
 
-*Ultima modifica: 2026-06-14 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | Cruscotto MKT Fase 1: MKT-01…09 ✅ | Cruscotto MKT Fase 2: MKT-10…12 ✅ | Home+Sidebar+Fix: HOME-01…07 ✅ SIDEBAR-01…02 ✅ DASH-FIX-01…02 ✅ TRADLIVE-01 ✅ APP-01 ✅ | Nav frecce: NAV-01…05 ✅ FIX-01 ✅*
+## 8 migliorie UI (2026-06-14)
+
+| ID | Task | Priorità | Stato | Note |
+|---|---|---|---|---|
+| UI-01 | Estrai AnimatedBackground in `components/layout/AnimatedBackground.jsx` | 🟠 P1 | `[x]` | Componente riusabile; Markets.jsx ora importa da file esterno |
+| UI-02 | Home: orologio in tempo reale + badge mercati (LON · NY · TYO) nell'header | 🟠 P1 | `[x]` | setInterval 1s, isMarketOpen() controlla UTC + weekend |
+| UI-03 | Home: MiniCalendar — calendario del mese corrente con giorno evidenziato | 🟡 P2 | `[x]` | Tra pulsanti CTA e feature cards |
+| UI-04 | TradingLive: sfondo animato (#050f0a + AnimatedBackground) | 🟠 P1 | `[x]` | Pattern coerente con la home |
+| UI-05 | Dashboard: sfondo animato + SessionBadge sulle card sessioni | 🟠 P1 | `[x]` | Badge colorati: Attiva oggi / Recente / Inattiva / Chiusa |
+| UI-06 | Journal: sfondo animato + JournalStats (totale analisi, top asset, ultima data) | 🟠 P1 | `[x]` | Griglia 3 card emerald sopra la lista |
+| UI-07 | Workspace: sfondo animato (#050f0a + AnimatedBackground) | 🟠 P1 | `[x]` | |
+| UI-08 | Timeline: sfondo animato (#050f0a + AnimatedBackground) | 🟠 P1 | `[x]` | |
+| UI-09 | SessionMemory: BiasIndicator — rileva rialzista/ribassista/neutro dal testo struttura | 🟠 P1 | `[x]` | Regex su testo; compare dopo il titolo e prima dei campi |
+| UI-10 | Nuova pagina Notes (`/note`) — textarea con autosave su localStorage | 🟡 P2 | `[x]` | Debounce 500ms; pulsante "Cancella tutto" con conferma |
+| UI-11 | Sidebar: voce "Note" aggiunta (path /note) | 🟡 P2 | `[x]` | Sesta voce dopo Journal |
+| UI-12 | App.jsx: route /note → Notes aggiunta | 🟠 P1 | `[x]` | |
+
+---
+
+---
+
+## 5 migliorie avanzate (2026-06-14)
+
+| ID | Task | Priorità | Stato | Note |
+|---|---|---|---|---|
+| NEW-01 | Home: banner sessione attiva con link diretto al Workspace | 🟠 P1 | `[x]` | Componente ActiveSessionBanner; carica sessioni al mount, mostra la prima non chiusa |
+| NEW-02 | Workspace: Focus Mode — overlay fullscreen solo chat + Esc per uscire | 🟠 P1 | `[x]` | Pulsante 🎯 Focus in toolbar; keydown listener su Escape |
+| NEW-03 | Nuova pagina Cerca (`/cerca`) — ricerca client-side per titolo/asset | 🟠 P1 | `[x]` | SearchPage.jsx; filtro real-time; Sidebar aggiornata + route App.jsx |
+| NEW-04 | Timeline: pulsante "⬇ Salva PDF" con CSS @media print | 🟠 P1 | `[x]` | `window.print()`, header no-print, messaggi print-area |
+| NEW-05a | DB: migrazione 003_tags.sql — colonna `tags TEXT` nella tabella sessions | 🟠 P1 | `[x]` | Applicata automaticamente all'avvio server |
+| NEW-05b | Server: PATCH sessions esteso per gestire campo `tags` (JSON.stringify) | 🟠 P1 | `[x]` | sessions.js, route PATCH /:id |
+| NEW-05c | Dashboard: TagEditor con aggiunta/rimozione tag e salvataggio via API | 🟠 P1 | `[x]` | Chip viola; modalità visualizzazione + modifica |
+| NEW-05d | Workspace: chip tag in sola lettura nell'header della sessione | 🟡 P2 | `[x]` | Legge session.tags e mostra chip viola |
+
+---
+
+*Ultima modifica: 2026-06-14 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | MKT Fase 1-2 ✅ | Home+Nav: HOME-01…07 ✅ SIDEBAR-01…02 ✅ DASH-FIX-01…02 ✅ NAV-01…05 ✅ FIX-01 ✅ TRADLIVE-01 ✅ APP-01 ✅ | 8 migliorie: UI-01…12 ✅ | 5 migliorie avanzate: NEW-01…05 ✅*
