@@ -298,4 +298,20 @@ Prima di ogni commit, verificare:
 
 ---
 
-*Ultima modifica: 2026-06-14 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | MKT Fase 1-2 ✅ | Home+Nav: HOME-01…07 ✅ SIDEBAR-01…02 ✅ DASH-FIX-01…02 ✅ NAV-01…05 ✅ FIX-01 ✅ TRADLIVE-01 ✅ APP-01 ✅ | 8 migliorie: UI-01…12 ✅ | 5 migliorie avanzate: NEW-01…05 ✅*
+---
+
+## Fix e migliorie (2026-06-14 — sessione notturna)
+
+| ID | Task | Priorità | Stato | Note |
+|---|---|---|---|---|
+| FIX-02 | Focus Mode Workspace: sfondo da grigio semi-trasparente a bgColor coerente col tema | 🟠 P1 | `[x]` | `bg-slate-950/95` → `style={{ background: bgColor }}` |
+| MOD-01a | Crea ThemeContext con toggle verde/scuro + persistenza localStorage | 🟠 P1 | `[x]` | `client/src/context/ThemeContext.jsx` — hook useTheme |
+| MOD-01b | App.jsx: ThemeProvider avvolge BrowserRouter | 🟠 P1 | `[x]` | |
+| MOD-01c | Sidebar: pulsante toggle tema in fondo al pannello | 🟠 P1 | `[x]` | "🌙 Tema scuro" / "🌿 Tema verde" |
+| MOD-01d | Tutte le pagine (8): import useTheme + bgColor reattivo | 🟠 P1 | `[x]` | Markets, Dashboard, Journal, Timeline, TradingLive, Workspace, Notes, SearchPage |
+| MOD-02 | Home: widget TradingView mini per 9 asset (BTC, EUR/USD, XAU, XAG, NDX, US100, USOIL, ETH, DXY) | 🟡 P2 | `[x]` | Griglia 3 colonne, componente AssetWidget con useRef |
+| MOD-03 | Notes riscritta: toolbar formattazione, modalità checklist, salvataggio note con titolo | 🟡 P2 | `[x]` | Nuove key localStorage v2; grassetto/dim/font/colore |
+
+---
+
+*Ultima modifica: 2026-06-14 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | MKT Fase 1-2 ✅ | Home+Nav ✅ | 8 migliorie ✅ | 5 migliorie avanzate ✅ | Fix+migliorie notturna: FIX-02 ✅ MOD-01 ✅ MOD-02 ✅ MOD-03 ✅*
