@@ -62,7 +62,7 @@ const AD_BENEFITS = [
   { icon: '📓', title: 'Journal completo',    desc: 'Registra ogni trade con entry, stop e target. Esporta tutto in CSV quando vuoi.' },
   { icon: '🧠', title: 'Memoria delle sessioni', desc: 'L\'app ricorda asset, livelli e struttura di ogni tua analisi precedente.' },
   { icon: '🔒', title: '100% sul tuo computer', desc: 'Nessun dato esce dal tuo PC. Privacy totale, nessun account richiesto.' },
-  { icon: '⚡', title: 'Veloce e gratuito',    desc: 'Nessun costo nascosto, nessuna registrazione. Pronto all\'uso.' },
+  { icon: '🗂️', title: 'Tag e ricerca',         desc: 'Organizza le sessioni con tag personalizzati e trovale subito con la ricerca integrata.' },
 ]
 
 function AdShowcase() {
@@ -92,24 +92,6 @@ function AdShowcase() {
 }
 
 // ── Home page ─────────────────────────────────────────────────────────────────
-
-const FEATURE_CARDS = [
-  {
-    icon: '🤖',
-    title: 'Agente AI',
-    desc: 'Analizza i tuoi grafici con il metodo Aware Trader e ricevi analisi strutturate della price action.',
-  },
-  {
-    icon: '📊',
-    title: 'Mercati Live',
-    desc: 'Grafici avanzati, heatmap, news e calendario economico in tempo reale grazie ai widget TradingView.',
-  },
-  {
-    icon: '📓',
-    title: 'Journal',
-    desc: 'Registra ogni trade analizzato, tieni traccia delle tue decisioni e scarica il diario in formato CSV.',
-  },
-]
 
 const ASSETS = [
   { symbol: 'BINANCE:BTCUSDT',  label: 'BTC' },
@@ -310,19 +292,6 @@ export default function Markets() {
             </div>
           </div>
 
-          {/* Feature cards */}
-          <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl w-full">
-            {FEATURE_CARDS.map(({ icon, title, desc }) => (
-              <div
-                key={title}
-                className="rounded-2xl border border-emerald-900/50 bg-emerald-950/20 backdrop-blur-sm p-5 text-left"
-              >
-                <div className="text-2xl mb-2">{icon}</div>
-                <h3 className="font-semibold text-emerald-300 mb-1">{title}</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">{desc}</p>
-              </div>
-            ))}
-          </div>
 
         </main>
       </div>
