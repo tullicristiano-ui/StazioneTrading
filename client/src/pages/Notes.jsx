@@ -36,6 +36,8 @@ export default function Notes() {
   const [notes, setNotes] = useState(loadNotes)
   const [saving, setSaving] = useState(false)
   const [saveTitle, setSaveTitle] = useState('')
+  const [editingNoteId, setEditingNoteId] = useState(null)
+  const [editingTitle, setEditingTitle] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [fontSize, setFontSize] = useState('14px')
   const [fontColor, setFontColor] = useState('#f1f5f9')
@@ -91,6 +93,20 @@ export default function Notes() {
     saveNotes(updated)
     setSaving(false)
     setSaveTitle('')
+  }
+
+  const handleRenameNote = (id, currentTitle) => {
+    setEditingNoteId(id)
+    setEditingTitle(currentTitle)
+  }
+
+  const handleRenameConfirm = (id) => {
+    const newTitle = editingTitle.trim()
+    if (!newTitle) { setEditingNoteId(null); return }
+    const updated = notes.map(n => n.id === id ? { ...n, title: newTitle } : n)
+    setNotes(updated)
+    saveNotes(updated)
+    setEditingNoteId(null)
   }
 
   const handleDeleteNote = (id) => {
@@ -300,9 +316,29 @@ export default function Notes() {
             <div className="space-y-2">
               {notes.map(note => (
                 <div key={note.id} className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3">
-                  <div>
-                    <div className="text-sm font-semibold text-slate-200">{note.title}</div>
-                    <div className="text-xs text-slate-500">
+                  <div className="flex-1 min-w-0 mr-3">
+                    {editingNoteId === note.id ? (
+                      <input
+                        autoFocus
+                        value={editingTitle}
+                        onChange={e => setEditingTitle(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') handleRenameConfirm(note.id); if (e.key === 'Escape') setEditingNoteId(null) }}
+                        onBlur={() => handleRenameConfirm(note.id)}
+                        className="w-full rounded-lg bg-slate-800 px-2 py-1 text-sm text-slate-100 outline-none focus:ring-1 focus:ring-cyan-500"
+                      />
+                    ) : (
+                      <div className="flex items-center gap-1.5 group">
+                        <div className="text-sm font-semibold text-slate-200 truncate">{note.title}</div>
+                        <button
+                          onClick={() => handleRenameNote(note.id, note.title)}
+                          className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-slate-300 transition text-xs"
+                          title="Rinomina"
+                        >
+                          ✏️
+                        </button>
+                      </div>
+                    )}
+                    <div className="text-xs text-slate-500 mt-0.5">
                       {new Date(note.createdAt).toLocaleString('it-IT')}
                       {note.style && (
                         <span className="ml-2 opacity-60">
@@ -311,7 +347,7 @@ export default function Notes() {
                       )}
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 shrink-0">
                     <button onClick={() => handleLoadNote(note)} className="rounded-lg border border-slate-700 px-3 py-1 text-xs text-slate-300 hover:bg-slate-800 transition">
                       Riapri
                     </button>

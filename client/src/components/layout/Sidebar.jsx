@@ -23,10 +23,10 @@ export default function Sidebar({ open, onClose }) {
 
   return (
     <>
-      {/* Overlay scurito su mobile */}
+      {/* Overlay — chiude la sidebar cliccando fuori, su qualsiasi schermo */}
       {open && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 md:hidden"
+          className="fixed inset-0 z-30 bg-black/50"
           onClick={onClose}
         />
       )}
