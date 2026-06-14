@@ -21,7 +21,8 @@
 | Upload file | Multer |
 | Routing client | react-router-dom |
 
-> **Provider attivo oggi:** `AI_PROVIDER=huggingface` (Gemma). Gemma è **text-only** → l'agente NON legge gli screenshot (le immagini si caricano e si vedono, ma all'AI arriva solo una nota testuale). L'analisi visiva reale arriverà con **Anthropic/Sonnet** (vision) — vedi PROJECT_PLAN.md §3.5.
+> **Provider attivo oggi:** `AI_PROVIDER=huggingface` (Gemma). Gemma è **text-only** → di base l'agente NON legge gli screenshot (all'AI arriva solo una nota testuale).
+> **Novità (14-06-2026) — Vision locale opzionale:** con `VISION_LOCAL_ENABLED=true` + Ollama (modello `qwen2.5vl:3b`) attivo sul PC, `visionService.js` descrive le immagini in locale (gratis) e inietta la descrizione nel messaggio a Gemma. Con interruttore spento (default) tutto resta come prima. In futuro, lettura nativa via **Anthropic/Sonnet** — vedi PROJECT_PLAN.md §3.5 e §3.5-bis.
 
 ---
 
@@ -31,7 +32,10 @@
 aware-trading-workspace/
 ├── client/src/
 │   ├── pages/          Dashboard.jsx | Workspace.jsx | Journal.jsx | Timeline.jsx
-│   ├── components/     chat/ (ChatPanel, MessageBubble, UploadArea) | session/ | journal/
+│   │                   TradingLive.jsx | SearchPage.jsx | Notes.jsx
+│   ├── components/     chat/ (ChatPanel, MessageBubble, UploadArea)
+│   │                   session/ | journal/ | layout/ (Sidebar, AnimatedBackground)
+│   ├── context/        ThemeContext.jsx (toggle verde/scuro, persistito in localStorage)
 │   ├── store/          sessionStore.js | uiStore.js (Zustand)
 │   └── api/            client.js (fetch wrapper)
 ├── server/src/
@@ -39,12 +43,13 @@ aware-trading-workspace/
 │   ├── agent/
 │   │   ├── orchestrator.js       ← logica principale + generateSessionSummary + richiesta screenshot mancante
 │   │   ├── skillLoader.js        ← carica file kit
-│   │   ├── promptBuilder.js      ← costruisce i messaggi (screenshot in formato vision: 1 msg user con content array)
+│   │   ├── promptBuilder.js      ← costruisce i messaggi; ramo Vision locale se huggingface+immagini+VISION_LOCAL_ENABLED
+│   │   ├── visionService.js      ← modulo Vision locale (Ollama): describeImages(), cache SHA-256, isOllamaReachable()
 │   │   ├── providerClient.js     ← router provider (getActiveProvider)
 │   │   └── providers/
 │   │       ├── openrouterProvider.js   ← adapter OpenRouter (vision)
 │   │       └── huggingfaceProvider.js  ← adapter HuggingFace/Gemma (text-only)
-│   └── db/             database.js | migrations/001_init.sql | migrations/002_close_session_and_snapshots.sql
+│   └── db/             database.js | migrations/001_init.sql | migrations/002_close_session_and_snapshots.sql | migrations/003_tags.sql
 └── kit/                File skill dell'agente (01,02,04,06,07,08,09 del Trade Analysis Agent Kit v3)
 ```
 
@@ -52,7 +57,7 @@ aware-trading-workspace/
 
 ## Database (SQLite) — 5 tabelle
 
-- **sessions**: `id, created_at, updated_at, asset, status, title, summary, closed_at` (`summary`/`closed_at` aggiunti in migration 002)
+- **sessions**: `id, created_at, updated_at, asset, status, title, summary, closed_at, tags` (`summary`/`closed_at` in migration 002; `tags TEXT JSON` in migration 003)
 - **messages**: `id, session_id, created_at, role, content, screenshots (JSON array di path)`
 - **session_memory**: `id, session_id, asset, timeframes, structure, levels, notes, updated_at`
 - **journal_entries**: tutti i campi del CSV journal (vedi PROJECT_PLAN.md §2)
@@ -87,8 +92,9 @@ AI_PROVIDER=openrouter      → OpenRouter (vision, modelli Anthropic/GPT/ecc.)
 | POST | `/api/sessions/:id/close` | Chiude la sessione + riassunto AI in `summary` |
 | POST/GET | `/api/sessions/:id/snapshots` | Crea / elenca snapshot |
 | GET | `/api/sessions/:id/snapshots/:snapshotId` | Apre un singolo snapshot (sola lettura) |
+| DELETE | `/api/sessions/:id/snapshots/:snapshotId` | Elimina un singolo snapshot (verifica appartenenza alla sessione) |
 | POST | `/api/agent/analyze` | Turno di analisi (testo + screenshot multipart) |
-| GET | `/api/agent/info` | `{ provider, visionSupported }` (per avviso UI text-only) |
+| GET | `/api/agent/info` | `{ provider, visionSupported, visionLocal, visionModel, visionStatus }` — `visionStatus`: `disabled`/`offline`/`model_missing`/`ready` (avviso UI Vision locale) |
 | POST/GET | `/api/messages` · `/api/journal` · `/api/journal/export.csv` | Messaggi e journal |
 
 ---
@@ -100,6 +106,9 @@ Utente scrive messaggio + allega/incolla screenshot
   → POST /api/agent/analyze {session_id, content, screenshots[]}
   → Multer salva screenshot in /uploads/{session_id}/
   → Orchestrator costruisce prompt (system + history + messaggio + immagini base64)
+  → promptBuilder: se huggingface + immagini + VISION_LOCAL_ENABLED=true
+      → visionService.describeImages() → Ollama/Qwen2.5-VL locale → descrizione testuale iniettata
+      (fallback non bloccante se Ollama spento; cache in memoria per immagine)
   → providerClient.requestCompletion() → provider selezionato da AI_PROVIDER
       [huggingface] → strip immagini + nota testuale (text-only)   ← ATTIVO ORA
       [openrouter]  → invia immagini come image_url blocks (vision)
@@ -154,10 +163,10 @@ UPLOADS_PATH=./server/uploads
 - **Fase 2 — Workflow Trading**: ✅ completata (trade aperto, session memory automatica, journal CSV).
 - **Multi-provider**: ✅ implementato. In uso Gemma/HuggingFace; OpenRouter disponibile.
 - **Fase 3 — Produttività**: ✅ completata (Timeline, Chiudi sessione con riassunto AI, Snapshot + apertura, ricerca/filtri, paste Ctrl+V, avviso modello text-only).
-- **Restyling UI (2026-06-13/14)**: ✅ completato. Nuova home "Stazione di Trading" (sfondo nero-verde, canvas animato particelle, hero con descrizione, 4 CTA). Nuova pagina `TradingLive` (`/trading-live`) con tutti i widget TradingView. Sidebar aggiornata: 6 voci (Home · Trading Live · Nuova Analisi · Le mie Analisi · Journal · Note). Freccia ← "torna indietro" in ogni pagina. Fix Timeline sulla card analisi (in basso, non sovrapposta alle date).
-- **Migliorie UI (2026-06-14)**: ✅ completato. `AnimatedBackground` estratto come componente condiviso (`components/layout/AnimatedBackground.jsx`) e applicato su tutte le pagine (sfondo `#050f0a` unificato). Home arricchita: orologio live + badge mercati (LON/NY/TYO aperti/chiusi), mini-calendario mese corrente. Badge stato sessioni nella Dashboard (🟢 Attiva oggi / 🟡 Recente / ⚪ Inattiva / ⚫ Chiusa). Indicatore bias visivo in SessionMemory (▲/▼/◆ da regex su `structure`). Statistiche Journal (totale analisi, asset più usato, ultima data). Nuova pagina Note rapide (`/note`) con salvataggio automatico in `localStorage`.
-- **Tema + Widget Asset + Note avanzate (2026-06-14)**: ✅ completato. `ThemeContext` (`client/src/context/ThemeContext.jsx`) con hook `useTheme` e toggle verde/scuro persistito in `localStorage`. Tutte le 8 pagine usano `bgColor` reattivo (verde `#050f0a` / scuro `#0d1117`). Sidebar: pulsante toggle tema in fondo. Home: griglia 9 widget TradingView `MiniSymbolOverview` per BTC/EUR-USD/XAU/XAG/NASDAQ/US100/USOIL/ETH/DXY. Note riscritta: toolbar formattazione (grassetto, dimensione, font, colore), modalità checklist, salvataggio note con titolo + storico richiamabile con rinomina. Fix Focus Mode Workspace (sfondo coerente col tema). Pagina Cerca (`/cerca` + `SearchPage.jsx`) funzionante. 5 migliorie avanzate (banner sessione attiva, focus mode, ricerca globale, PDF timeline, tag sessioni) completate nella sessione precedente.
-- **Provider vision**: da avviare su indicazione dell'utente (non imminente).
+- **Restyling UI (2026-06-13/14)**: ✅ completato. Nuova home "Stazione di Trading" (sfondo nero-verde, canvas animato particelle, hero con descrizione, 4 CTA). Nuova pagina `TradingLive` (`/trading-live`) con tutti i widget TradingView. Sidebar: 7 voci + toggle tema (Home · Trading Live · Nuova Analisi · Le mie Analisi · Journal · Cerca · Note). Freccia ← "torna indietro" in ogni pagina. Fix Timeline sulla card analisi (in basso, non sovrapposta alle date).
+- **Migliorie UI (2026-06-14)**: ✅ completato. `AnimatedBackground` estratto come componente condiviso. Sfondo `#050f0a` unificato su tutte le pagine. Home: orologio live + badge mercati (LON/NY/TYO), mini-calendario, 9 widget TradingView asset. Dashboard: badge stato sessione + TagEditor tag/etichette. `SessionMemory`: BiasIndicator (▲/▼/◆). Journal: statistiche 3 card. Note avanzate: toolbar formattazione, checklist, storico note con titolo. `ThemeContext` toggle verde/scuro persistito. Focus Mode Workspace. Pagina Cerca. PDF Timeline. Banner sessione attiva in home.
+- **Vision locale (2026-06-14)**: ✅ completato. `visionService.js`: descrizione immagini via Ollama locale (Qwen2.5-VL 3B), cache SHA-256, warmup all'avvio. `promptBuilder.js`: ramo Vision + fix path `server/src/uploads`. `max_tokens` 1500 (Gemma non tronca più). `GET /api/agent/info` con `visionStatus`. Avviso verde in area upload quando Vision pronto.
+- **Provider vision nativo**: da avviare su indicazione dell'utente (non imminente).
 - Vedi `TASKS.md` per il dettaglio. `BUG_LOG.md`: 0 bug aperti.
 
 ---
@@ -181,16 +190,17 @@ UPLOADS_PATH=./server/uploads
 Per l'architettura completa, le decisioni tecniche e il data model dettagliato: vedere `PROJECT_PLAN.md`.
 
 ---
-*Versione contesto: 0.4 | Aggiornare dopo ogni cambio architetturale significativo*
+*Versione contesto: 0.5 | Aggiornare dopo ogni cambio architetturale significativo*
 
 ## Ultime modifiche
 
 - 2026-06-09: Implementato `new_analysis` flow server-side; refactoring multi-provider (adapter OpenRouter + HuggingFace/Gemma; `providerClient.js` provider router).
-- 2026-06-11: **Fase 3 completata.** Sistema migrazioni multi-file con `schema_migrations`; migration 002 (`summary`/`closed_at` su sessions + tabella `snapshots`). Nuove route: `/api/sessions/:id/close`, `/api/sessions/:id/snapshots` (POST/GET), `/api/sessions/:id/snapshots/:snapshotId`, `/api/agent/info`. Timeline resa solida + proxy `/uploads` in Vite. Apertura snapshot in sola lettura; paste Ctrl+V; avviso modello text-only; l'agente chiede lo screenshot se manca.
-- 2026-06-11: Fix formato screenshot in `promptBuilder.js` (un unico messaggio user con content array — pronto per provider vision). Decisione: in uso solo Gemma/HuggingFace ora, Anthropic/Sonnet (vision) in futuro.
-- 2026-06-12: **Dashboard migliorata.** Nuova route `DELETE /api/sessions/:id` (elimina sessione + collegati + cartella uploads). `PATCH /api/sessions/:id` non modifica più `updated_at` e allinea in cascata `session_memory.asset`. Regola d'oro: `sessions.updated_at` cambia **solo** su un vero scambio col modello (`POST /api/agent/analyze`, ramo non-preview), non su apertura/anteprima/snapshot/modifica metadati. Dashboard: sidebar fissa (Home + Journal), card con due date (Aperta/Aggiornata), cestino per eliminare, matita per modificare titolo/asset, modale "Nuova analisi" con Titolo e Asset separati. CLAUDE.md §1-bis: flusso a due agenti (ask pianifica/controverifica/push; esecutore implementa/commit, niente push).
-- 2026-06-12: **Cruscotto Mercati (solo client, nessuna modifica server).** La home `/` ora è la pagina **`Markets`** (cruscotto a schede: **Grafico** avanzato · **Panoramica** · **Heatmap** Azioni/Crypto/Forex · **News** Azioni/Forex/Crypto/Macro · **Calendario** economico), basata su **widget gratuiti ufficiali TradingView** (nessuna chiave, nessun costo, richiede internet). La lista analisi/sessioni si è spostata su **`/analisi`** (componente `Dashboard` invariato); i pulsanti "Torna alle analisi" in Workspace/Journal puntano lì. **Sidebar condivisa a scomparsa** (hamburger): Mercati · Analisi · Journal. Nuovi file: `client/src/pages/Markets.jsx`, `client/src/components/markets/TradingViewWidget.jsx` (wrapper embed riusabile), `client/src/components/layout/Sidebar.jsx`. Lazy-mount: solo la scheda attiva monta il widget. Limiti noti (widget gratuiti): nessun login automatico all'account TradingView (solo login manuale nel Grafico), nessuna heatmap commodities, News "Macro" = feed `all_symbols`.
-- 2026-06-13: **Home "Stazione di Trading" + Sidebar aggiornata.** `Markets.jsx` ridisegnata: hero con titolo gradiente, tagline, 3 CTA. Sidebar: brand → "Stazione di Trading", 5 voci (Home·Mercati·Nuova Analisi·Le mie Analisi·Journal). Fix pulsante Timeline nella card analisi (spostato in basso, "Vedi Timeline →"). Apertura modale "Nuova Analisi" via query param `?new=1`.
-- 2026-06-14: **Home visiva + pagina Trading Live + frecce navigazione.** `Markets.jsx` completamente ridisegnata: sfondo `#050f0a`, canvas animato con 70 particelle verdi + linee di connessione (JavaScript puro, no librerie), icona candela SVG, descrizione app estesa, 4 CTA (incluso Trading Live), 3 feature cards glass. Nuovo file `client/src/pages/TradingLive.jsx` (`/trading-live`) con tutti i widget TradingView. Sidebar: "Trading Live" al posto di "Mercati". **Freccia ← "torna indietro"** aggiunta in tutte le pagine: TradingLive→/, Dashboard→/, Journal→/, Workspace→/analisi, Timeline→/workspace/:id.
-- 2026-06-14: **Migliorie UI — sfondo unificato, widget home, badge, bias, stats, note.** `AnimatedBackground.jsx` estratto come componente condiviso. Sfondo `#050f0a` unificato su tutte le pagine. Home: orologio live (locale, aggiornato ogni secondo), badge mercati aperti/chiusi (LON/NY/TYO via orario UTC), mini-calendario mese corrente con oggi evidenziato. Dashboard: `SessionBadge` colorato per stato sessione. `SessionMemory`: `BiasIndicator` da regex su campo `structure`. Journal: `JournalStats` (3 card: totale, top asset, ultima data). Nuova pagina `Notes` (`/note`): textarea con autoSave localStorage 500ms. Sidebar: voce "Note" aggiunta (6 voci totali).
-- 2026-06-14: **Tema dinamico + Widget asset + Note avanzate + 5 migliorie avanzate.** `ThemeContext.jsx` con toggle verde/scuro persistito; tutte le 8 pagine aggiornate. Home: 9 widget `MiniSymbolOverview` TradingView (griglia 3 colonne). Notes riscritta: formattazione testo (grassetto/dim/font/colore), checklist, salvataggio note con titolo e rinomina. `SearchPage.jsx` (`/cerca`): ricerca client-side per titolo/asset. 5 migliorie avanzate: banner sessione attiva in home, Focus Mode Workspace, ricerca globale, PDF Timeline (`window.print()`), tag/etichette sessioni (migration 003, PATCH esteso, TagEditor in Dashboard, chip in Workspace). Sidebar: 7 voci + toggle tema.
+- 2026-06-11: **Fase 3 completata.** Sistema migrazioni multi-file; migration 002 (summary/closed_at/snapshots). Route: close, snapshots, agent/info. Timeline solida; paste Ctrl+V; avviso text-only.
+- 2026-06-12: **Dashboard migliorata.** DELETE sessione + collegati. PATCH non tocca updated_at. Dashboard: sidebar fissa, due date, cestino, matita, modale nuova analisi. Cruscotto Mercati (solo client, widget TradingView). CLAUDE.md §1-bis: flusso due agenti.
+- 2026-06-13: Home "Stazione di Trading" + Sidebar. Fix Timeline nella card. Query param `?new=1`.
+- 2026-06-14: **Home visiva + TradingLive + frecce navigazione.** Canvas animato, icona candela SVG, 4 CTA. TradingLive.jsx (`/trading-live`). Freccia ← in tutte le pagine.
+- 2026-06-14: **Migliorie UI.** AnimatedBackground condiviso. Orologio live + badge mercati + mini-calendario. SessionBadge Dashboard. BiasIndicator SessionMemory. JournalStats. Notes con localStorage. Sidebar 6 voci.
+- 2026-06-14: **Tema + Widget asset + Note avanzate + 5 migliorie avanzate.** ThemeContext toggle verde/scuro. 9 widget MiniSymbolOverview in home. Notes con formattazione e storico. SearchPage. Focus Mode. PDF Timeline. Tag sessioni (migration 003). Sidebar 7 voci + toggle tema.
+- 2026-06-14: **Vision locale (Ollama + Qwen2.5-VL 3B) — implementazione + debug + performance.** Nuovo `visionService.js` (cache SHA-256, describeImages, isOllamaReachable, warmUpVisionModel). Fix critico path `uploadsRoot` in `promptBuilder.js` (`server/src/uploads` non `server/uploads`). Fix `UPLOADS_PATH` in `index.js`. `max_tokens` 1500 (Gemma non tronca più). `keep_alive:10m` + `num_predict:200` + warmup server per ridurre cold start da 20s a ~8s. Fallback Vision migliorato: nome file esplicito + istruzione a non richiedere screenshot già allegati. `/api/agent/info` con `visionStatus`. Avviso verde in area upload.
+- 2026-06-14: **Analisi/Sessione — 3 migliorie (SESS-01…03).** (1) Session Memory affidabile: `kit/04_TEMPLATE_OUTPUT.md` impone una "scheda di sintesi" a fine risposta con campi etichettati (`Asset:`/`Timeframes:`/`Struttura:`/`Livelli:`/`Note:`, `n/d` se mancanti), dopo marcatore `---`; nota di eccezione in `kit/08_STILE_RISPOSTA.md`; la regex `parseSessionMemory` in orchestrator era già compatibile (nessuna modifica al codice). (2) Delete singolo snapshot: nuova route `DELETE /api/sessions/:id/snapshots/:snapshotId`, `api.deleteSnapshot`, `handleDeleteSnapshot` + bottone 🗑 con conferma in Workspace. (3) **Colori card centralizzati** in `client/tailwind.config.js`: `card #1d1a24` (interno), `card-inner #16131c` (annidate), `card-border #2a2533`. Sostituite SOLO le card (non input/bottoni/sidebar/dropzone) in 10 file. Per cambiare il colore di tutte le card in futuro basta modificare queste 3 righe.
+- 2026-06-14: **Velocità analisi + rimozione screenshot (SPEED-01…06).** (A) `UploadArea.jsx`: bottone ✕ per togliere un singolo screenshot prima dell'invio (`removeFileAt`, solo frontend). (B) Velocità: `orchestrator.js` invia solo gli **ultimi 16 messaggi** (`ORDER BY created_at DESC LIMIT 16` + `reverse()`; `generateSessionSummary` invariata) e `max_tokens` 1500→800; `huggingfaceProvider.js` ora ha timeout sulla fetch (`AbortController`, env `HF_TIMEOUT_MS` default 90s) con messaggio chiaro su abort; `index.js` warmup vision con timeout 5s→120s (env `VISION_WARMUP_TIMEOUT_MS`) così il pre-caricamento è efficace; `VISION_TIMEOUT_MS` 120s→30s (chiamata vision in analisi). ⚠️ I ~30s NON sono garantiti finché resta `HF_MODEL=gemma-4-31B-it` (collo di bottiglia, scelta utente).

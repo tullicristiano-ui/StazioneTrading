@@ -15,7 +15,7 @@ export default function ChatPanel({
   visionStatus = 'disabled'
 }) {
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+    <div className="rounded-3xl border border-card-border bg-card p-6 shadow-xl">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-semibold">Chat</h2>
@@ -34,7 +34,7 @@ export default function ChatPanel({
         )}
 
         {loading && (
-          <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4 text-slate-300">
+          <div className="rounded-2xl border border-card-border bg-card-inner p-4 text-slate-300">
             Agente Aware: sto elaborando la tua richiesta...
           </div>
         )}
@@ -42,7 +42,7 @@ export default function ChatPanel({
 
       {error && <div className="mb-4 rounded-xl bg-red-500/20 p-4 text-sm text-red-100">{error}</div>}
 
-      <form className="rounded-3xl border border-slate-800 bg-slate-950 p-4" onSubmit={onSubmit}>
+      <form className="rounded-3xl border border-card-border bg-card-inner p-4" onSubmit={onSubmit}>
         <label className="block text-sm font-medium text-slate-300">Testo</label>
         <textarea
           rows="4"

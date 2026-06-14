@@ -129,7 +129,7 @@ function TabBar({ tabs, active, onSelect }) {
 
 function WidgetCard({ title, hint, children }) {
   return (
-    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-4 shadow-xl overflow-hidden" style={{ height: '620px' }}>
+    <div className="rounded-3xl border border-card-border bg-card p-4 shadow-xl overflow-hidden" style={{ height: '620px' }}>
       <h2 className="mb-1 text-base font-semibold text-slate-200">{title}</h2>
       {hint && <p className="mb-2 text-xs text-slate-500">{hint}</p>}
       <div style={{ height: hint ? 'calc(100% - 3.2rem)' : 'calc(100% - 2rem)' }}>

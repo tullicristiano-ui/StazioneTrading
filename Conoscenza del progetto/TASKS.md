@@ -333,4 +333,44 @@ Prima di ogni commit, verificare:
 
 ---
 
-*Ultima modifica: 2026-06-14 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | MKT Fase 1-2 ✅ | Home+Nav ✅ | 8 migliorie ✅ | 5 migliorie avanzate ✅ | Fix+migliorie notturna: FIX-02 ✅ MOD-01 ✅ MOD-02 ✅ MOD-03 ✅ | Home pannello laterale: HOME-08…14 ✅*
+---
+
+## Vision locale — Ollama + Qwen2.5-VL (2026-06-14)
+
+| ID | Task | Priorità | Stato | Note |
+|---|---|---|---|---|
+| VISION-01 | Crea `server/src/agent/visionService.js` (cache SHA-256, isOllamaReachable, describeImages) | 🟠 P1 | `[x]` | Cache in memoria; prompt chiuso anti-allucinazione; fallback non bloccante |
+| VISION-02 | Innesto Vision in `promptBuilder.js` — ramo textOnly + immagini + interruttore | 🟠 P1 | `[x]` | Ramo image_url originale intatto; si attiva SOLO se tutte e 3 le condizioni vere |
+| VISION-03 | Estendi `GET /api/agent/info` con visionLocal, visionModel, visionStatus | 🟠 P1 | `[x]` | Stati: disabled / offline / model_missing / ready |
+| VISION-04 | Client: propaga visionStatus (Workspace → ChatPanel → UploadArea), avviso verde "ready" | 🟠 P1 | `[x]` | Avviso ambra esistente aggiornato (rimossa menzione "Aware Trader/Trading") |
+| VISION-05 | Aggiorna `.env.example` con VISION_LOCAL_ENABLED, OLLAMA_URL, OLLAMA_VISION_MODEL, VISION_TIMEOUT_MS | 🟠 P1 | `[x]` | Default sicuri: VISION_LOCAL_ENABLED=false |
+| VISION-06 | Test end-to-end (scenari A/B/C/D) | 🔴 P0 | `[x]` | Bug path risolto, warmup aggiunto, max_tokens 1500, fallback migliorato — test API ok |
+
+---
+
+## Analisi/Sessione — 3 migliorie (2026-06-14)
+
+| ID | Task | Priorità | Stato | Note |
+|---|---|---|---|---|
+| SESS-01 | Session Memory: forzare nel kit la "scheda di sintesi" a fine risposta (campi etichettati) | 🟠 P1 | `[x]` | `kit/04_TEMPLATE_OUTPUT.md` + nota eccezione in `kit/08_STILE_RISPOSTA.md`; regex orchestrator già compatibile; nessuna modifica al codice |
+| SESS-02 | Delete singolo snapshot: route `DELETE /:id/snapshots/:snapshotId` + API + bottone 🗑 con conferma | 🟠 P1 | `[x]` | `sessions.js`, `client.js` (`deleteSnapshot`), `Workspace.jsx` (`handleDeleteSnapshot`, chiude modal se aperto) |
+| SESS-03 | Colore card centralizzato indaco-prugna (#1d1a24) su tutte le card | 🟡 P2 | `[x]` | `tailwind.config.js`: `card`/`card-inner`/`card-border`; sostituite solo card (non input/bottoni/sidebar/dropzone) in 10 file; build verde |
+
+---
+
+## Velocità analisi + rimozione screenshot (2026-06-14)
+
+| ID | Task | Priorità | Stato | Note |
+|---|---|---|---|---|
+| SPEED-01 | Rimuovere uno screenshot prima dell'invio (bottone ✕ sui chip) | 🟠 P1 | `[x]` | `UploadArea.jsx`: `removeFileAt`, chip con nome + ✕ hover rosso; solo frontend |
+| SPEED-02 | Warmup vision: timeout 5s → 120s (env `VISION_WARMUP_TIMEOUT_MS`) | 🟠 P1 | `[x]` | `index.js`; resta non bloccante |
+| SPEED-03 | `VISION_TIMEOUT_MS` 120s → 30s (chiamata vision in analisi) | 🟠 P1 | `[x]` | `.env.local` + `.env.example` |
+| SPEED-04 | Cronologia limitata agli ultimi 16 messaggi | 🟠 P1 | `[x]` | `orchestrator.js`: `ORDER BY created_at DESC LIMIT 16` + `reverse()` |
+| SPEED-05 | `max_tokens` analisi 1500 → 800 | 🟡 P2 | `[x]` | `orchestrator.js` |
+| SPEED-06 | Timeout HuggingFace (env `HF_TIMEOUT_MS`, default 90s) con AbortController | 🟠 P1 | `[x]` | `huggingfaceProvider.js`; messaggio chiaro su abort |
+
+> ⚠️ L'obiettivo "30 secondi" NON è garantito: il modello in uso `gemma-4-31B-it` è lento di suo. Per migliorare i tempi servirebbe un modello più leggero (non cambiato in questa sessione).
+
+---
+
+*Ultima modifica: 2026-06-14 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | MKT Fase 1-2 ✅ | Home+Nav ✅ | 8 migliorie ✅ | 5 migliorie avanzate ✅ | Fix+migliorie notturna: FIX-02 ✅ MOD-01 ✅ MOD-02 ✅ MOD-03 ✅ | Home pannello laterale: HOME-08…14 ✅ | Vision locale: VISION-01…06 ✅ (bug path + warmup + max_tokens + fallback risolti) | Analisi/Sessione: SESS-01…03 ✅ | Velocità+rimozione screenshot: SPEED-01…06 ✅*

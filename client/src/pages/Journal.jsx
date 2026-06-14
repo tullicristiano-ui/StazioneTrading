@@ -81,7 +81,7 @@ export default function Journal() {
 
       {!loading && <JournalStats entries={entries} />}
 
-      <div className="rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-xl">
+      <div className="rounded-3xl border border-card-border bg-card p-5 shadow-xl">
         {loading ? (
           <div className="text-slate-400">Caricamento...</div>
         ) : entries.length === 0 ? (
@@ -91,7 +91,7 @@ export default function Journal() {
         ) : (
           <div className="space-y-4">
             {entries.map((entry) => (
-              <div key={entry.id} className="rounded-2xl border border-slate-700 bg-slate-950 p-4">
+              <div key={entry.id} className="rounded-2xl border border-card-border bg-card-inner p-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <div className="text-sm text-slate-400">Sessione: {entry.session_id || 'N/A'}</div>

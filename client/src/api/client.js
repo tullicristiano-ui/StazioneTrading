@@ -38,6 +38,7 @@ export const api = {
   getSnapshots: (id) => request(`/sessions/${id}/snapshots`),
   getSnapshot: (sessionId, snapshotId) => request(`/sessions/${sessionId}/snapshots/${snapshotId}`),
   createSnapshot: (id, name) => request(`/sessions/${id}/snapshots`, { method: 'POST', body: JSON.stringify({ name }) }),
+  deleteSnapshot: (sessionId, snapshotId) => request(`/sessions/${sessionId}/snapshots/${snapshotId}`, { method: 'DELETE' }),
 
   // Agent info (provider attivo, supporto vision)
   getAgentInfo: () => request('/agent/info'),

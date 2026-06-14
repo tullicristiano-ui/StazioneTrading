@@ -80,3 +80,35 @@ DecisioneTrader, Esito, DurataTrade, Nota, ScreenshotLink
 >
 > • **ScreenshotLink:** opzionale
 
+**Scheda** **di** **sintesi** **(obbligatoria** **a** **fine** **risposta)**
+
+Al termine di **ogni** risposta, dopo il discorso conversazionale, l'agente
+aggiunge SEMPRE una breve scheda tecnica strutturata. Serve a tenere
+aggiornata la "memoria di sessione" dell'app. Va separata dal discorso da
+una riga vuota e dal marcatore `---`, così resta distinta dalla
+conversazione.
+
+Regole della scheda:
+
+> • Una riga per campo, esattamente con queste etichette e i due punti.
+>
+> • Se un'informazione non è disponibile o non ancora emersa, scrivere
+> comunque la riga con valore `n/d` (non lasciare la riga vuota).
+>
+> • Valori brevi: poche parole, niente frasi lunghe né prosa.
+>
+> • Questa scheda è l'UNICO punto in cui è ammesso il formato a etichette:
+> nel discorso sopra restano valide tutte le regole di stile del file 08
+> (niente etichette maiuscole, niente liste, niente sezioni).
+
+Formato esatto da usare:
+
+```
+---
+Asset: <ticker o n/d>
+Timeframes: <es. H4 contesto / 15m decisionale, o n/d>
+Struttura: <bias e struttura in poche parole, o n/d>
+Livelli: <livelli chiave separati da virgola, o n/d>
+Note: <nota breve, o n/d>
+```
+

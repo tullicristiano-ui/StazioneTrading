@@ -181,6 +181,18 @@ OpenRouter — endpoint `https://openrouter.ai/api/v1/chat/completions`, modello
 - **Costruzione messaggio corretta:** `promptBuilder.js` impacchetta gli screenshot nel formato vision standard (un unico messaggio `user` con `content` = array `[testo, image_url...]`). I provider con vision lo usano direttamente; l'adapter HuggingFace lo appiattisce a testo. Così, appena si attiva un provider vision, le immagini funzionano senza altre modifiche.
 - **Futuro:** integrazione di **Anthropic con un modello Sonnet** (vision-capable) per abilitare la vera lettura degli screenshot. Si potrà usare in due modi: (a) subito via OpenRouter impostando `AI_PROVIDER=openrouter` e `OPENROUTER_MODEL=anthropic/claude-3.5-sonnet`; (b) in seguito con un adapter Anthropic dedicato (`providers/anthropicProvider.js`) e API key diretta. Quando si farà, aggiornare questa sezione e `AGENT_CONTEXT.md`.
 
+#### 3.5-bis — Modulo Vision locale (Ollama + Qwen2.5-VL) — aggiunto 14-06-2026
+
+Per dare lettura immagini **gratuita e locale** restando su Gemma (text-only), è stato aggiunto un **modulo Vision laterale**: non sostituisce il provider, lo affianca.
+
+- **File:** `server/src/agent/visionService.js`. Espone `isVisionLocalEnabled()`, `isOllamaReachable()` (→ `{reachable, modelPresent}`), `describeImages(images)`.
+- **Come funziona:** quando il provider è text-only (`huggingface`/`hf`) **E** ci sono immagini **E** `VISION_LOCAL_ENABLED=true`, `promptBuilder.js` chiama `describeImages()`. Questo manda ogni immagine (base64) a **Ollama** in locale (`POST /api/chat`, modello `qwen2.5vl:3b`) con un prompt a checklist chiusa (descrivi solo ciò che è visibile, niente segnali/previsioni). La descrizione testuale + metadati (nome file, dimensione, data) viene **iniettata nel messaggio user** che arriva a Gemma. Il ramo `image_url` originale resta intatto per i provider vision.
+- **Cache:** in memoria (Map, chiave = SHA-256 del file). Riusa la descrizione se la stessa immagine torna nella sessione del server. **Nessuna persistenza su DB** (schema invariato).
+- **Fallback non bloccante:** se Ollama è spento/lento/in errore, la chat **prosegue solo sul testo** con una nota; non si blocca mai. Le chat di solo testo non passano da qui.
+- **Interruttore e config (`.env`):** `VISION_LOCAL_ENABLED` (default `false`), `OLLAMA_URL` (default `http://localhost:11434`), `OLLAMA_VISION_MODEL` (default `qwen2.5vl:3b`), `VISION_TIMEOUT_MS` (default `60000`). Con interruttore `false` il comportamento è **identico a prima**.
+- **Stato UI:** `GET /api/agent/info` ritorna anche `visionLocal`, `visionModel`, `visionStatus` (`disabled`/`offline`/`model_missing`/`ready`). L'area upload mostra l'avviso verde solo con `ready`.
+- **Vincolo hardware:** scelto il modello **3B** (non 7B) per i 16 GB del PC target; gira in CPU, prima analisi ~30–90s.
+
 ---
 
 ## 4. Struttura cartelle del progetto
@@ -190,60 +202,45 @@ aware-trading-workspace/
 ├── client/                    ← React + Vite
 │   ├── src/
 │   │   ├── pages/
-│   │   │   ├── Dashboard.jsx
-│   │   │   ├── Workspace.jsx
-│   │   │   └── Journal.jsx
+│   │   │   ├── Dashboard.jsx | Workspace.jsx | Journal.jsx | Timeline.jsx
+│   │   │   └── TradingLive.jsx | SearchPage.jsx | Notes.jsx
 │   │   ├── components/
-│   │   │   ├── chat/
-│   │   │   │   ├── ChatPanel.jsx
-│   │   │   │   ├── MessageBubble.jsx
-│   │   │   │   └── UploadArea.jsx
-│   │   │   ├── session/
-│   │   │   │   ├── SessionMemory.jsx
-│   │   │   │   └── SessionList.jsx
-│   │   │   └── journal/
-│   │   │       └── JournalTable.jsx
-│   │   ├── store/
-│   │   │   ├── sessionStore.js    ← Zustand
-│   │   │   └── uiStore.js
-│   │   ├── api/
-│   │   │   └── client.js          ← fetch wrapper
+│   │   │   ├── chat/         ChatPanel.jsx | MessageBubble.jsx | UploadArea.jsx
+│   │   │   ├── session/      SessionMemory.jsx | SessionList.jsx
+│   │   │   ├── journal/      JournalTable.jsx
+│   │   │   └── layout/       Sidebar.jsx | AnimatedBackground.jsx
+│   │   ├── context/          ThemeContext.jsx
+│   │   ├── store/            sessionStore.js | uiStore.js (Zustand)
+│   │   ├── api/              client.js (fetch wrapper)
 │   │   ├── App.jsx
 │   │   └── main.jsx
 │   ├── index.html
 │   └── vite.config.js
 │
 ├── server/                    ← Node.js + Express
-│   ├── src/
-│   │   ├── routes/
-│   │   │   ├── sessions.js
-│   │   │   ├── messages.js
-│   │   │   ├── journal.js
-│   │   │   └── agent.js
-│   │   ├── agent/
-│   │   │   ├── orchestrator.js    ← logica principale
-│   │   │   ├── skillLoader.js     ← carica i file kit
-│   │   │   ├── promptBuilder.js   ← costruisce i messaggi
-│   │   │   └── providerClient.js  ← chiamata OpenRouter
-│   │   ├── db/
-│   │   │   ├── database.js        ← init SQLite
-│   │   │   └── migrations/
-│   │   │       └── 001_init.sql
-│   │   └── index.js               ← entry point Express
-│   └── uploads/                   ← screenshot (gitignored)
+│   └── src/
+│       ├── routes/            sessions.js | messages.js | journal.js | agent.js
+│       ├── agent/
+│       │   ├── orchestrator.js    ← logica principale
+│       │   ├── skillLoader.js     ← carica i file kit
+│       │   ├── promptBuilder.js   ← costruisce i messaggi; ramo Vision locale
+│       │   ├── visionService.js   ← Vision locale (Ollama): cache, describe, warmup
+│       │   ├── providerClient.js  ← router provider
+│       │   └── providers/         openrouterProvider.js | huggingfaceProvider.js
+│       ├── db/
+│       │   ├── database.js        ← init SQLite
+│       │   └── migrations/        001_init.sql | 002_close_session.sql | 003_tags.sql
+│       ├── uploads/               ← screenshot (gitignored) — percorso: server/src/uploads/
+│       └── index.js               ← entry point Express
 │
 ├── kit/                       ← file skill agent (read-only)
-│   ├── 01_METODO_OPERATIVO.md
-│   ├── 02_PROMPT_MASTER_AGENT.md
-│   ├── 04_TEMPLATE_OUTPUT.md
-│   ├── 06_PROFILI_ASSET.md
-│   ├── 07_CAUTELE_TECNICHE.md
-│   ├── 08_STILE_RISPOSTA.md
+│   ├── 01_METODO_OPERATIVO.md | 02_PROMPT_MASTER_AGENT.md | 04_TEMPLATE_OUTPUT.md
+│   ├── 06_PROFILI_ASSET.md | 07_CAUTELE_TECNICHE.md | 08_STILE_RISPOSTA.md
 │   └── 09_PROFILO_AWARE_TRADER.md
 │
 ├── .env.example
 ├── .gitignore
-└── package.json               ← root (o workspace separati client/server)
+└── package.json
 ```
 
 ---
@@ -307,10 +304,11 @@ dist/
 
 ## 8. Note tecniche sullo stato reale del codice
 
-- **Meccanismo migrazioni:** `server/src/db/database.js` esegue all'avvio **solo** il file `migrations/001_init.sql` (percorso hardcoded), non l'intera cartella. Le tabelle usano `CREATE TABLE IF NOT EXISTS`. Per aggiungere nuove tabelle/colonne in modo persistente bisogna o estenderle dentro `001_init.sql` (idempotente) oppure aggiornare il runner di `database.js` perché legga più file di migrazione.
+- **Meccanismo migrazioni:** `server/src/db/database.js` esegue all'avvio tutti i file `.sql` in `migrations/` in ordine alfabetico, tracciati in `schema_migrations` (ogni file eseguito una sola volta). Per aggiungere colonne/tabelle: creare un nuovo file numerato (`004_*.sql`).
 - **Wrapper DB asincroni:** usare sempre `runQuery` / `getQuery` / `allQuery` esportati da `database.js` (driver `sqlite3`, basato su callback incapsulati in Promise).
+- **Percorso uploads:** `server/src/uploads/{session_id}/`. Multer (`agent.js`), static files (`index.js`) e Vision (`promptBuilder.js`) usano tutti lo stesso percorso. Variabile `.env` `UPLOADS_PATH` fa override.
 - **Persistenza attuale = SQLite locale.** Il file vive in `server/data/aware_trading.db`. L'app **non** scrive su Supabase.
 - **Supabase / GitHub (connettori esterni):** il progetto ha un connettore Supabase attivo (organizzazione e progetto creati, regione `eu-west-2`, Postgres 17) e un repository GitHub (`tullicristiano-ui/StazioneTrading`). Al momento servono come strumenti/infrastruttura disponibile, ma **il codice dell'app continua a usare SQLite locale**: un'eventuale migrazione a Supabase/Postgres è una scelta futura non ancora implementata.
 
 ---
-*Ultima modifica: 2026-06-11 | Versione: 0.2 (allineata allo stato reale del codice: multi-provider, pagina Timeline, sqlite3 async, fallback .env.local)*
+*Ultima modifica: 2026-06-14 | Versione: 0.3 (Vision locale Ollama, struttura cartelle aggiornata, percorso uploads chiarito, migrazioni multi-file)*

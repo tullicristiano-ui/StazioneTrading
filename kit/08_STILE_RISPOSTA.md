@@ -29,6 +29,12 @@ amichevole
 >
 > • NO maiuscole categoriche del tipo SETUP: VALIDO, BIAS: SHORT • NO
 > riassunti finali del tipo "In sintesi: ..."
+
+> **Unica** **eccezione:** la "Scheda di sintesi" a fine risposta (vedi
+> file 04) è obbligatoria e ha un formato a etichette `Asset:`,
+> `Timeframes:`, `Struttura:`, `Livelli:`, `Note:`. Questo NON viola le
+> regole sopra: vale solo per quel blocco finale dopo il marcatore `---`,
+> mai nel discorso conversazionale.
 >
 > • NO frasi entusiaste: niente "ottimo setup", "occasione interessante"
 > • NO preamboli vuoti

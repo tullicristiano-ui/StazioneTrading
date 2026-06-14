@@ -93,6 +93,30 @@ export default function Workspace() {
     setOpenedSnapshot(null)
   }
 
+  const handleDeleteSnapshot = async (snapshotId) => {
+    const confirmed = window.confirm(
+      'Vuoi eliminare questo snapshot? L\'operazione è definitiva.'
+    )
+    if (!confirmed) {
+      return
+    }
+
+    setError(null)
+    setStatusMessage(null)
+
+    try {
+      await api.deleteSnapshot(id, snapshotId)
+      setSnapshots((prev) => prev.filter((s) => s.id !== snapshotId))
+      // Se lo snapshot eliminato è quello aperto nel modal, lo chiudiamo.
+      if (openedSnapshot && openedSnapshot.id === snapshotId) {
+        setOpenedSnapshot(null)
+      }
+      setStatusMessage('Snapshot eliminato.')
+    } catch (err) {
+      setError(err.message || 'Errore durante l\'eliminazione dello snapshot')
+    }
+  }
+
   const handleCloseSession = async () => {
     const confirmed = window.confirm(
       'Chiudere la sessione genererà un riassunto tramite AI (può comportare una chiamata al provider) e segnerà la sessione come "chiusa". Procedere?'
@@ -349,14 +373,14 @@ export default function Workspace() {
               {journalPreview ? (
                 <div className="grid gap-2 sm:grid-cols-2">
                   {Object.entries(journalPreview).map(([key, value]) => (
-                    <div key={key} className="rounded-2xl border border-slate-800 bg-slate-950 p-3 text-sm text-slate-200">
+                    <div key={key} className="rounded-2xl border border-card-border bg-card-inner p-3 text-sm text-slate-200">
                       <div className="text-xs uppercase tracking-[0.12em] text-slate-500">{key.replace(/_/g, ' ')}</div>
                       <div className="mt-1 text-sm text-slate-100">{value || '-'}</div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="rounded-2xl border border-dashed border-amber-500/40 bg-slate-950 p-4 text-sm text-amber-200">Nessuna anteprima disponibile.</div>
+                <div className="rounded-2xl border border-dashed border-amber-500/40 bg-card-inner p-4 text-sm text-amber-200">Nessuna anteprima disponibile.</div>
               )}
             </div>
           )}
@@ -365,7 +389,7 @@ export default function Workspace() {
         <div className="space-y-6">
           <SessionMemory memory={memory} />
 
-          <section className="rounded-3xl border border-slate-800 bg-slate-900 p-5 shadow-xl">
+          <section className="rounded-3xl border border-card-border bg-card p-5 shadow-xl">
             <h2 className="text-lg font-semibold text-slate-100">Snapshot analisi</h2>
             <p className="mt-1 text-sm text-slate-400">Salva lo stato corrente come fotografia nominabile.</p>
 
@@ -392,19 +416,29 @@ export default function Workspace() {
                 <div className="text-sm text-slate-500">Nessuno snapshot salvato.</div>
               ) : (
                 snapshots.map((s) => (
-                  <div key={s.id} className="flex items-center justify-between gap-2 rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm">
+                  <div key={s.id} className="flex items-center justify-between gap-2 rounded-2xl border border-card-border bg-card-inner px-3 py-2 text-sm">
                     <div className="min-w-0">
                       <div className="truncate text-slate-100">{s.name}</div>
                       <div className="text-xs text-slate-500">{new Date(s.created_at).toLocaleString()}</div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleOpenSnapshot(s.id)}
-                      disabled={loadingSnapshot}
-                      className="shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-200 transition hover:border-cyan-500 hover:bg-slate-900 disabled:opacity-50"
-                    >
-                      Apri
-                    </button>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenSnapshot(s.id)}
+                        disabled={loadingSnapshot}
+                        className="shrink-0 rounded-lg border border-slate-700 bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-200 transition hover:border-cyan-500 hover:bg-slate-900 disabled:opacity-50"
+                      >
+                        Apri
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteSnapshot(s.id)}
+                        className="shrink-0 rounded-lg p-1.5 text-slate-500 transition hover:bg-red-500/20 hover:text-red-400"
+                        title="Elimina questo snapshot"
+                      >
+                        🗑
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
@@ -416,7 +450,7 @@ export default function Workspace() {
       {openedSnapshot && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={handleCloseSnapshotView}>
           <div
-            className="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-2xl"
+            className="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-card-border bg-card p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-start justify-between gap-3">
@@ -435,12 +469,12 @@ export default function Workspace() {
               </button>
             </div>
 
-            <div className="mb-5 rounded-2xl border border-slate-800 bg-slate-950 p-4">
+            <div className="mb-5 rounded-2xl border border-card-border bg-card-inner p-4">
               <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-400">Memoria salvata</h3>
               {openedSnapshot.memory ? (
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                   {['asset', 'timeframes', 'structure', 'levels', 'notes'].map((key) => (
-                    <div key={key} className="rounded-xl border border-slate-800 bg-slate-900 p-3 text-sm">
+                    <div key={key} className="rounded-xl border border-card-border bg-card p-3 text-sm">
                       <div className="text-xs uppercase tracking-[0.12em] text-slate-500">{key}</div>
                       <div className="mt-1 whitespace-pre-wrap text-slate-100">{openedSnapshot.memory[key] || '-'}</div>
                     </div>
@@ -451,14 +485,14 @@ export default function Workspace() {
               )}
             </div>
 
-            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+            <div className="rounded-2xl border border-card-border bg-card-inner p-4">
               <h3 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-400">Messaggi salvati</h3>
               {openedSnapshot.messages && openedSnapshot.messages.length > 0 ? (
                 <div className="mt-3 space-y-3">
                   {openedSnapshot.messages.map((m, index) => (
                     <div
                       key={m.id || index}
-                      className={`rounded-2xl border p-3 text-sm ${m.role === 'user' ? 'border-cyan-500/20 bg-cyan-500/5' : 'border-slate-800 bg-slate-900'}`}
+                      className={`rounded-2xl border p-3 text-sm ${m.role === 'user' ? 'border-cyan-500/20 bg-cyan-500/5' : 'border-card-border bg-card'}`}
                     >
                       <div className="mb-1 text-xs uppercase tracking-[0.12em] text-slate-500">
                         {m.role === 'user' ? 'Trader' : 'Agente'}

@@ -26,7 +26,7 @@ function BiasIndicator({ structure }) {
 export default function SessionMemory({ memory }) {
   if (!memory) {
     return (
-      <div className="rounded-2xl border border-slate-700 bg-slate-900 p-5 text-slate-400">
+      <div className="rounded-2xl border border-card-border bg-card p-5 text-slate-400">
         <h2 className="mb-3 text-lg font-semibold text-white">Session Memory</h2>
         <p>Le informazioni strutturate della sessione appariranno qui dopo l'analisi.</p>
       </div>
@@ -34,7 +34,7 @@ export default function SessionMemory({ memory }) {
   }
 
   return (
-    <div className="rounded-2xl border border-slate-700 bg-slate-900 p-5 text-slate-100">
+    <div className="rounded-2xl border border-card-border bg-card p-5 text-slate-100">
       <h2 className="mb-4 text-lg font-semibold text-white">Session Memory</h2>
       <BiasIndicator structure={memory?.structure} />
       <div className="space-y-3 text-sm">

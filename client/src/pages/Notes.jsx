@@ -191,7 +191,7 @@ export default function Notes() {
         </header>
 
         {/* Toolbar formattazione */}
-        <div className="mb-3 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-2">
+        <div className="mb-3 flex flex-wrap items-center gap-3 rounded-2xl border border-card-border bg-card/60 px-4 py-2">
           <button
             onClick={() => setBold(b => !b)}
             className={`rounded-lg px-3 py-1 text-sm font-bold transition ${bold ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
@@ -315,7 +315,7 @@ export default function Notes() {
             </h2>
             <div className="space-y-2">
               {notes.map(note => (
-                <div key={note.id} className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950 px-4 py-3">
+                <div key={note.id} className="flex items-center justify-between rounded-2xl border border-card-border bg-card-inner px-4 py-3">
                   <div className="flex-1 min-w-0 mr-3">
                     {editingNoteId === note.id ? (
                       <input

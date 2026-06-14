@@ -73,7 +73,7 @@ export default function SearchPage() {
             <div
               key={s.id}
               onClick={() => navigate(`/workspace/${s.id}`)}
-              className="cursor-pointer rounded-2xl border border-slate-700 bg-slate-950 p-4 hover:border-cyan-500 transition"
+              className="cursor-pointer rounded-2xl border border-card-border bg-card-inner p-4 hover:border-cyan-500 transition"
             >
               <div className="flex items-center justify-between">
                 <div>

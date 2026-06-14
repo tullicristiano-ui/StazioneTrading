@@ -273,6 +273,29 @@ router.get('/:id/snapshots/:snapshotId', async (req, res, next) => {
   }
 })
 
+// Eliminazione di un singolo snapshot. Verifica che lo snapshot appartenga
+// alla sessione indicata prima di cancellarlo (sicurezza).
+router.delete('/:id/snapshots/:snapshotId', async (req, res, next) => {
+  try {
+    const { id, snapshotId } = req.params
+
+    const snapshot = await getQuery(
+      'SELECT id FROM snapshots WHERE id = ? AND session_id = ?',
+      [snapshotId, id]
+    )
+
+    if (!snapshot) {
+      return res.status(404).json({ error: 'Snapshot not found' })
+    }
+
+    await runQuery('DELETE FROM snapshots WHERE id = ? AND session_id = ?', [snapshotId, id])
+
+    res.json({ ok: true, id: snapshotId })
+  } catch (err) {
+    next(err)
+  }
+})
+
 router.delete('/:id', async (req, res, next) => {
   try {
     const { id } = req.params

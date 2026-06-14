@@ -71,7 +71,7 @@ function TagEditor({ tags, onSave }) {
 function Modal({ title, onConfirm, onCancel, children }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="w-full max-w-sm rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
+      <div className="w-full max-w-sm rounded-2xl border border-card-border bg-card p-6 shadow-2xl">
         <h3 className="mb-4 text-lg font-semibold text-white">{title}</h3>
         {children}
         <div className="mt-5 flex justify-end gap-2">
@@ -99,7 +99,7 @@ function EditModal({ session, onSave, onCancel }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="w-full max-w-sm rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
+      <div className="w-full max-w-sm rounded-2xl border border-card-border bg-card p-6 shadow-2xl">
         <h3 className="mb-4 text-lg font-semibold text-white">Modifica sessione</h3>
         <label className="block mb-1 text-sm text-slate-400">Titolo</label>
         <input
@@ -273,7 +273,7 @@ export default function Dashboard() {
 
         {error && <div className="mb-4 rounded-xl bg-red-500/20 p-4 text-sm text-red-100">{error}</div>}
 
-        <section className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+        <section className="rounded-3xl border border-card-border bg-card p-6 shadow-xl">
           <h2 className="mb-4 text-xl font-semibold">Sessioni recenti</h2>
 
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -338,7 +338,7 @@ export default function Dashboard() {
                       role="button"
                       tabIndex={0}
                       onKeyDown={(e) => e.key === 'Enter' && navigate(`/workspace/${session.id}`)}
-                      className="relative w-full rounded-2xl border border-slate-700 bg-slate-950 p-4 text-left transition hover:border-cyan-500 cursor-pointer"
+                      className="relative w-full rounded-2xl border border-card-border bg-card-inner p-4 text-left transition hover:border-cyan-500 cursor-pointer"
                     >
                       <div className="absolute top-3 right-3 flex items-center gap-1">
                         <button
