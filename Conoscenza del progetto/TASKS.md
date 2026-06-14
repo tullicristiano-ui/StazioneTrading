@@ -314,4 +314,18 @@ Prima di ogni commit, verificare:
 
 ---
 
-*Ultima modifica: 2026-06-14 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | MKT Fase 1-2 ✅ | Home+Nav ✅ | 8 migliorie ✅ | 5 migliorie avanzate ✅ | Fix+migliorie notturna: FIX-02 ✅ MOD-01 ✅ MOD-02 ✅ MOD-03 ✅*
+---
+
+## Home — Pannello laterale + fix visivi (2026-06-14 — pomeriggio)
+
+| ID | Task | Priorità | Stato | Note |
+|---|---|---|---|---|
+| HOME-08 | Bug fix: la "g" di "Trading" veniva tagliata dal gradient clip | 🟠 P1 | `[x]` | Aggiunto `leading-tight pb-2` all'h1 |
+| HOME-09 | Hero più alta: `justify-center` → `justify-start`, `py-16` → `pt-8 pb-16` | 🟡 P2 | `[x]` | Il titolo appare prima sulla pagina |
+| HOME-10 | Sottotitolo accorciato a una riga breve "Il tuo copilota per i mercati finanziari." | 🟡 P2 | `[x]` | Da 3 righe a 1 frase; testo più grande (text-xl) |
+| HOME-11 | Font Google "Space Grotesk" aggiunto (index.html + tailwind.config.js) | 🟡 P2 | `[x]` | Classe Tailwind `font-display`, peso 400/500/700 |
+| HOME-12 | Pannello pubblicitario verticale fisso a destra (`AdPanel`) con 6 vantaggi | 🟠 P1 | `[x]` | `hidden xl:flex`, `fixed right-0 top-0 h-screen w-80`, `font-display`; contenuto xl:pr-80 |
+
+---
+
+*Ultima modifica: 2026-06-14 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | MKT Fase 1-2 ✅ | Home+Nav ✅ | 8 migliorie ✅ | 5 migliorie avanzate ✅ | Fix+migliorie notturna: FIX-02 ✅ MOD-01 ✅ MOD-02 ✅ MOD-03 ✅ | Home pannello laterale: HOME-08…12 ✅*
