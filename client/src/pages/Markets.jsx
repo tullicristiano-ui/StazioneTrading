@@ -57,12 +57,12 @@ function MiniCalendar() {
 // ── Vetrina pubblicitaria (vantaggi app) ──────────────────────────────────────
 
 const AD_BENEFITS = [
-  { icon: '🤖', title: 'Analisi con l\'AI',   desc: 'Leggi la struttura del mercato col metodo Aware Trader, direttamente sui tuoi grafici.' },
-  { icon: '📊', title: 'Mercati in tempo reale', desc: 'Grafici avanzati, heatmap, news e calendario economico, sempre aggiornati.' },
-  { icon: '📓', title: 'Journal completo',    desc: 'Registra ogni trade con entry, stop e target. Esporta tutto in CSV quando vuoi.' },
-  { icon: '🧠', title: 'Memoria delle sessioni', desc: 'L\'app ricorda asset, livelli e struttura di ogni tua analisi precedente.' },
-  { icon: '🔒', title: '100% sul tuo computer', desc: 'Nessun dato esce dal tuo PC. Privacy totale, nessun account richiesto.' },
-  { icon: '🗂️', title: 'Tag e ricerca',         desc: 'Organizza le sessioni con tag personalizzati e trovale subito con la ricerca integrata.' },
+  { icon: '🤖', title: 'Analisi con l\'AI',        desc: 'L\'intelligenza artificiale legge i tuoi grafici e ti aiuta a capire la price action.' },
+  { icon: '📊', title: 'Mercati in tempo reale',   desc: 'Grafici, heatmap, news e calendario economico, sempre aggiornati.' },
+  { icon: '📓', title: 'Journal dei trade',        desc: 'Registra ogni operazione e scarica tutto in CSV quando vuoi.' },
+  { icon: '🧠', title: 'Memoria delle sessioni',   desc: 'L\'app ricorda asset, livelli e struttura di ogni tua analisi.' },
+  { icon: '🔒', title: '100% sul tuo computer',     desc: 'Nessun dato esce dal tuo PC. Privacy totale, nessun account.' },
+  { icon: '🗂️', title: 'Tutto organizzato',        desc: 'Tag e ricerca per ritrovare ogni sessione in un attimo.' },
 ]
 
 function AdShowcase() {
@@ -78,11 +78,17 @@ function AdShowcase() {
         {AD_BENEFITS.map(({ icon, title, desc }) => (
           <div
             key={title}
-            className="group rounded-2xl border border-emerald-800/40 bg-gradient-to-br from-emerald-950/40 to-emerald-900/10
-              p-5 transition hover:border-emerald-500/60 hover:from-emerald-900/40 hover:-translate-y-1"
+            className="group relative overflow-hidden rounded-2xl border border-emerald-800/40
+              bg-gradient-to-br from-emerald-950/60 to-emerald-900/10 p-6
+              transition-all duration-300 hover:border-emerald-400/70
+              hover:from-emerald-900/50 hover:shadow-lg hover:shadow-emerald-900/40 hover:-translate-y-1.5"
           >
-            <div className="text-3xl mb-3">{icon}</div>
-            <h3 className="text-lg font-bold text-emerald-300 mb-1 leading-snug">{title}</h3>
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl
+              bg-emerald-500/10 text-2xl ring-1 ring-emerald-500/20
+              transition group-hover:bg-emerald-500/20 group-hover:scale-110">
+              {icon}
+            </div>
+            <h3 className="text-lg font-bold text-slate-100 mb-1.5 leading-snug">{title}</h3>
             <p className="text-sm text-slate-400 leading-relaxed">{desc}</p>
           </div>
         ))}
