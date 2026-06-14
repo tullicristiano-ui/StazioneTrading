@@ -329,4 +329,8 @@ Prima di ogni commit, verificare:
 
 ---
 
-*Ultima modifica: 2026-06-14 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | MKT Fase 1-2 ✅ | Home+Nav ✅ | 8 migliorie ✅ | 5 migliorie avanzate ✅ | Fix+migliorie notturna: FIX-02 ✅ MOD-01 ✅ MOD-02 ✅ MOD-03 ✅ | Home pannello laterale: HOME-08…12 ✅*
+| HOME-14 | Testi card AdShowcase riscritti (brevi, senza "Aware Trader"); grafica card migliorata | 🟡 P2 | `[x]` | Icona in riquadretto con ring, hover scale+ombra verde, titolo text-slate-100 |
+
+---
+
+*Ultima modifica: 2026-06-14 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | MKT Fase 1-2 ✅ | Home+Nav ✅ | 8 migliorie ✅ | 5 migliorie avanzate ✅ | Fix+migliorie notturna: FIX-02 ✅ MOD-01 ✅ MOD-02 ✅ MOD-03 ✅ | Home pannello laterale: HOME-08…14 ✅*
