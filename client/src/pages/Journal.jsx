@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { api } from '../api/client.js'
 import { useNavigate } from 'react-router-dom'
 import AnimatedBackground from '../components/layout/AnimatedBackground.jsx'
+import { useTheme } from '../context/ThemeContext.jsx'
 
 function JournalStats({ entries }) {
   const total = entries.length
@@ -28,6 +29,8 @@ function JournalStats({ entries }) {
 }
 
 export default function Journal() {
+  const { theme } = useTheme()
+  const bgColor = theme === 'green' ? '#050f0a' : '#0d1117'
   const [entries, setEntries] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -42,7 +45,7 @@ export default function Journal() {
   }, [])
 
   return (
-    <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: '#050f0a' }}>
+    <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: bgColor }}>
       <AnimatedBackground />
       <div className="relative z-10 p-5">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

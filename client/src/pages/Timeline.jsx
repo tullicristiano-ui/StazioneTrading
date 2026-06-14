@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client.js'
 import AnimatedBackground from '../components/layout/AnimatedBackground.jsx'
+import { useTheme } from '../context/ThemeContext.jsx'
 
 const ROLE_LABEL = {
   user: 'Tu',
@@ -9,6 +10,8 @@ const ROLE_LABEL = {
 }
 
 export default function Timeline() {
+  const { theme } = useTheme()
+  const bgColor = theme === 'green' ? '#050f0a' : '#0d1117'
   const { id } = useParams()
   const navigate = useNavigate()
   const [session, setSession] = useState(null)
@@ -63,7 +66,7 @@ export default function Timeline() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: '#050f0a' }}>
+    <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: bgColor }}>
       <AnimatedBackground />
       <div className="relative z-10 p-5">
       <div className="mb-5 flex items-center justify-between no-print">

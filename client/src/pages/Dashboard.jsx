@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { api } from '../api/client.js'
 import Sidebar from '../components/layout/Sidebar.jsx'
 import AnimatedBackground from '../components/layout/AnimatedBackground.jsx'
+import { useTheme } from '../context/ThemeContext.jsx'
 
 function SessionBadge({ status, updatedAt }) {
   const daysSince = (Date.now() - new Date(updatedAt).getTime()) / 86400000
@@ -134,6 +135,8 @@ function EditModal({ session, onSave, onCancel }) {
 }
 
 export default function Dashboard() {
+  const { theme } = useTheme()
+  const bgColor = theme === 'green' ? '#050f0a' : '#0d1117'
   const [sessions, setSessions] = useState([])
   const [assetFilter, setAssetFilter] = useState('')
   const [dateFrom, setDateFrom] = useState('')
@@ -226,7 +229,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: '#050f0a' }}>
+    <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: bgColor }}>
       <AnimatedBackground />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 

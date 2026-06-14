@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useTheme } from '../../context/ThemeContext.jsx'
 
 const NAV_ITEMS = [
   { label: 'Home',           icon: '🏠', path: '/' },
@@ -13,6 +14,7 @@ const NAV_ITEMS = [
 export default function Sidebar({ open, onClose }) {
   const navigate = useNavigate()
   const location = useLocation()
+  const { theme, toggleTheme } = useTheme()
 
   const handleNav = (path) => {
     navigate(path)
@@ -69,6 +71,15 @@ export default function Sidebar({ open, onClose }) {
             )
           })}
         </nav>
+
+        <div className="mt-auto pt-4 border-t border-slate-800">
+          <button
+            onClick={toggleTheme}
+            className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-400 hover:bg-slate-800 transition"
+          >
+            {theme === 'green' ? '🌙 Tema scuro' : '🌿 Tema verde'}
+          </button>
+        </div>
       </aside>
     </>
   )

@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client.js'
 import Sidebar from '../components/layout/Sidebar.jsx'
 import AnimatedBackground from '../components/layout/AnimatedBackground.jsx'
+import { useTheme } from '../context/ThemeContext.jsx'
 
 // ── Icona candela SVG ─────────────────────────────────────────────────────────
 
@@ -73,6 +74,54 @@ const FEATURE_CARDS = [
   },
 ]
 
+const ASSETS = [
+  { symbol: 'BINANCE:BTCUSDT',  label: 'BTC' },
+  { symbol: 'FX:EURUSD',        label: 'EUR/USD' },
+  { symbol: 'OANDA:XAUUSD',     label: 'XAU/USD' },
+  { symbol: 'OANDA:XAGUSD',     label: 'XAG/USD' },
+  { symbol: 'NASDAQ:NDX',       label: 'NASDAQ' },
+  { symbol: 'OANDA:NAS100USD',  label: 'US100' },
+  { symbol: 'OANDA:WTICOUSD',   label: 'USOIL' },
+  { symbol: 'COINBASE:ETHUSD',  label: 'ETH/USD' },
+  { symbol: 'TVC:DXY',          label: 'DXY' },
+]
+
+function AssetWidget({ symbol, label }) {
+  const containerRef = useRef(null)
+  useEffect(() => {
+    if (!containerRef.current) return
+    containerRef.current.innerHTML = ''
+    const wrapper = document.createElement('div')
+    wrapper.className = 'tradingview-widget-container'
+    const widgetDiv = document.createElement('div')
+    widgetDiv.className = 'tradingview-widget-container__widget'
+    const script = document.createElement('script')
+    script.type = 'text/javascript'
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js'
+    script.async = true
+    script.innerHTML = JSON.stringify({
+      symbol,
+      width: '100%',
+      height: 130,
+      locale: 'it',
+      dateRange: '1D',
+      colorTheme: 'dark',
+      isTransparent: true,
+      autosize: false,
+      largeChartUrl: ''
+    })
+    wrapper.appendChild(widgetDiv)
+    wrapper.appendChild(script)
+    containerRef.current.appendChild(wrapper)
+  }, [symbol])
+  return (
+    <div className="rounded-2xl border border-emerald-900/50 bg-emerald-950/10 overflow-hidden">
+      <div className="px-3 pt-2 pb-1 text-xs font-semibold text-slate-400">{label}</div>
+      <div ref={containerRef} />
+    </div>
+  )
+}
+
 function isMarketOpen(openHourUTC, closeHourUTC, openMinUTC, closeMinUTC) {
   const now = new Date()
   const day = now.getUTCDay()
@@ -106,6 +155,8 @@ export default function Markets() {
   const [now, setNow] = useState(new Date())
   const [activeSession, setActiveSession] = useState(null)
   const navigate = useNavigate()
+  const { theme } = useTheme()
+  const bgColor = theme === 'green' ? '#050f0a' : '#0d1117'
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000)
@@ -124,7 +175,7 @@ export default function Markets() {
   return (
     <div
       className="relative min-h-screen overflow-hidden text-slate-100"
-      style={{ background: '#050f0a' }}
+      style={{ background: bgColor }}
     >
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <AnimatedBackground />
@@ -211,6 +262,16 @@ export default function Markets() {
           <ActiveSessionBanner session={activeSession} onOpen={() => navigate(`/workspace/${activeSession?.id}`)} />
 
           <MiniCalendar />
+
+          {/* Panoramica asset */}
+          <div className="mt-10 w-full max-w-4xl">
+            <h2 className="text-center text-sm font-semibold text-slate-400 uppercase tracking-widest mb-4">
+              Panoramica Asset
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {ASSETS.map(a => <AssetWidget key={a.symbol} symbol={a.symbol} label={a.label} />)}
+            </div>
+          </div>
 
           {/* Feature cards */}
           <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl w-full">

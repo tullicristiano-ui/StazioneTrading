@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Sidebar from '../components/layout/Sidebar.jsx'
 import TradingViewWidget from '../components/markets/TradingViewWidget.jsx'
 import AnimatedBackground from '../components/layout/AnimatedBackground.jsx'
+import { useTheme } from '../context/ThemeContext.jsx'
 
 // ── Widget configs ────────────────────────────────────────────────────────────
 
@@ -232,6 +233,8 @@ const MAIN_TABS = [
 // ── Pagina Trading Live ───────────────────────────────────────────────────────
 
 export default function TradingLive() {
+  const { theme } = useTheme()
+  const bgColor = theme === 'green' ? '#050f0a' : '#0d1117'
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('grafico')
   const navigate = useNavigate()
@@ -241,7 +244,7 @@ export default function TradingLive() {
   const eventsConfig   = useMemo(() => EVENTS_CONFIG, [])
 
   return (
-    <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: '#050f0a' }}>
+    <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: bgColor }}>
       <AnimatedBackground />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 

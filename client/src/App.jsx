@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { ThemeProvider } from './context/ThemeContext.jsx'
 import Markets from './pages/Markets'
 import TradingLive from './pages/TradingLive'
 import Dashboard from './pages/Dashboard'
@@ -10,18 +11,20 @@ import SearchPage from './pages/SearchPage'
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Markets />} />
-        <Route path="/trading-live" element={<TradingLive />} />
-        <Route path="/analisi" element={<Dashboard />} />
-        <Route path="/workspace/:id" element={<Workspace />} />
-        <Route path="/journal" element={<Journal />} />
-        <Route path="/workspace/:id/timeline" element={<Timeline />} />
-        <Route path="/note" element={<Notes />} />
-        <Route path="/cerca" element={<SearchPage />} />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Markets />} />
+          <Route path="/trading-live" element={<TradingLive />} />
+          <Route path="/analisi" element={<Dashboard />} />
+          <Route path="/workspace/:id" element={<Workspace />} />
+          <Route path="/journal" element={<Journal />} />
+          <Route path="/workspace/:id/timeline" element={<Timeline />} />
+          <Route path="/note" element={<Notes />} />
+          <Route path="/cerca" element={<SearchPage />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }
 

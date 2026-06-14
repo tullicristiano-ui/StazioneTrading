@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client.js'
 import AnimatedBackground from '../components/layout/AnimatedBackground.jsx'
 import Sidebar from '../components/layout/Sidebar.jsx'
+import { useTheme } from '../context/ThemeContext.jsx'
 
 function SessionBadge({ status }) {
   if (status === 'closed') return <span className="text-xs text-slate-500">⚫ Chiusa</span>
@@ -10,6 +11,8 @@ function SessionBadge({ status }) {
 }
 
 export default function SearchPage() {
+  const { theme } = useTheme()
+  const bgColor = theme === 'green' ? '#050f0a' : '#0d1117'
   const [query, setQuery] = useState('')
   const [sessions, setSessions] = useState([])
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -28,7 +31,7 @@ export default function SearchPage() {
     : sessions
 
   return (
-    <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: '#050f0a' }}>
+    <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: bgColor }}>
       <AnimatedBackground />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="relative z-10 p-5">

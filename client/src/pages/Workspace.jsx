@@ -4,6 +4,7 @@ import { api } from '../api/client.js'
 import ChatPanel from '../components/chat/ChatPanel.jsx'
 import SessionMemory from '../components/session/SessionMemory.jsx'
 import AnimatedBackground from '../components/layout/AnimatedBackground.jsx'
+import { useTheme } from '../context/ThemeContext.jsx'
 
 export default function Workspace() {
   const { id } = useParams()
@@ -28,6 +29,8 @@ export default function Workspace() {
   const [visionSupported, setVisionSupported] = useState(true)
   const [focusMode, setFocusMode] = useState(false)
   const messagesEndRef = useRef(null)
+  const { theme } = useTheme()
+  const bgColor = theme === 'green' ? '#050f0a' : '#0d1117'
 
   const loadSession = async () => {
     setLoading(true)
@@ -223,7 +226,7 @@ export default function Workspace() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: '#050f0a' }}>
+    <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: bgColor }}>
       <AnimatedBackground />
       <div className="relative z-10 p-5">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -472,7 +475,7 @@ export default function Workspace() {
       <div ref={messagesEndRef} />
 
       {focusMode && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-slate-950/95 p-5">
+        <div className="fixed inset-0 z-50 flex flex-col p-5" style={{ background: bgColor }}>
           <div className="mb-3 flex items-center justify-between">
             <span className="text-sm text-slate-400">🎯 Focus Mode — premi Esc per uscire</span>
             <button
