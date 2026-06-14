@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { runQuery, getQuery } from '../db/database.js'
 import { runAnalysis } from '../agent/orchestrator.js'
 import { getActiveProvider } from '../agent/providerClient.js'
+import { isVisionLocalEnabled, isOllamaReachable } from '../agent/visionService.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const router = express.Router()
@@ -133,9 +134,25 @@ function parseJournalCsv(text) {
 router.get('/info', async (req, res, next) => {
   try {
     const provider = getActiveProvider()
-    // I provider basati su HuggingFace/Gemma sono text-only (niente vision).
     const visionSupported = provider !== 'huggingface' && provider !== 'hf'
-    res.json({ provider, visionSupported })
+    const visionModel = process.env.OLLAMA_VISION_MODEL || 'qwen2.5vl:3b'
+
+    let visionLocal = false
+    let visionStatus = 'disabled'
+
+    if (isVisionLocalEnabled()) {
+      const { reachable, modelPresent } = await isOllamaReachable()
+      if (!reachable) {
+        visionStatus = 'offline'
+      } else if (!modelPresent) {
+        visionStatus = 'model_missing'
+      } else {
+        visionStatus = 'ready'
+        visionLocal = true
+      }
+    }
+
+    res.json({ provider, visionSupported, visionLocal, visionModel, visionStatus })
   } catch (err) {
     next(err)
   }

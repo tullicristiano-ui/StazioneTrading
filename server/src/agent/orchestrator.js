@@ -84,7 +84,7 @@ export async function runAnalysis({ sessionId, content, screenshots = [], analys
       model: 'anthropic/claude-3.5-sonnet',
       messages,
       temperature: 0.3,
-      max_tokens: 600
+      max_tokens: 1500
     }
 
     const response = await requestCompletion(payload)

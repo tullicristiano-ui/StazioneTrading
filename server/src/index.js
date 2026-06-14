@@ -1,10 +1,11 @@
-import express from 'express'
+﻿import express from 'express'
 import cors from 'cors'
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
 import { initDatabase } from './db/database.js'
+import { isVisionLocalEnabled } from './agent/visionService.js'
 import sessionsRouter from './routes/sessions.js'
 import messagesRouter from './routes/messages.js'
 import agentRouter from './routes/agent.js'
@@ -25,7 +26,7 @@ if (envPath) {
 }
 
 const PORT = process.env.PORT || 3001
-const UPLOADS_PATH = process.env.UPLOADS_PATH || path.resolve(__dirname, '..', 'uploads')
+const UPLOADS_PATH = process.env.UPLOADS_PATH || path.resolve(__dirname, 'uploads')
 
 const app = express()
 
@@ -52,15 +53,36 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Not found' })
 })
 
+async function warmUpVisionModel() {
+  if (!isVisionLocalEnabled()) return
+  const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434'
+  const model = process.env.OLLAMA_VISION_MODEL || 'qwen2.5vl:3b'
+  try {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 5000)
+    await fetch(`${ollamaUrl}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, messages: [{ role: 'user', content: 'ok' }], stream: false, keep_alive: '10m', options: { num_predict: 1 } }),
+      signal: controller.signal
+    })
+    clearTimeout(timer)
+    console.log(`✓ Vision model pre-loaded (${model})`)
+  } catch {
+    // Ollama non disponibile - non bloccante
+  }
+}
+
 async function startServer() {
   try {
     await initDatabase()
     console.log('✓ Database initialized')
 
     app.listen(PORT, () => {
-      console.log(`\n🎯 Aware Trading Server running on http://localhost:${PORT}`)
-      console.log(`📁 Uploads path: ${UPLOADS_PATH}`)
+      console.log(`\n✓ Aware Trading Server running on http://localhost:${PORT}`)
+      console.log(`✓ Uploads path: ${UPLOADS_PATH}`)
       console.log(`Health check: http://localhost:${PORT}/health\n`)
+      warmUpVisionModel()
     })
   } catch (err) {
     console.error('Failed to start server:', err)

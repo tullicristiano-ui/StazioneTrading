@@ -27,6 +27,7 @@ export default function Workspace() {
   const [openedSnapshot, setOpenedSnapshot] = useState(null)
   const [loadingSnapshot, setLoadingSnapshot] = useState(false)
   const [visionSupported, setVisionSupported] = useState(true)
+  const [visionStatus, setVisionStatus] = useState('disabled')
   const [focusMode, setFocusMode] = useState(false)
   const messagesEndRef = useRef(null)
   const { theme } = useTheme()
@@ -62,8 +63,9 @@ export default function Workspace() {
     try {
       const info = await api.getAgentInfo()
       setVisionSupported(info?.visionSupported !== false)
+      setVisionStatus(info?.visionStatus || 'disabled')
     } catch (err) {
-      // Funzione informativa: in caso di errore manteniamo il default (true)
+      // Funzione informativa: in caso di errore manteniamo il default
       console.error('Impossibile caricare le info del provider AI', err)
     }
   }
@@ -314,6 +316,7 @@ export default function Workspace() {
             loading={loading}
             error={error}
             visionSupported={visionSupported}
+            visionStatus={visionStatus}
           />
 
           {previewMessage && (
@@ -497,6 +500,7 @@ export default function Workspace() {
               loading={loading}
               error={error}
               visionSupported={visionSupported}
+              visionStatus={visionStatus}
             />
           </div>
         </div>

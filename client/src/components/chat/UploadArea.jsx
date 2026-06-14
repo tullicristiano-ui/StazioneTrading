@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 
 const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 
-export default function UploadArea({ files, onFilesChange, visionSupported = true }) {
+export default function UploadArea({ files, onFilesChange, visionSupported = true, visionStatus = 'disabled' }) {
   const [isDragging, setIsDragging] = useState(false)
 
   const handleFiles = useCallback(
@@ -59,10 +59,14 @@ export default function UploadArea({ files, onFilesChange, visionSupported = tru
     <div>
       <label className="block text-sm font-medium text-slate-300">Screenshot</label>
 
-      {!visionSupported && (
+      {visionStatus === 'ready' ? (
+        <div className="mt-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+          Lettura immagini locale attiva. La prima analisi può richiedere qualche decina di secondi mentre il modello si carica.
+        </div>
+      ) : !visionSupported && (
         <div className="mt-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
-          ⚠️ Il modello attuale (Gemma) non legge le immagini: gli screenshot vengono salvati ma non
-          analizzati. L'analisi visiva sarà disponibile con un modello vision (Sonnet).
+          ⚠️ Il modello attuale non legge le immagini: gli screenshot vengono salvati ma non
+          analizzati. L'analisi visiva sarà disponibile con un modello vision.
         </div>
       )}
 
