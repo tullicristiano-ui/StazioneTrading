@@ -54,7 +54,7 @@ function MiniCalendar() {
   )
 }
 
-// ── Pannello pubblicitario laterale ───────────────────────────────────────────
+// ── Vetrina pubblicitaria (vantaggi app) ──────────────────────────────────────
 
 const AD_BENEFITS = [
   { icon: '🤖', title: 'Analisi con l\'AI',   desc: 'Leggi la struttura del mercato col metodo Aware Trader, direttamente sui tuoi grafici.' },
@@ -65,30 +65,29 @@ const AD_BENEFITS = [
   { icon: '⚡', title: 'Veloce e gratuito',    desc: 'Nessun costo nascosto, nessuna registrazione. Pronto all\'uso.' },
 ]
 
-function AdPanel() {
+function AdShowcase() {
   return (
-    <aside className="hidden xl:flex flex-col fixed right-0 top-0 h-screen w-80 z-20
-      border-l border-emerald-900/50 bg-emerald-950/30 backdrop-blur-md p-6 overflow-y-auto font-display">
-      <div className="mb-6">
-        <div className="text-xs font-medium uppercase tracking-[0.2em] text-emerald-500 mb-2">
-          Perché usarla
-        </div>
-        <h2 className="text-2xl font-bold text-emerald-300 leading-tight">
-          Tutto ciò che ti serve per analizzare i mercati
-        </h2>
+    <section className="mt-14 w-full max-w-5xl font-display">
+      <div className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-500 mb-2">
+        Perché usarla
       </div>
-      <div className="flex flex-col gap-5">
+      <h2 className="text-3xl sm:text-4xl font-bold text-slate-100 mb-8 leading-tight">
+        Tutto ciò che ti serve per analizzare i mercati
+      </h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-left">
         {AD_BENEFITS.map(({ icon, title, desc }) => (
-          <div key={title} className="flex gap-3">
-            <div className="text-2xl shrink-0">{icon}</div>
-            <div>
-              <h3 className="font-semibold text-slate-100 leading-snug">{title}</h3>
-              <p className="text-sm text-slate-400 leading-relaxed mt-0.5">{desc}</p>
-            </div>
+          <div
+            key={title}
+            className="group rounded-2xl border border-emerald-800/40 bg-gradient-to-br from-emerald-950/40 to-emerald-900/10
+              p-5 transition hover:border-emerald-500/60 hover:from-emerald-900/40 hover:-translate-y-1"
+          >
+            <div className="text-3xl mb-3">{icon}</div>
+            <h3 className="text-lg font-bold text-emerald-300 mb-1 leading-snug">{title}</h3>
+            <p className="text-sm text-slate-400 leading-relaxed">{desc}</p>
           </div>
         ))}
       </div>
-    </aside>
+    </section>
   )
 }
 
@@ -217,9 +216,8 @@ export default function Markets() {
     >
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <AnimatedBackground />
-      <AdPanel />
 
-      <div className="relative z-10 flex flex-col min-h-screen xl:pr-80">
+      <div className="relative z-10 flex flex-col min-h-screen">
 
         {/* Header: hamburger + orologio + mercati */}
         <header className="p-4 flex items-center">
@@ -295,6 +293,8 @@ export default function Markets() {
               📈 Trading Live
             </button>
           </div>
+
+          <AdShowcase />
 
           <ActiveSessionBanner session={activeSession} onOpen={() => navigate(`/workspace/${activeSession?.id}`)} />
 
