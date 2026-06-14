@@ -324,7 +324,8 @@ Prima di ogni commit, verificare:
 | HOME-09 | Hero più alta: `justify-center` → `justify-start`, `py-16` → `pt-8 pb-16` | 🟡 P2 | `[x]` | Il titolo appare prima sulla pagina |
 | HOME-10 | Sottotitolo accorciato a una riga breve "Il tuo copilota per i mercati finanziari." | 🟡 P2 | `[x]` | Da 3 righe a 1 frase; testo più grande (text-xl) |
 | HOME-11 | Font Google "Space Grotesk" aggiunto (index.html + tailwind.config.js) | 🟡 P2 | `[x]` | Classe Tailwind `font-display`, peso 400/500/700 |
-| HOME-12 | Pannello pubblicitario verticale fisso a destra (`AdPanel`) con 6 vantaggi | 🟠 P1 | `[x]` | `hidden xl:flex`, `fixed right-0 top-0 h-screen w-80`, `font-display`; contenuto xl:pr-80 |
+| HOME-12 | Pannello pubblicitario verticale fisso a destra (`AdPanel`) con 6 vantaggi | 🟠 P1 | `[x]` | Sostituito da HOME-13 (pannello laterale rimosso) |
+| HOME-13 | Vetrina `AdShowcase` a griglia sempre visibile, sotto i CTA | 🟠 P1 | `[x]` | 6 card 1→2→3 colonne, font-display, hover con lift; `AdPanel` fixed rimosso; xl:pr-80 rimosso. 6° vantaggio = "Tag e ricerca" (sostituisce "Veloce e gratuito"). Verificata da ASK 14-06 ore 2030, nessuna regressione |
 
 ---
 

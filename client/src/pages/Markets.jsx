@@ -292,7 +292,6 @@ export default function Markets() {
             </div>
           </div>
 
-
         </main>
       </div>
     </div>
