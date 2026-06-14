@@ -58,8 +58,9 @@ async function warmUpVisionModel() {
   const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434'
   const model = process.env.OLLAMA_VISION_MODEL || 'qwen2.5vl:3b'
   try {
+    const warmupTimeout = Number(process.env.VISION_WARMUP_TIMEOUT_MS) || 120000
     const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), 5000)
+    const timer = setTimeout(() => controller.abort(), warmupTimeout)
     await fetch(`${ollamaUrl}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

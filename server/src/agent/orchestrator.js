@@ -40,10 +40,13 @@ export async function runAnalysis({ sessionId, content, screenshots = [], analys
 
   let history = []
   try {
+    // Prendiamo solo gli ultimi 16 messaggi (più recenti) per velocizzare
+    // l'analisi, poi li riordiniamo dal più vecchio al più recente.
     history = await allQuery(
-      'SELECT role, content FROM messages WHERE session_id = ? ORDER BY created_at ASC',
+      'SELECT role, content FROM messages WHERE session_id = ? ORDER BY created_at DESC LIMIT 16',
       [sessionId]
     )
+    history.reverse()
   } catch (err) {
     console.warn('orchestrator: impossibile caricare cronologia messaggi', err.message)
   }
@@ -84,7 +87,7 @@ export async function runAnalysis({ sessionId, content, screenshots = [], analys
       model: 'anthropic/claude-3.5-sonnet',
       messages,
       temperature: 0.3,
-      max_tokens: 1500
+      max_tokens: 800
     }
 
     const response = await requestCompletion(payload)

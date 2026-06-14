@@ -40,6 +40,11 @@ export default function UploadArea({ files, onFilesChange, visionSupported = tru
     [files, onFilesChange]
   )
 
+  // Rimuove un singolo file già selezionato (prima dell'invio).
+  const removeFileAt = (index) => {
+    onFilesChange(files.filter((_, i) => i !== index))
+  }
+
   const handleDragOver = (event) => {
     event.preventDefault()
     setIsDragging(true)
@@ -92,8 +97,16 @@ export default function UploadArea({ files, onFilesChange, visionSupported = tru
       {files.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2 text-sm text-slate-300">
           {files.map((file, index) => (
-            <span key={`${file.name}-${index}`} className="rounded-full bg-slate-800 px-3 py-1">
+            <span key={`${file.name}-${index}`} className="flex items-center gap-2 rounded-full bg-slate-800 px-3 py-1">
               {file.name}
+              <button
+                type="button"
+                onClick={() => removeFileAt(index)}
+                className="text-xs text-slate-400 transition hover:text-red-400"
+                aria-label={`Rimuovi ${file.name}`}
+              >
+                ✕
+              </button>
             </span>
           ))}
         </div>

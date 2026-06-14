@@ -67,15 +67,26 @@ export async function requestCompletion(payload) {
     stream: false
   }
 
+  // Timeout della chiamata: se l'AI non risponde entro il limite, interrompiamo.
+  const hfTimeout = Number(process.env.HF_TIMEOUT_MS) || 90000
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), hfTimeout)
+
   let response
   try {
     response = await fetch(HF_CHAT_URL, {
       method: 'POST',
       headers: buildHeaders(),
-      body: JSON.stringify(hfPayload)
+      body: JSON.stringify(hfPayload),
+      signal: controller.signal
     })
   } catch (networkErr) {
+    if (networkErr.name === 'AbortError') {
+      throw new Error("HuggingFace: l'AI non ha risposto entro il tempo limite, riprova.")
+    }
     throw new Error(`HuggingFace: errore di rete — ${networkErr.message}`)
+  } finally {
+    clearTimeout(timer)
   }
 
   // 503 = modello in caricamento (tier gratuito HF)
