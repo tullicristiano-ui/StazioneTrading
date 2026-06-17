@@ -200,8 +200,15 @@ export default function Markets() {
   return (
     <div
       className="relative min-h-screen overflow-hidden text-slate-100"
-      style={{ background: bgColor }}
+      style={{
+        background: bgColor,
+        backgroundImage: "url('/freedom-bg.jpg')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
     >
+      <div className="absolute inset-0 bg-slate-950/65 z-0" />
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <AnimatedBackground />
 

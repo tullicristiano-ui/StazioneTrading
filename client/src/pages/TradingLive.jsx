@@ -1,9 +1,10 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Sidebar from '../components/layout/Sidebar.jsx'
 import TradingViewWidget from '../components/markets/TradingViewWidget.jsx'
 import AnimatedBackground from '../components/layout/AnimatedBackground.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { api } from '../api/client.js'
 
 // ── Widget configs ────────────────────────────────────────────────────────────
 
@@ -55,12 +56,8 @@ const MARKET_OVERVIEW_CONFIG = {
   ],
 }
 
-const EVENTS_SRC =
-  'https://s3.tradingview.com/external-embedding/embed-widget-events.js'
-const EVENTS_CONFIG = {
-  colorTheme: 'dark', isTransparent: false, width: '100%', height: '100%',
-  locale: 'it', importanceFilter: '0,1', countryFilter: 'us,eu,it,gb,jp,de,fr',
-}
+// URL base del widget Investing.com — i parametri vengono ricostruiti dinamicamente
+const INVESTING_CALENDAR_BASE = 'https://sslecal2.investing.com'
 
 const STOCK_HEATMAP_SRC =
   'https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js'
@@ -87,23 +84,6 @@ const FOREX_HEATMAP_CONFIG = {
   width: '100%', height: '100%',
 }
 
-const NEWS_SRC =
-  'https://s3.tradingview.com/external-embedding/embed-widget-timeline.js'
-
-const makeNewsConfig = (market) => ({
-  colorTheme: 'dark', isTransparent: false, displayMode: 'regular',
-  locale: 'it', width: '100%', height: '100%',
-  feedMode: 'market', market,
-})
-
-const NEWS_STOCKS_CONFIG  = makeNewsConfig('stock')
-const NEWS_FOREX_CONFIG   = makeNewsConfig('forex')
-const NEWS_CRYPTO_CONFIG  = makeNewsConfig('crypto')
-const NEWS_MACRO_CONFIG   = {
-  colorTheme: 'dark', isTransparent: false, displayMode: 'regular',
-  locale: 'it', width: '100%', height: '100%',
-  feedMode: 'all_symbols',
-}
 
 // ── Componenti UI ─────────────────────────────────────────────────────────────
 
@@ -176,47 +156,130 @@ function HeatmapTab() {
   )
 }
 
-// ── Tab News ──────────────────────────────────────────────────────────────────
+// ── Tab News (feed RSS italiani) ──────────────────────────────────────────────
 
 const NEWS_SUBTABS = [
-  { id: 'azioni', label: 'Azioni' },
-  { id: 'forex',  label: 'Forex' },
-  { id: 'crypto', label: 'Crypto' },
-  { id: 'macro',  label: 'Macro' },
+  { id: 'mercati',  label: 'Mercati' },
+  { id: 'economia', label: 'Economia' },
 ]
 
-function NewsTab() {
-  const [sub, setSub] = useState('azioni')
+function formatDate(dateStr) {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  if (isNaN(d)) return dateStr
+  return d.toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
 
-  const stocksConfig = useMemo(() => NEWS_STOCKS_CONFIG, [])
-  const forexConfig  = useMemo(() => NEWS_FOREX_CONFIG, [])
-  const cryptoConfig = useMemo(() => NEWS_CRYPTO_CONFIG, [])
-  const macroConfig  = useMemo(() => NEWS_MACRO_CONFIG, [])
+function NewsCard({ item }) {
+  return (
+    <a
+      href={item.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block rounded-xl border border-card-border bg-card-inner p-4 hover:border-cyan-700/60 hover:bg-card-inner/80 transition group"
+    >
+      <div className="flex items-center justify-between gap-2 mb-1">
+        <span className="text-xs font-semibold text-cyan-400">{item.source}</span>
+        <span className="text-xs text-slate-500 shrink-0">{formatDate(item.publishedAt)}</span>
+      </div>
+      <div className="text-sm font-medium text-slate-200 group-hover:text-white leading-snug">{item.title}</div>
+      {item.summary && (
+        <p className="mt-1 text-xs text-slate-400 line-clamp-2">{item.summary}</p>
+      )}
+    </a>
+  )
+}
+
+function NewsTab() {
+  const [sub, setSub] = useState('mercati')
+  const [items, setItems] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    setLoading(true)
+    setError(null)
+    setItems([])
+    api.getNews(sub)
+      .then(data => setItems(Array.isArray(data) ? data : []))
+      .catch(err => setError(err.message || 'Errore caricamento notizie'))
+      .finally(() => setLoading(false))
+  }, [sub])
 
   return (
     <>
       <TabBar tabs={NEWS_SUBTABS} active={sub} onSelect={setSub} />
-      {sub === 'azioni' && (
-        <WidgetCard title="News Azioni">
-          <TradingViewWidget scriptSrc={NEWS_SRC} config={stocksConfig} />
-        </WidgetCard>
-      )}
-      {sub === 'forex' && (
-        <WidgetCard title="News Forex">
-          <TradingViewWidget scriptSrc={NEWS_SRC} config={forexConfig} />
-        </WidgetCard>
-      )}
-      {sub === 'crypto' && (
-        <WidgetCard title="News Crypto">
-          <TradingViewWidget scriptSrc={NEWS_SRC} config={cryptoConfig} />
-        </WidgetCard>
-      )}
-      {sub === 'macro' && (
-        <WidgetCard title="News Macro" hint="Feed generale multi-mercato (market:'economy' non supportato dal widget Timeline).">
-          <TradingViewWidget scriptSrc={NEWS_SRC} config={macroConfig} />
-        </WidgetCard>
-      )}
+      <WidgetCard title="News in italiano" hint="Fonti: testate finanziarie italiane (feed RSS pubblici)">
+        <div className="h-full overflow-y-auto space-y-2 pr-1">
+          {loading && (
+            <div className="flex items-center justify-center h-full text-slate-400 text-sm">Caricamento notizie…</div>
+          )}
+          {!loading && error && (
+            <div className="flex items-center justify-center h-full text-red-400 text-sm">{error}</div>
+          )}
+          {!loading && !error && items.length === 0 && (
+            <div className="flex items-center justify-center h-full text-slate-500 text-sm">Nessuna notizia disponibile.</div>
+          )}
+          {!loading && items.map((item, i) => (
+            <NewsCard key={item.link || i} item={item} />
+          ))}
+        </div>
+      </WidgetCard>
     </>
+  )
+}
+
+// ── Tab Calendario (Investing.com) ────────────────────────────────────────────
+
+const CALENDAR_FILTERS = [
+  { label: 'Alta importanza', importance: '2' },
+  { label: 'Media e alta',    importance: '1,2' },
+  { label: 'Tutte',           importance: '-1,0,1,2' },
+]
+
+function CalendarioTab() {
+  const [filterIdx, setFilterIdx] = useState(0)
+
+  const iframeSrc = useMemo(() => {
+    const params = new URLSearchParams({
+      featured: '1',
+      importance: CALENDAR_FILTERS[filterIdx].importance,
+      lang: '24',
+      timezone: '55',
+      timeframe: 'today',
+    })
+    return `${INVESTING_CALENDAR_BASE}?${params.toString()}`
+  }, [filterIdx])
+
+  return (
+    <WidgetCard title="Calendario economico" hint="Fonte: Investing.com — i filtri per paese sono selezionabili direttamente nel widget.">
+      <div className="flex gap-2 mb-3 flex-wrap">
+        {CALENDAR_FILTERS.map((f, i) => (
+          <button
+            key={f.label}
+            onClick={() => setFilterIdx(i)}
+            className={`px-3 py-1 rounded-lg text-xs font-medium border transition
+              ${filterIdx === i
+                ? 'bg-cyan-500 border-cyan-500 text-slate-950'
+                : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-200'
+              }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+      <div style={{ height: 'calc(100% - 2.5rem)' }}>
+        <iframe
+          src={iframeSrc}
+          title="Calendario economico Investing.com"
+          width="100%"
+          height="100%"
+          frameBorder="0"
+          allowTransparency="true"
+          style={{ border: 0 }}
+        />
+      </div>
+    </WidgetCard>
   )
 }
 
@@ -241,7 +304,6 @@ export default function TradingLive() {
 
   const chartConfig    = useMemo(() => ADVANCED_CHART_CONFIG, [])
   const overviewConfig = useMemo(() => MARKET_OVERVIEW_CONFIG, [])
-  const eventsConfig   = useMemo(() => EVENTS_CONFIG, [])
 
   return (
     <div className="relative min-h-screen overflow-hidden text-slate-100" style={{ background: bgColor }}>
@@ -298,11 +360,7 @@ export default function TradingLive() {
 
         {activeTab === 'news' && <NewsTab />}
 
-        {activeTab === 'calendario' && (
-          <WidgetCard title="Calendario economico">
-            <TradingViewWidget scriptSrc={EVENTS_SRC} config={eventsConfig} />
-          </WidgetCard>
-        )}
+        {activeTab === 'calendario' && <CalendarioTab />}
       </div>
       </div>
     </div>

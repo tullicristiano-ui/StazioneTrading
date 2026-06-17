@@ -10,6 +10,7 @@ import sessionsRouter from './routes/sessions.js'
 import messagesRouter from './routes/messages.js'
 import agentRouter from './routes/agent.js'
 import journalRouter from './routes/journal.js'
+import newsRouter from './routes/news.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(__dirname, '..', '..')
@@ -39,6 +40,7 @@ app.use('/api/sessions', sessionsRouter)
 app.use('/api/messages', messagesRouter)
 app.use('/api/agent', agentRouter)
 app.use('/api/journal', journalRouter)
+app.use('/api/news', newsRouter)
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
