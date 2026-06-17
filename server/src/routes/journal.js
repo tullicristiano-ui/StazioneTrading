@@ -1,6 +1,6 @@
 import express from 'express'
 import { v4 as uuidv4 } from 'uuid'
-import { runQuery, allQuery } from '../db/database.js'
+import { runQuery, getQuery, allQuery } from '../db/database.js'
 
 const router = express.Router()
 
@@ -67,6 +67,47 @@ router.post('/', async (req, res, next) => {
     )
 
     res.status(201).json({ id, created_at: createdAt, ...values })
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const entry = await getQuery('SELECT id FROM journal_entries WHERE id = ?', [id])
+    if (!entry) return res.status(404).json({ error: 'Journal entry not found' })
+    await runQuery('DELETE FROM journal_entries WHERE id = ?', [id])
+    res.json({ ok: true, id })
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.patch('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const existing = await getQuery('SELECT * FROM journal_entries WHERE id = ?', [id])
+    if (!existing) return res.status(404).json({ error: 'Journal entry not found' })
+
+    const b = req.body || {}
+    const fields = ['asset', 'timeframe', 'bias', 'setup', 'entry', 'stop_loss', 'take_profit_1', 'take_profit_2', 'risk_reward', 'size', 'esito', 'nota']
+
+    const updated = {}
+    fields.forEach(f => { updated[f] = b[f] ?? existing[f] })
+
+    // Ricostruisce il campo data (JSON blob) unendo i valori esistenti con i nuovi
+    let existingData = {}
+    try { existingData = JSON.parse(existing.data || '{}') } catch {}
+    const newData = JSON.stringify({ ...existingData, ...updated })
+
+    await runQuery(
+      `UPDATE journal_entries SET asset=?, timeframe=?, bias=?, setup=?, entry=?, stop_loss=?, take_profit_1=?, take_profit_2=?, risk_reward=?, size=?, esito=?, nota=?, data=? WHERE id=?`,
+      [updated.asset, updated.timeframe, updated.bias, updated.setup, updated.entry, updated.stop_loss, updated.take_profit_1, updated.take_profit_2, updated.risk_reward, updated.size, updated.esito, updated.nota, newData, id]
+    )
+
+    const row = await getQuery('SELECT * FROM journal_entries WHERE id = ?', [id])
+    res.json(row)
   } catch (err) {
     next(err)
   }

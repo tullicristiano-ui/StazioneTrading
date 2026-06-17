@@ -373,4 +373,18 @@ Prima di ogni commit, verificare:
 
 ---
 
-*Ultima modifica: 2026-06-14 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | MKT Fase 1-2 ✅ | Home+Nav ✅ | 8 migliorie ✅ | 5 migliorie avanzate ✅ | Fix+migliorie notturna: FIX-02 ✅ MOD-01 ✅ MOD-02 ✅ MOD-03 ✅ | Home pannello laterale: HOME-08…14 ✅ | Vision locale: VISION-01…06 ✅ (bug path + warmup + max_tokens + fallback risolti) | Analisi/Sessione: SESS-01…03 ✅ | Velocità+rimozione screenshot: SPEED-01…06 ✅*
+---
+
+## Journal — Modifica e Cancellazione (2026-06-17)
+
+| ID | Task | Priorità | Stato | Note |
+|---|---|---|---|---|
+| JRN-01 | Backend: route `DELETE /api/journal/:id` con 404 se assente | 🟠 P1 | `[x]` | `journal.js`, getQuery + runQuery, risposta `{ok:true,id}` |
+| JRN-02 | Backend: route `PATCH /api/journal/:id` con aggiornamento campi + ricostruzione campo `data` JSON | 🟠 P1 | `[x]` | `journal.js`, 12 campi modificabili, merge JSON esistente con nuovi valori |
+| JRN-03 | API client: `updateJournalEntry` e `deleteJournalEntry` | 🟠 P1 | `[x]` | `client/src/api/client.js` |
+| JRN-04 | UI Journal: pulsanti ✏️ Modifica e 🗑 Elimina su ogni riga | 🟠 P1 | `[x]` | `Journal.jsx`, window.confirm per delete, setEntries aggiornato in-place |
+| JRN-05 | UI Journal: modale `EditJournalModal` con 12 campi (griglia 2 colonne, nota textarea) | 🟠 P1 | `[x]` | `Journal.jsx`, stile coerente con Dashboard.jsx EditModal |
+
+---
+
+*Ultima modifica: 2026-06-17 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | MKT Fase 1-2 ✅ | Home+Nav ✅ | 8 migliorie ✅ | 5 migliorie avanzate ✅ | Fix+migliorie notturna: FIX-02 ✅ MOD-01 ✅ MOD-02 ✅ MOD-03 ✅ | Home pannello laterale: HOME-08…14 ✅ | Vision locale: VISION-01…06 ✅ | Analisi/Sessione: SESS-01…03 ✅ | Velocità+rimozione screenshot: SPEED-01…06 ✅ | Journal modifica/cancella: JRN-01…05 ✅*
