@@ -41,7 +41,7 @@ export default function Sidebar({ open, onClose }) {
         `}
       >
         <div className="mb-4 flex items-center justify-between">
-          <span className="text-cyan-400 font-bold text-lg tracking-tight">Stazione di Trading</span>
+          <span className="text-cyan-400 font-bold text-lg tracking-tight">FREEDOM TRADING SYSTEM</span>
           <button
             onClick={onClose}
             className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition"

@@ -254,7 +254,7 @@ export default function Markets() {
           <CandleIcon />
 
           <h1 className="mt-6 text-6xl font-bold tracking-tight leading-tight pb-2 bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-            Stazione di Trading
+            FREEDOM TRADING SYSTEM
           </h1>
 
           <p className="mt-4 max-w-2xl text-slate-300 text-xl leading-relaxed">

@@ -2,31 +2,34 @@ import express from 'express'
 import Parser from 'rss-parser'
 
 const router = express.Router()
-const parser = new Parser({ timeout: 8000 })
+// User-Agent "da browser": alcune testate rifiutano richieste senza UA.
+const parser = new Parser({
+  timeout: 8000,
+  headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+})
 
 // Cache in memoria: { key: { data, expiresAt } }
 const cache = new Map()
 const CACHE_TTL_MS = 5 * 60 * 1000
 
+// Feed RSS italiani verificati e funzionanti (giugno 2026).
+// Se una testata cambia URL, il feed va aggiornato qui.
 const FEEDS = {
   mercati: [
-    { url: 'https://www.ilsole24ore.com/rss/finanza--e-mercati.xml',         source: 'Il Sole 24 Ore — Mercati' },
-    { url: 'https://www.milanofinanza.it/rss/news',                           source: 'Milano Finanza' },
-    { url: 'https://www.borsaitaliana.it/borsa/notizie/rss.xml',             source: 'Borsa Italiana' },
+    { url: 'https://www.wallstreetitalia.com/feed/',                          source: 'Wall Street Italia' },
+    { url: 'https://it.investing.com/rss/news_25.rss',                        source: 'Investing.com — Mercati' },
+    { url: 'https://www.money.it/spip.php?page=backend',                      source: 'Money.it' },
   ],
   economia: [
-    { url: 'https://www.ilsole24ore.com/rss/economia--e-finanza.xml',        source: 'Il Sole 24 Ore — Economia' },
+    { url: 'https://www.ansa.it/sito/notizie/economia/economia_rss.xml',     source: 'ANSA — Economia' },
     { url: 'https://www.corriere.it/rss/economia.xml',                        source: 'Corriere della Sera — Economia' },
     { url: 'https://www.repubblica.it/rss/economia/rss2.0.xml',              source: 'Repubblica — Economia' },
   ],
 }
 
 async function fetchFeed(feedDef) {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), 8000)
   try {
     const feed = await parser.parseURL(feedDef.url)
-    clearTimeout(timer)
     return (feed.items || []).slice(0, 15).map(item => ({
       title:       item.title?.trim() || '',
       link:        item.link || item.guid || '',
@@ -35,9 +38,8 @@ async function fetchFeed(feedDef) {
       summary:     item.contentSnippet?.trim() || item.content?.replace(/<[^>]+>/g, '').trim().slice(0, 200) || '',
     }))
   } catch {
+    // Feed irraggiungibile o malformato: lo ignoriamo, gli altri continuano.
     return []
-  } finally {
-    clearTimeout(timer)
   }
 }
 
