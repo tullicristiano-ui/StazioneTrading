@@ -22,6 +22,30 @@ Quando si incontra un bug:
 
 *Nessun bug attivo al momento.* Le entry qui sotto sono **già risolte** e conservate come cronologia (non si cancellano mai i bug risolti).
 
+### BUG-003 — News: categoria "Mercati" sempre vuota (feed RSS morti)
+
+**Stato:** ✅ Risolto
+**Priorità:** P1 Importante
+**Data apertura:** 2026-06-18
+**Componente:** `server/src/routes/news.js`
+**Fase progetto:** Fase 3
+
+#### Descrizione
+Aprendo Trading Live → News, la categoria "Mercati" (caricata di default) appariva sempre vuota. Tre dei feed RSS configurati (Il Sole 24 Ore, Milano Finanza, Borsa Italiana) rispondevano HTTP 404: gli URL non esistevano più. La route gestisce i feed morti con un fallback silenzioso (`catch → []`), quindi non andava in 500, ma la lista risultava vuota. Anche la categoria "Economia" aveva un feed morto (Il Sole 24 Ore). L'utente percepiva un "internal server error" perché aveva l'app aperta con il server precedente (privo della route news) ancora in esecuzione.
+
+#### Come riprodurre
+1. Avviare `npm run dev`
+2. Trading Live → tab News → sotto-tab "Mercati"
+3. Atteso: lista di notizie. Ottenuto (prima del fix): "Nessuna notizia disponibile" (lista vuota).
+
+#### Soluzione finale
+Sostituiti i feed RSS morti con fonti italiane verificate una per una (HTTP 200 con notizie reali):
+- **Mercati:** Wall Street Italia, Investing.com Mercati (IT), Money.it.
+- **Economia:** ANSA Economia (nuovo), Corriere, Repubblica (questi due già funzionanti; rimosso Il Sole 24 Ore morto).
+Aggiunto uno `User-Agent` "Mozilla/5.0" al parser RSS (alcune testate rifiutano richieste senza UA) e rimosso un `AbortController` creato ma non utilizzato (il timeout era già gestito dal Parser). Verifica post-fix: `/api/news?category=mercati` → 35 notizie; `economia` → 40 notizie; categoria inesistente → fallback 200 senza crash.
+
+---
+
 ### BUG-002 — Screenshot non visibili in dev (manca proxy /uploads in Vite)
 
 **Stato:** ✅ Risolto
@@ -134,6 +158,6 @@ La causa radice era una validazione non condizionata di `OPENROUTER_API_KEY` den
 *(nessun bug risolto ancora)*
 
 ---
-*Ultima modifica: 2026-06-11 | Bug aperti: **0** | Bug risolti: 2 (BUG-001, BUG-002)*
+*Ultima modifica: 2026-06-18 | Bug aperti: **0** | Bug risolti: 3 (BUG-001, BUG-002, BUG-003)*
 
 > Nota: il fatto che con Gemma (text-only) l'agente non legga gli screenshot **non è un bug** ma una limitazione nota del provider attuale; sarà superata con un modello vision (Sonnet). Vedi `PROJECT_PLAN.md` §3.5.

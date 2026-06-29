@@ -387,4 +387,34 @@ Prima di ogni commit, verificare:
 
 ---
 
-*Ultima modifica: 2026-06-17 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | MKT Fase 1-2 ✅ | Home+Nav ✅ | 8 migliorie ✅ | 5 migliorie avanzate ✅ | Fix+migliorie notturna: FIX-02 ✅ MOD-01 ✅ MOD-02 ✅ MOD-03 ✅ | Home pannello laterale: HOME-08…14 ✅ | Vision locale: VISION-01…06 ✅ | Analisi/Sessione: SESS-01…03 ✅ | Velocità+rimozione screenshot: SPEED-01…06 ✅ | Journal modifica/cancella: JRN-01…05 ✅*
+---
+
+## Home sfondo + Calendario alt. + News RSS (2026-06-18)
+
+| ID | Task | Priorità | Stato | Note |
+|---|---|---|---|---|
+| BG-01 | Copia immagine "Freedom Trading Systems.jpg" in `client/public/freedom-bg.jpg` | 🟠 P1 | `[x]` | Cartella `public/` creata; Vite la serve come `/freedom-bg.jpg` |
+| BG-02 | Home (`Markets.jsx`): sfondo immagine + overlay scuro, AnimatedBackground mantenuto | 🟠 P1 | `[x]` | `backgroundImage` + `bg-slate-950/65` overlay; solo Markets.jsx, nessun'altra pagina toccata |
+| CAL-01 | Calendario economico: sostituisce widget TradingView con iframe Investing.com | 🟠 P1 | `[x]` | `CalendarioTab` in `TradingLive.jsx`; 3 pulsanti filtro importanza (Alta/Media+Alta/Tutte); iframe parametrico |
+| NEWS-01 | Backend: `server/src/routes/news.js` con feed RSS italiani + cache 5 min | 🟠 P1 | `[x]` | 2 categorie (mercati/economia); timeout 8s per feed; fallback non bloccante; `rss-parser` installato |
+| NEWS-02 | Backend: registrazione router `/api/news` in `server/src/index.js` | 🟠 P1 | `[x]` | |
+| NEWS-03 | API client: `getNews(category)` in `client/src/api/client.js` | 🟠 P1 | `[x]` | |
+| NEWS-04 | Frontend: `NewsTab` riscritta con lista RSS, card con titolo/fonte/data, tab Mercati/Economia | 🟠 P1 | `[x]` | Sostituisce widget TradingView Timeline; stati loading/error/empty gestiti |
+
+---
+
+---
+
+## ASK — Revisione + rebranding + fix News (2026-06-18)
+
+| ID | Task | Priorità | Stato | Note |
+|---|---|---|---|---|
+| TITLE-01 | Rinominare brand "Stazione di Trading" → "FREEDOM TRADING SYSTEM" | 🟠 P1 | `[x]` | `Sidebar.jsx`, `Markets.jsx` (hero), `index.html` (`<title>`, rimossa dicitura "Aware Trading") |
+| NEWS-FIX | Fix BUG-003: categoria "Mercati" vuota per feed RSS morti (404) | 🟠 P1 | `[x]` | `news.js`: sostituiti 4 feed morti con fonti IT testate (Wall Street Italia, Investing.com IT, Money.it, ANSA); +User-Agent; rimosso AbortController inutilizzato |
+| REV-01 | Revisione lavoro esecutore (sfondo Home, calendario, news) | 🟠 P1 | `[x]` | Verificati OK; build client verde; API news 200 (mercati 35, economia 40) |
+
+> ⚠️ In coda (su decisione utente): correzione `HF_MODEL=google/gemma-4-31B-it` inesistente nel `.env.local`; rimozione DB orfano `server/server/data/aware_trading.db`; Journal edit/delete già fatto.
+
+---
+
+*Ultima modifica: 2026-06-18 | Fase 1: ✅ | Fase 2: ✅ | Fase 3: ✅ | Dashboard: DASH-01…07 ✅ | MKT Fase 1-2 ✅ | Home+Nav ✅ | 8 migliorie ✅ | 5 migliorie avanzate ✅ | Fix+migliorie notturna: FIX-02 ✅ MOD-01 ✅ MOD-02 ✅ MOD-03 ✅ | Home pannello laterale: HOME-08…14 ✅ | Vision locale: VISION-01…06 ✅ | Analisi/Sessione: SESS-01…03 ✅ | Velocità+rimozione screenshot: SPEED-01…06 ✅ | Journal modifica/cancella: JRN-01…05 ✅ | Sfondo Home + Calendario + News RSS: BG-01…02 CAL-01 NEWS-01…04 ✅ | ASK revisione+rebranding+fix News: TITLE-01 NEWS-FIX REV-01 ✅*
