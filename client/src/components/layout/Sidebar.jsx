@@ -3,7 +3,6 @@ import { useTheme } from '../../context/ThemeContext.jsx'
 
 const NAV_ITEMS = [
   { label: 'Home',           icon: '🏠', path: '/' },
-  { label: 'Trading Live',   icon: '📈', path: '/trading-live' },
   { label: 'Nuova Analisi',  icon: '➕', path: '/analisi?new=1' },
   { label: 'Le mie Analisi', icon: '📂', path: '/analisi' },
   { label: 'Journal',        icon: '📓', path: '/journal' },

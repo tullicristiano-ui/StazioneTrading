@@ -75,7 +75,4 @@ export const api = {
   updateJournalEntry: (id, data) => request(`/journal/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
   deleteJournalEntry: (id) => request(`/journal/${id}`, { method: 'DELETE' }),
   exportJournalCSV: () => `${API_BASE}/journal/export.csv`,
-
-  // News RSS
-  getNews: (category) => request(`/news${category ? `?category=${category}` : ''}`),
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client.js'
 import Sidebar from '../components/layout/Sidebar.jsx'
@@ -58,7 +58,7 @@ function MiniCalendar() {
 
 const AD_BENEFITS = [
   { icon: '🤖', title: 'Analisi con l\'AI',        desc: 'L\'intelligenza artificiale legge i tuoi grafici e ti aiuta a capire la price action.' },
-  { icon: '📊', title: 'Mercati in tempo reale',   desc: 'Grafici, heatmap, news e calendario economico, sempre aggiornati.' },
+  { icon: '📅', title: 'Calendario sempre a portata', desc: 'Il calendario del mese sulla home, per organizzare le tue giornate di analisi.' },
   { icon: '📓', title: 'Journal dei trade',        desc: 'Registra ogni operazione e scarica tutto in CSV quando vuoi.' },
   { icon: '🧠', title: 'Memoria delle sessioni',   desc: 'L\'app ricorda asset, livelli e struttura di ogni tua analisi.' },
   { icon: '🔒', title: '100% sul tuo computer',     desc: 'Nessun dato esce dal tuo PC. Privacy totale, nessun account.' },
@@ -98,54 +98,6 @@ function AdShowcase() {
 }
 
 // ── Home page ─────────────────────────────────────────────────────────────────
-
-const ASSETS = [
-  { symbol: 'BINANCE:BTCUSDT',  label: 'BTC' },
-  { symbol: 'FX:EURUSD',        label: 'EUR/USD' },
-  { symbol: 'OANDA:XAUUSD',     label: 'XAU/USD' },
-  { symbol: 'OANDA:XAGUSD',     label: 'XAG/USD' },
-  { symbol: 'NASDAQ:NDX',       label: 'NASDAQ' },
-  { symbol: 'OANDA:NAS100USD',  label: 'US100' },
-  { symbol: 'OANDA:WTICOUSD',   label: 'USOIL' },
-  { symbol: 'COINBASE:ETHUSD',  label: 'ETH/USD' },
-  { symbol: 'TVC:DXY',          label: 'DXY' },
-]
-
-function AssetWidget({ symbol, label }) {
-  const containerRef = useRef(null)
-  useEffect(() => {
-    if (!containerRef.current) return
-    containerRef.current.innerHTML = ''
-    const wrapper = document.createElement('div')
-    wrapper.className = 'tradingview-widget-container'
-    const widgetDiv = document.createElement('div')
-    widgetDiv.className = 'tradingview-widget-container__widget'
-    const script = document.createElement('script')
-    script.type = 'text/javascript'
-    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js'
-    script.async = true
-    script.innerHTML = JSON.stringify({
-      symbol,
-      width: '100%',
-      height: 130,
-      locale: 'it',
-      dateRange: '1D',
-      colorTheme: 'dark',
-      isTransparent: true,
-      autosize: false,
-      largeChartUrl: ''
-    })
-    wrapper.appendChild(widgetDiv)
-    wrapper.appendChild(script)
-    containerRef.current.appendChild(wrapper)
-  }, [symbol])
-  return (
-    <div className="rounded-2xl border border-emerald-900/50 bg-emerald-950/10 overflow-hidden">
-      <div className="px-3 pt-2 pb-1 text-xs font-semibold text-slate-400">{label}</div>
-      <div ref={containerRef} />
-    </div>
-  )
-}
 
 function isMarketOpen(openHourUTC, closeHourUTC, openMinUTC, closeMinUTC) {
   const now = new Date()
@@ -281,12 +233,6 @@ export default function Markets() {
             >
               📓 Journal
             </button>
-            <button
-              onClick={() => navigate('/trading-live')}
-              className="rounded-xl border border-teal-700 px-6 py-3 font-semibold text-teal-300 transition hover:bg-teal-950"
-            >
-              📈 Trading Live
-            </button>
           </div>
 
           <AdShowcase />
@@ -294,16 +240,6 @@ export default function Markets() {
           <ActiveSessionBanner session={activeSession} onOpen={() => navigate(`/workspace/${activeSession?.id}`)} />
 
           <MiniCalendar />
-
-          {/* Panoramica asset */}
-          <div className="mt-10 w-full max-w-4xl">
-            <h2 className="text-center text-sm font-semibold text-slate-400 uppercase tracking-widest mb-4">
-              Panoramica Asset
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {ASSETS.map(a => <AssetWidget key={a.symbol} symbol={a.symbol} label={a.label} />)}
-            </div>
-          </div>
 
         </main>
       </div>
