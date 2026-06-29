@@ -27,8 +27,28 @@ function parseSessionMemory(text) {
 
 const now = () => new Date().toISOString()
 
+// I due analisti dell'app. La scelta è casuale ma STABILE per sessione:
+// derivata dall'id della sessione, così riaprendo la stessa chat il nome
+// non cambia. Il carattere di ognuno è descritto nel kit (10_PERSONAGGI.md).
+const PERSONE = ['Cristian', 'Riccardo']
+
+function scegliPersona(sessionId) {
+  const id = String(sessionId || '')
+  let somma = 0
+  for (let i = 0; i < id.length; i++) somma += id.charCodeAt(i)
+  return PERSONE[somma % PERSONE.length]
+}
+
 export async function runAnalysis({ sessionId, content, screenshots = [], analysisMode = 'standard', journalMode = false }) {
   let systemPrompt = await loadSkillPrompt()
+
+  // Identità attiva per questa sessione (vedi kit/10_PERSONAGGI.md).
+  // In modalità journal non serve: l'output è solo una riga CSV.
+  if (!journalMode) {
+    const persona = scegliPersona(sessionId)
+    const altro = PERSONE.find((p) => p !== persona)
+    systemPrompt += `\n\n--- IDENTITÀ ATTIVA PER QUESTA SESSIONE ---\nIn questa conversazione il tuo nome è ${persona}. Presentati con questo nome e mantienilo per tutta la sessione, senza mai cambiarlo. Interpreta il carattere di ${persona} descritto in "10_PERSONAGGI.md". Se il trader chiede di parlare con ${altro}, NON cambiare identità: resti ${persona} e rispondi con una battuta simpatica (vedi la "Regola del collega occupato" nel file 10), spiegando che ${altro} è momentaneamente impegnato e che a lui ci pensi tu, poi prosegui normalmente con l'analisi.`
+  }
 
   if (analysisMode === 'trade_open') {
     systemPrompt += '\n\nModalità "trade aperto": rispondi mantenendo il focus su un trade già aperto, enfatizzando livelli chiave, gestione del rischio, aree di supporto/resistenza e aggiornamenti operativi. Usa il formato e il linguaggio del kit Aware Trader senza generare segnali di trading.'

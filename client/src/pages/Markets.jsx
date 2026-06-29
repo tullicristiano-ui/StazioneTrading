@@ -219,7 +219,7 @@ export default function Markets() {
               onClick={() => navigate('/analisi?new=1')}
               className="rounded-xl bg-emerald-500 px-6 py-3 font-semibold text-black transition hover:bg-emerald-400"
             >
-              ➕ Nuova Analisi
+              ➕ Inizia la tua sessione con Cristian e Riccardo
             </button>
             <button
               onClick={() => navigate('/analisi')}
